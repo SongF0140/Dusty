@@ -8,7 +8,7 @@ export const profileConfig: ProfileConfig = {
 	name: "ENKIDU",
 
 	// 个人签名
-	bio: "Chains of Heaven · The weapon forged by gods, yet possessed a heart.",
+	bio: "深度学习 & 计算机底层原理 | 用代码理解世界",
 
 	// 链接配置
 	links: [
@@ -22,6 +22,12 @@ export const profileConfig: ProfileConfig = {
 			name: "Email",
 			icon: "fa7-solid:envelope",
 			url: "mailto:xiaye@msn.com",
+			showName: false,
+		},
+		{
+			name: "QQ",
+			icon: "fa7-brands:qq",
+			url: "https://wpa.qq.com/msgrd?v=3&uin=1395543336&site=qq&menu=yes",
 			showName: false,
 		},
 	],
