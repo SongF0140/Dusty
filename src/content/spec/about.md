@@ -14,9 +14,9 @@
 
 ## 🔧 我的项目
 
-### [Chat Party Refactoring](https://gitee.com/shuimulan-pavilion/chat-party_refactoring.git)
+### [AutoGen ChatParty](https://gitcode.com/2401_88020079/autoGen_chatparty.git)
 
-一个聊天派对应用的重构项目，重点关注多人实时交互、前后端结构拆分与工程可维护性。它更像是一次从"能跑"到"好维护"的系统整理：梳理模块边界、优化交互逻辑，让项目结构更适合继续扩展。
+一个围绕 AI Agent 与多人聊天场景展开的聊天室项目，尝试把自动化对话、角色协作和实时交互融合在一起。它不只是普通聊天室，更像是一个可以让智能体参与讨论、辅助表达和组织信息的实验场。
 
 ### [Auto Memories Doll](https://gitcode.com/2401_88020079/Auto-Memories-Doll.git)
 

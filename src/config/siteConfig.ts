@@ -74,8 +74,9 @@ export const siteConfig: SiteConfig = {
 		// 4. 网络图片: { type: "url", value: "https://example.com/logo.png", alt: "Logo" }
 		logo: {
 			type: "url",
-			value: "https://github.com/SongF0140.png",
-			alt: "SongF0140",
+			value:
+				"data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20128%20128'%3E%3Cdefs%3E%3ClinearGradient%20id='shield'%20x1='24'%20y1='10'%20x2='104'%20y2='118'%20gradientUnits='userSpaceOnUse'%3E%3Cstop%20stop-color='%23f4f7f4'/%3E%3Cstop%20offset='.38'%20stop-color='%23aeb8b3'/%3E%3Cstop%20offset='1'%20stop-color='%233a4f46'/%3E%3C/linearGradient%3E%3ClinearGradient%20id='green'%20x1='36'%20y1='20'%20x2='92'%20y2='108'%20gradientUnits='userSpaceOnUse'%3E%3Cstop%20stop-color='%232de38a'/%3E%3Cstop%20offset='1'%20stop-color='%2300533a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d='M64%206 106%2022v34c0%2032-18%2054-42%2066-24-12-42-34-42-66V22L64%206Z'%20fill='url(%23shield)'/%3E%3Cpath%20d='M64%2015%2097%2028v29c0%2026-13%2044-33%2055-20-11-33-29-33-55V28l33-13Z'%20fill='url(%23green)'/%3E%3Cpath%20d='M42%2045c12-15%2044-13%2044%204%200%207-6%2010-14%2012%2013%205%2020%2014%2016%2026-5%2017-33%2020-48%208%206%202%2019%203%2026-3%205-4%205-10-3-14-9-5-24-4-30-15-8-15%2010-28%2031-25-7-5-21-3-31%204Z'%20fill='%23e8eee9'/%3E%3Cpath%20d='M83%2047c-4-5-14-7-24-4%2010%200%2017%203%2021%208l3-4Z'%20fill='%23142520'/%3E%3Ccircle%20cx='79'%20cy='49'%20r='2.2'%20fill='%23142520'/%3E%3C/svg%3E",
+			alt: "Green Serpent Badge",
 		},
 		// 导航栏标题
 		title: "ENKIDU",
