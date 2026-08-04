@@ -74,8 +74,8 @@ export const siteConfig: SiteConfig = {
 		// 4. 网络图片: { type: "url", value: "https://example.com/logo.png", alt: "Logo" }
 		logo: {
 			type: "url",
-			value: "https://aka.doubaocdn.com/s/j6BQ1weOqB",
-			alt: "Silver Wolf",
+			value: "https://github.com/SongF0140.png",
+			alt: "SongF0140",
 		},
 		// 导航栏标题
 		title: "ENKIDU",

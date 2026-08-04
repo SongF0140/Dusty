@@ -72,14 +72,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		// 子菜单
 		children: [
 			{
-				name: "GitHub",
-				url: "https://github.com/SongF0140/Firefly",
+				name: "我的 GitHub",
+				url: "https://github.com/SongF0140",
 				external: true,
 				icon: "fa7-brands:github",
 			},
 			{
-				name: "QQ交流群",
-				url: "https://qm.qq.com/q/ZGsFa8qX2G",
+				name: "QQ 交流",
+				url: "https://wpa.qq.com/msgrd?v=3&uin=1395543336&site=qq&menu=yes",
 				external: true,
 				icon: "fa7-brands:qq",
 			},
