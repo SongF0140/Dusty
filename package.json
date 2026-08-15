@@ -3,9 +3,13 @@
   "type": "module",
   "version": "6.12.3",
   "scripts": {
+    "predev": "node scripts/sync-content-repo.mjs",
     "dev": "astro dev",
+    "prestart": "node scripts/sync-content-repo.mjs",
     "start": "astro dev",
+    "precheck": "node scripts/sync-content-repo.mjs",
     "check": "astro check",
+    "prebuild": "node scripts/sync-content-repo.mjs",
     "build": "node scripts/generate-icons.js && npx tsx scripts/generate-lqips.ts && astro build && npx tsx scripts/subset-fonts.ts && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
