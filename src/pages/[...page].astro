@@ -27,37 +27,37 @@ const categoryMeta: Record<
 	{ icon: string; description: string; tone: string; accent: string }
 > = {
 	物联网: {
-		icon: "material-symbols:memory-alt-rounded",
+		icon: "material-symbols:computer-outline",
 		description: "ESP32-S3、外设驱动、通信协议与 FreeRTOS 实战笔记。",
 		tone: "green",
 		accent: "#87b99a",
 	},
 	数据结构: {
-		icon: "material-symbols:account-tree-rounded",
+		icon: "material-symbols:folder-open-rounded",
 		description: "链表、栈、队列、树与图搜索，把基础结构拆到可实现。",
 		tone: "blue",
 		accent: "#86a8c7",
 	},
 	深度学习: {
-		icon: "material-symbols:network-intelligence-rounded",
+		icon: "material-symbols:article-outline",
 		description: "全连接网络、卷积网络与模型结构学习记录。",
 		tone: "yellow",
 		accent: "#d8bd75",
 	},
 	计算机组成原理: {
-		icon: "material-symbols:developer-board-rounded",
+		icon: "material-symbols:computer-outline",
 		description: "从晶体管到 CPU 执行流程，整理计算机底层运行逻辑。",
 		tone: "green",
 		accent: "#8eb8ad",
 	},
 	Linux编程: {
-		icon: "material-symbols:terminal-rounded",
+		icon: "material-symbols:build-outline",
 		description: "进程、多进程编程与操作系统接口相关实践。",
 		tone: "blue",
 		accent: "#8c9fc0",
 	},
 	算法题解: {
-		icon: "material-symbols:functions-rounded",
+		icon: "material-symbols:tag-rounded",
 		description: "洛谷题解与算法思路复盘，关注可解释的解法路径。",
 		tone: "yellow",
 		accent: "#d1b86c",
@@ -110,7 +110,7 @@ const getMeta = (name: string, index: number) =>
                 <p>{meta.description}</p>
                 <div class="section-action">
                   <span>进入领域</span>
-                  <Icon is:inline name="material-symbols:arrow-forward-rounded" />
+                  <Icon is:inline name="material-symbols:chevron-right-rounded" />
                 </div>
               </a>
             );
