@@ -203,57 +203,48 @@ html {
     
     html {
         background:
-            radial-gradient(circle at 16% 8%, rgba(255, 252, 238, 0.95), transparent 28%),
-            radial-gradient(circle at 84% 14%, rgba(184, 135, 73, 0.16), transparent 32%),
-            linear-gradient(135deg, #f3ead6 0%, #e6d6b8 52%, #efe2c8 100%) !important;
+            radial-gradient(circle at 18% 8%, rgba(92, 74, 50, 0.42), transparent 30%),
+            linear-gradient(135deg, #463522 0%, #392a19 48%, #2f2316 100%) !important;
     }
     :root.dark html {
         background:
-            radial-gradient(circle at 14% 8%, rgba(92, 68, 41, 0.36), transparent 30%),
-            radial-gradient(circle at 86% 16%, rgba(141, 103, 57, 0.22), transparent 34%),
-            linear-gradient(135deg, #21180f 0%, #2b2115 54%, #1d150d 100%) !important;
+            radial-gradient(circle at 18% 8%, rgba(92, 74, 50, 0.42), transparent 30%),
+            linear-gradient(135deg, #463522 0%, #392a19 48%, #2f2316 100%) !important;
     }
     body {
-        background:
-            linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(95, 68, 39, 0.018) 1px, transparent 1px);
-        background-size: 22px 22px;
+        background: transparent;
     }
     .card-base {
         @apply rounded-(--radius-large) overflow-hidden transition-colors duration-150;
-        border: 1px solid rgba(112, 86, 53, 0.16);
+        border: 1px solid rgba(236, 221, 190, 0.42);
         background:
-            linear-gradient(145deg, rgba(255, 253, 246, 0.78), rgba(230, 211, 175, 0.42)),
-            var(--card-bg);
+            linear-gradient(145deg, rgba(255, 250, 238, 0.78), rgba(232, 219, 192, 0.55)),
+            var(--card-bg-transparent);
         box-shadow:
-            0 18px 44px rgba(80, 58, 34, 0.13),
-            inset 0 1px 0 rgba(255, 255, 255, 0.66),
-            inset 0 -1px 0 rgba(91, 66, 39, 0.06);
-        backdrop-filter: blur(16px) saturate(1.06);
-        -webkit-backdrop-filter: blur(16px) saturate(1.06);
+            0 20px 50px rgba(14, 9, 4, 0.24),
+            inset 0 1px 0 rgba(255, 255, 255, 0.62),
+            inset 0 -1px 0 rgba(70, 53, 34, 0.08);
+        backdrop-filter: blur(18px) saturate(1.18);
+        -webkit-backdrop-filter: blur(18px) saturate(1.18);
     }
     .card-base-transparent {
         @apply rounded-(--radius-large) overflow-hidden transition-colors duration-150;
-        border: 1px solid rgba(112, 86, 53, 0.14);
+        border: 1px solid rgba(236, 221, 190, 0.38);
         background:
-            linear-gradient(145deg, rgba(255, 253, 246, 0.68), rgba(230, 211, 175, 0.34)),
+            linear-gradient(145deg, rgba(255, 250, 238, 0.68), rgba(232, 219, 192, 0.45)),
             var(--card-bg-transparent);
         box-shadow:
-            0 16px 38px rgba(80, 58, 34, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.56);
-        backdrop-filter: blur(18px) saturate(1.04);
-        -webkit-backdrop-filter: blur(18px) saturate(1.04);
+            0 18px 42px rgba(14, 9, 4, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(18px) saturate(1.18);
+        -webkit-backdrop-filter: blur(18px) saturate(1.18);
     }
     :root.dark .card-base,
     :root.dark .card-base-transparent {
-        border-color: rgba(214, 184, 135, 0.12);
+        border-color: rgba(236, 221, 190, 0.22);
         background:
-            linear-gradient(145deg, rgba(71, 51, 30, 0.82), rgba(40, 29, 17, 0.74)),
-            var(--card-bg);
-        box-shadow:
-            0 18px 44px rgba(0, 0, 0, 0.22),
-            inset 0 1px 0 rgba(255, 241, 210, 0.08),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+            linear-gradient(145deg, rgba(255, 250, 238, 0.16), rgba(232, 219, 192, 0.08)),
+            rgba(244, 234, 214, 0.1);
     }
 
     /* LQIP 占位渐变 */
@@ -329,16 +320,7 @@ html {
         @apply transition-colors duration-150 rounded-md p-1.5 -m-1.5 expand-animation;
     }
     .float-panel {
-        @apply top-21 rounded-(--radius-large) overflow-hidden transition-colors duration-150 shadow-xl;
-        border: 1px solid rgba(112, 86, 53, 0.16);
-        background:
-            linear-gradient(145deg, rgba(255, 253, 246, 0.78), rgba(230, 211, 175, 0.42)),
-            var(--card-bg);
-        box-shadow:
-            0 18px 44px rgba(80, 58, 34, 0.14),
-            inset 0 1px 0 rgba(255, 255, 255, 0.62);
-        backdrop-filter: blur(18px) saturate(1.06);
-        -webkit-backdrop-filter: blur(18px) saturate(1.06);
+        @apply top-21 rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150 shadow-xl border border-black/5 dark:border-white/10
     }
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none
