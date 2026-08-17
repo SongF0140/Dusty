@@ -30,37 +30,37 @@ const categoryMeta: Record<
 		icon: "material-symbols:computer-outline",
 		description: "ESP32-S3、外设驱动、通信协议与 FreeRTOS 实战笔记。",
 		tone: "green",
-		accent: "#87b99a",
+		accent: "#9aa78b",
 	},
 	数据结构: {
 		icon: "material-symbols:folder-open-rounded",
 		description: "链表、栈、队列、树与图搜索，把基础结构拆到可实现。",
 		tone: "blue",
-		accent: "#86a8c7",
+		accent: "#a29b84",
 	},
 	深度学习: {
 		icon: "material-symbols:article-outline",
 		description: "全连接网络、卷积网络与模型结构学习记录。",
 		tone: "yellow",
-		accent: "#d8bd75",
+		accent: "#c3ae7f",
 	},
 	计算机组成原理: {
 		icon: "material-symbols:computer-outline",
 		description: "从晶体管到 CPU 执行流程，整理计算机底层运行逻辑。",
 		tone: "green",
-		accent: "#8eb8ad",
+		accent: "#8f9e90",
 	},
 	Linux编程: {
 		icon: "material-symbols:build-outline",
 		description: "进程、多进程编程与操作系统接口相关实践。",
 		tone: "blue",
-		accent: "#8c9fc0",
+		accent: "#9b9078",
 	},
 	算法题解: {
 		icon: "material-symbols:tag-rounded",
 		description: "洛谷题解与算法思路复盘，关注可解释的解法路径。",
 		tone: "yellow",
-		accent: "#d1b86c",
+		accent: "#c7b27b",
 	},
 };
 
@@ -70,7 +70,7 @@ const getMeta = (name: string, index: number) =>
 		icon: "material-symbols:folder-open-rounded",
 		description: "持续整理中的学习笔记与项目记录。",
 		tone: fallbackTones[index % fallbackTones.length],
-		accent: ["#87b99a", "#86a8c7", "#d8bd75"][index % 3],
+		accent: ["#9aa78b", "#a29b84", "#c3ae7f"][index % 3],
 	};
 ---
 
@@ -138,59 +138,69 @@ const getMeta = (name: string, index: number) =>
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 1rem;
+    padding: clamp(0.65rem, 2vw, 1rem);
+    border: 1px solid rgba(98, 78, 52, 0.18);
+    border-radius: 1.25rem;
+    background:
+      radial-gradient(circle at 18% 8%, rgba(255, 252, 238, 0.92), transparent 28%),
+      radial-gradient(circle at 88% 18%, rgba(191, 146, 83, 0.16), transparent 30%),
+      linear-gradient(135deg, rgba(247, 238, 214, 0.96), rgba(226, 210, 176, 0.9));
+    box-shadow:
+      0 26px 70px rgba(80, 58, 34, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
   }
 
   .glass-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid color-mix(in oklab, var(--accent, #87b99a) 54%, transparent);
+    border: 1px solid color-mix(in oklab, var(--accent, #9aa78b) 44%, #8a6f4d 18%);
     background:
-      linear-gradient(135deg, color-mix(in oklab, var(--accent, #87b99a) 20%, transparent), transparent 42%),
-      color-mix(in oklab, var(--card-bg) 78%, transparent);
+      linear-gradient(135deg, rgba(255, 253, 246, 0.76), rgba(236, 223, 194, 0.44)),
+      color-mix(in oklab, var(--accent, #9aa78b) 11%, rgba(250, 244, 229, 0.78));
     box-shadow:
-      0 18px 44px rgba(22, 34, 38, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(18px) saturate(1.25);
-    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+      0 16px 38px rgba(81, 59, 35, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.66),
+      inset 0 -1px 0 rgba(93, 67, 39, 0.06);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
   }
 
   .home-category-hero {
-    --accent: #8eb8ad;
-    padding: clamp(1.4rem, 3vw, 2.3rem);
-    border-radius: 1.4rem;
+    --accent: #9aa78b;
+    padding: clamp(1.45rem, 3vw, 2.45rem);
+    border-radius: 1rem;
   }
 
   .home-category-hero::before,
   .home-category-hero::after {
     content: "";
     position: absolute;
-    width: 12rem;
-    height: 12rem;
-    border-radius: 999px;
-    filter: blur(48px);
-    opacity: 0.32;
     pointer-events: none;
   }
 
   .home-category-hero::before {
-    top: -5rem;
-    right: 6%;
-    background: #86a8c7;
+    inset: 0.85rem;
+    border: 1px solid rgba(111, 83, 48, 0.14);
+    border-radius: 0.72rem;
   }
 
   .home-category-hero::after {
-    bottom: -6rem;
-    left: 7%;
-    background: #d8bd75;
+    width: 14rem;
+    height: 14rem;
+    right: -4rem;
+    top: -5rem;
+    border-radius: 999px;
+    background: rgba(122, 88, 49, 0.1);
+    filter: blur(34px);
   }
 
   .eyebrow {
     position: relative;
     z-index: 1;
-    color: var(--primary);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    color: #8b6a3f;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     margin-bottom: 0.5rem;
   }
@@ -198,10 +208,12 @@ const getMeta = (name: string, index: number) =>
   .home-category-hero h1 {
     position: relative;
     z-index: 1;
-    color: var(--text-90);
-    font-size: clamp(1.7rem, 4vw, 2.45rem);
-    line-height: 1.14;
+    color: #2f2419;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.85rem, 4vw, 2.75rem);
+    line-height: 1.08;
     font-weight: 800;
+    letter-spacing: -0.04em;
     margin: 0;
   }
 
@@ -209,8 +221,8 @@ const getMeta = (name: string, index: number) =>
     position: relative;
     z-index: 1;
     max-width: 42rem;
-    color: var(--text-50);
-    line-height: 1.8;
+    color: #6f5b40;
+    line-height: 1.85;
     margin: 0.9rem 0 0;
   }
 
@@ -224,11 +236,12 @@ const getMeta = (name: string, index: number) =>
   }
 
   .hero-stats span {
-    border: 1px solid rgba(130, 160, 150, 0.28);
+    border: 1px solid rgba(117, 91, 58, 0.2);
     border-radius: 999px;
     padding: 0.42rem 0.8rem;
-    color: var(--text-70);
-    background: rgba(255, 255, 255, 0.1);
+    color: #735a3a;
+    background: rgba(255, 251, 238, 0.48);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
     font-size: 0.86rem;
   }
 
@@ -240,35 +253,36 @@ const getMeta = (name: string, index: number) =>
 
   .category-section-card {
     min-height: 14rem;
-    border-radius: 1.2rem;
-    padding: 1.25rem;
-    color: var(--text-90);
+    border-radius: 1rem;
+    padding: 1.2rem;
+    color: #463626;
     text-decoration: none;
     transform: translateY(0);
     transition:
       transform 220ms ease,
       border-color 220ms ease,
-      box-shadow 220ms ease;
+      box-shadow 220ms ease,
+      background 220ms ease;
   }
 
   .category-section-card:hover {
     transform: translateY(-4px);
-    border-color: color-mix(in oklab, var(--accent) 78%, transparent);
+    border-color: color-mix(in oklab, var(--accent) 72%, #8a6f4d);
     box-shadow:
-      0 24px 58px rgba(22, 34, 38, 0.18),
-      0 0 0 1px color-mix(in oklab, var(--accent) 20%, transparent);
+      0 24px 58px rgba(73, 54, 31, 0.16),
+      0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent);
   }
 
   .tone-green {
-    --accent: #87b99a;
+    --accent: #9aa78b;
   }
 
   .tone-blue {
-    --accent: #86a8c7;
+    --accent: #a29b84;
   }
 
   .tone-yellow {
-    --accent: #d8bd75;
+    --accent: #c3ae7f;
   }
 
   .card-glow {
@@ -298,19 +312,23 @@ const getMeta = (name: string, index: number) =>
     height: 3rem;
     align-items: center;
     justify-content: center;
-    border: 1px solid color-mix(in oklab, var(--accent) 46%, transparent);
-    border-radius: 1rem;
-    color: color-mix(in oklab, var(--accent) 84%, var(--text-90));
-    background: color-mix(in oklab, var(--accent) 16%, transparent);
-    font-size: 1.65rem;
+    border: 1px solid color-mix(in oklab, var(--accent) 42%, #7a5b36 20%);
+    border-radius: 0.85rem;
+    color: color-mix(in oklab, var(--accent) 58%, #4a3421);
+    background:
+      linear-gradient(145deg, rgba(255, 251, 238, 0.82), rgba(205, 183, 141, 0.28));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 7px 16px rgba(73, 54, 31, 0.1);
+    font-size: 1.55rem;
   }
 
   .section-count {
-    border: 1px solid color-mix(in oklab, var(--accent) 34%, transparent);
+    border: 1px solid rgba(117, 91, 58, 0.18);
     border-radius: 999px;
     padding: 0.32rem 0.66rem;
-    color: var(--text-50);
-    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: #765f43;
+    background: rgba(255, 251, 238, 0.46);
     font-size: 0.78rem;
     white-space: nowrap;
   }
@@ -319,17 +337,20 @@ const getMeta = (name: string, index: number) =>
     position: relative;
     z-index: 1;
     margin: 1.15rem 0 0;
-    font-size: 1.28rem;
-    line-height: 1.25;
+    color: #342719;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    line-height: 1.18;
     font-weight: 800;
+    letter-spacing: -0.025em;
   }
 
   .category-section-card p {
     position: relative;
     z-index: 1;
     min-height: 4.2rem;
-    color: var(--text-50);
-    line-height: 1.7;
+    color: #735f43;
+    line-height: 1.72;
     margin: 0.65rem 0 1rem;
     font-size: 0.92rem;
   }
@@ -340,8 +361,8 @@ const getMeta = (name: string, index: number) =>
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: color-mix(in oklab, var(--accent) 72%, var(--text-90));
-    font-weight: 700;
+    color: color-mix(in oklab, var(--accent) 54%, #5b3f24);
+    font-weight: 800;
     font-size: 0.9rem;
   }
 

@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,13 +7,21 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourceRepo = "https://gitcode.com/2401_88020079/gitcode_knowledge.git";
 const sourceBranch = "main";
 const sourceDir = path.join(root, ".content-source");
-const sourcePosts = path.join(sourceDir, "嵌入式笔记");
-const targetPosts = path.join(root, "src", "content", "posts", "embedded", "esp32-s3");
+const syncTargets = [
+	{
+		source: "嵌入式笔记",
+		target: path.join(root, "src", "content", "posts", "embedded", "esp32-s3"),
+	},
+	{
+		source: "QT学习笔记",
+		target: path.join(root, "src", "content", "posts", "qt"),
+	},
+];
 
 if (existsSync(path.join(sourceDir, ".git"))) {
 	execFileSync("git", ["-C", sourceDir, "fetch", "--depth", "1", "origin", sourceBranch], {
-			stdio: "inherit",
-		});
+		stdio: "inherit",
+	});
 	execFileSync("git", ["-C", sourceDir, "reset", "--hard", `origin/${sourceBranch}`], {
 		stdio: "inherit",
 	});
@@ -24,12 +32,15 @@ if (existsSync(path.join(sourceDir, ".git"))) {
 	});
 }
 
-if (!existsSync(sourcePosts)) {
-	throw new Error(`文章仓库中不存在目录: ${sourcePosts}`);
+for (const item of syncTargets) {
+	const sourcePosts = path.join(sourceDir, item.source);
+	if (!existsSync(sourcePosts)) {
+		throw new Error(`文章仓库中不存在目录: ${sourcePosts}`);
+	}
+
+	rmSync(item.target, { recursive: true, force: true });
+	mkdirSync(path.dirname(item.target), { recursive: true });
+	symlinkSync(sourcePosts, item.target, "junction");
+
+	console.log(`已链接文章目录: ${sourceRepo}/tree/${sourceBranch}/${item.source} -> ${item.target}`);
 }
-
-rmSync(targetPosts, { recursive: true, force: true });
-mkdirSync(targetPosts, { recursive: true });
-cpSync(sourcePosts, targetPosts, { recursive: true });
-
-console.log(`已同步文章: ${sourceRepo}/tree/${sourceBranch}/嵌入式笔记`);
