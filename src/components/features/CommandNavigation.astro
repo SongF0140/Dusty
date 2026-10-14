@@ -1,0 +1,182 @@
+---
+import { Icon } from "astro-icon/components";
+import { siteConfig } from "@/config";
+import { navigationCommands } from "@/utils/command-navigation";
+import { url } from "@/utils/url-utils";
+
+const commands = navigationCommands
+	.filter((item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false)
+	.map((item) => ({ ...item, path: item.path ? url(item.path) : "" }));
+---
+
+<button id="command-navigation-backdrop" class="command-navigation-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
+<aside id="command-navigation" class="command-navigation" aria-label="Command navigation" inert data-commands={JSON.stringify(commands)}>
+	<header class="terminal-titlebar">
+		<div class="terminal-window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+		<span>NAVIGATION</span>
+		<button type="button" id="command-navigation-close" aria-label="Close navigation" title="Close navigation">
+			<Icon is:inline name="material-symbols:close-rounded" />
+		</button>
+	</header>
+	<div class="terminal-session">
+		<div class="terminal-identity"><span>enkidu@blog_room</span><span>zsh</span></div>
+		<div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-relevant="additions">
+			<p class="terminal-banner">ENKIDU / NAVIGATION</p>
+			<div class="terminal-route-list">
+				{commands.filter((item) => item.path).map((item) => (
+					<button type="button" data-terminal-command={item.command}>{item.command}<span>{item.label}</span></button>
+				))}
+			</div>
+		</div>
+		<form id="terminal-command-form" class="terminal-prompt" autocomplete="off">
+			<label for="terminal-command-input">~ $</label>
+			<input id="terminal-command-input" name="command" type="text" aria-label="Navigation command" autocomplete="off" autocapitalize="off" spellcheck="false" />
+			<button type="submit" aria-label="Run command" title="Run command"><Icon is:inline name="material-symbols:keyboard-return-rounded" /></button>
+		</form>
+		<div id="terminal-completions" class="terminal-completions" aria-live="polite"></div>
+	</div>
+	<footer class="terminal-status"><span class="terminal-status-dot"></span><span>LOCAL SESSION</span><span id="terminal-current-path">/</span></footer>
+</aside>
+
+<script>
+	import { completeCommand, resolveCommand } from "@/utils/command-navigation";
+
+	const drawer = document.getElementById("command-navigation") as HTMLElement;
+	const backdrop = document.getElementById("command-navigation-backdrop") as HTMLButtonElement;
+	const input = document.getElementById("terminal-command-input") as HTMLInputElement;
+	const output = document.getElementById("terminal-output") as HTMLElement;
+	const suggestions = document.getElementById("terminal-completions") as HTMLElement;
+	const commands = JSON.parse(drawer.dataset.commands || "[]") as { command: string; path: string; label: string }[];
+	const names = commands.map((item) => item.command);
+	const history: string[] = [];
+	let historyIndex = 0;
+	let draft = "";
+	let completionSeed: string | null = null;
+	let completionIndex = -1;
+
+	function isOpen() {
+		return document.documentElement.classList.contains("nav-terminal-open");
+	}
+
+	function setOpen(open: boolean) {
+		document.documentElement.classList.toggle("nav-terminal-open", open);
+		drawer.inert = !open;
+		backdrop.hidden = !open;
+		document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(open));
+		if (open) {
+			const focusInput = () => {
+				if (isOpen()) input.focus({ preventScroll: true });
+			};
+			drawer.addEventListener("transitionend", focusInput, { once: true });
+			window.setTimeout(focusInput, 450);
+		} else document.getElementById("command-navigation-toggle")?.focus({ preventScroll: true });
+	}
+
+	function appendLine(text: string, error = false) {
+		const line = document.createElement("p");
+		line.textContent = text;
+		if (error) line.className = "terminal-error";
+		output.append(line);
+		while (output.childElementCount > 80) output.firstElementChild?.remove();
+		output.scrollTop = output.scrollHeight;
+	}
+
+	function resetCompletion() {
+		completionSeed = null;
+		completionIndex = -1;
+		suggestions.textContent = "";
+	}
+
+	async function execute(value: string) {
+		const text = value.trim();
+		if (!text) return;
+		history.push(text);
+		historyIndex = history.length;
+		input.value = "";
+		resetCompletion();
+		const command = resolveCommand(text, commands);
+		if (command?.command === "/clear") {
+			output.replaceChildren();
+			return;
+		}
+		appendLine(`~ $ ${text}`);
+		if (!command) {
+			appendLine(`Command not found: ${text}`, true);
+			return;
+		}
+		if (command.command === "/close") {
+			setOpen(false);
+			return;
+		}
+		if (command.command === "/help") {
+			commands.forEach((item) => appendLine(`${item.command.padEnd(14)} ${item.label}`));
+			return;
+		}
+		appendLine(`${command.label} -> ${command.path}`);
+		try {
+			if (window.swup) await window.swup.navigate(command.path);
+			else window.location.assign(command.path);
+		} catch {
+			appendLine("Navigation failed.", true);
+		}
+	}
+
+	document.addEventListener("click", (event) => {
+		const target = event.target instanceof Element ? event.target : null;
+		if (target?.closest("#command-navigation-toggle")) setOpen(!isOpen());
+		if (target?.closest("#command-navigation-close, #command-navigation-backdrop")) setOpen(false);
+		const route = target?.closest<HTMLElement>("[data-terminal-command]");
+		if (route?.dataset.terminalCommand) {
+			void execute(route.dataset.terminalCommand);
+			input.focus();
+		}
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && isOpen()) {
+			event.preventDefault();
+			setOpen(false);
+		}
+	});
+
+	document.getElementById("terminal-command-form")?.addEventListener("submit", (event) => {
+		event.preventDefault();
+		void execute(input.value);
+	});
+
+	input.addEventListener("input", () => {
+		resetCompletion();
+		const matches = completeCommand(input.value, names);
+		suggestions.textContent = input.value ? matches.join("  ") : "";
+	});
+
+	input.addEventListener("keydown", (event) => {
+		if (event.isComposing) return;
+		if (event.key === "Tab" && !event.shiftKey && input.value.trim()) {
+			event.preventDefault();
+			completionSeed ??= input.value;
+			const matches = completeCommand(completionSeed, names);
+			if (!matches.length) return;
+			completionIndex = (completionIndex + 1) % matches.length;
+			input.value = matches[completionIndex];
+			suggestions.textContent = matches.join("  ");
+		} else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+			event.preventDefault();
+			if (historyIndex === history.length) draft = input.value;
+			historyIndex = Math.max(0, Math.min(history.length, historyIndex + (event.key === "ArrowUp" ? -1 : 1)));
+			input.value = historyIndex === history.length ? draft : history[historyIndex];
+			resetCompletion();
+		}
+	});
+
+	function updatePath() {
+		const path = document.getElementById("terminal-current-path");
+		if (path) path.textContent = window.location.pathname;
+		document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(isOpen()));
+	}
+
+	updatePath();
+	const attachSwup = () => window.swup?.hooks.on("page:view", updatePath);
+	if (window.swup) attachSwup();
+	else document.addEventListener("swup:enable", attachSwup, { once: true });
+</script>

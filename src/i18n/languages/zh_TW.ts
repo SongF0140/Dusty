@@ -325,14 +325,6 @@ export const zh_TW: Translation = {
 	[Key.codeCollapsibleExpanded]: "代碼區塊已展開",
 	[Key.codeCollapsibleCollapsed]: "代碼區塊已折疊",
 
-	// 相簿頁面
-	[Key.gallery]: "相簿",
-	[Key.galleryDescription]: "記錄生活中的美好瞬間",
-	[Key.galleryPhotos]: "張照片",
-	[Key.galleryAlbums]: "本相簿",
-	[Key.galleryNoAlbums]: "暫無相簿",
-	[Key.galleryBackToAlbums]: "返回相簿列表",
-	[Key.searchAlbums]: "搜尋相簿...",
 
 	// 密碼保護
 	[Key.passwordProtected]: "密碼保護",

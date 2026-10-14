@@ -6,7 +6,6 @@
 @import './transition.css';
 @import './custom-scrollbar.css';
 @import './tags.css';
-@import './gallery.css';
 
 @plugin '@tailwindcss/typography';
 
@@ -202,49 +201,22 @@ html {
     }
     
     html {
-        background:
-            radial-gradient(circle at 18% 8%, rgba(92, 74, 50, 0.42), transparent 30%),
-            linear-gradient(135deg, #463522 0%, #392a19 48%, #2f2316 100%) !important;
-    }
-    :root.dark html {
-        background:
-            radial-gradient(circle at 18% 8%, rgba(92, 74, 50, 0.42), transparent 30%),
-            linear-gradient(135deg, #463522 0%, #392a19 48%, #2f2316 100%) !important;
+        background: var(--page-bg);
     }
     body {
         background: transparent;
     }
     .card-base {
         @apply rounded-(--radius-large) overflow-hidden transition-colors duration-150;
-        border: 1px solid rgba(236, 221, 190, 0.42);
-        background:
-            linear-gradient(145deg, rgba(255, 250, 238, 0.78), rgba(232, 219, 192, 0.55)),
-            var(--card-bg-transparent);
-        box-shadow:
-            0 20px 50px rgba(14, 9, 4, 0.24),
-            inset 0 1px 0 rgba(255, 255, 255, 0.62),
-            inset 0 -1px 0 rgba(70, 53, 34, 0.08);
-        backdrop-filter: blur(18px) saturate(1.18);
-        -webkit-backdrop-filter: blur(18px) saturate(1.18);
+        border: 2px solid var(--retro-outline);
+        background: var(--card-bg);
+        box-shadow: 4px 4px 0 var(--retro-outline);
     }
     .card-base-transparent {
         @apply rounded-(--radius-large) overflow-hidden transition-colors duration-150;
-        border: 1px solid rgba(236, 221, 190, 0.38);
-        background:
-            linear-gradient(145deg, rgba(255, 250, 238, 0.68), rgba(232, 219, 192, 0.45)),
-            var(--card-bg-transparent);
-        box-shadow:
-            0 18px 42px rgba(14, 9, 4, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(18px) saturate(1.18);
-        -webkit-backdrop-filter: blur(18px) saturate(1.18);
-    }
-    :root.dark .card-base,
-    :root.dark .card-base-transparent {
-        border-color: rgba(236, 221, 190, 0.22);
-        background:
-            linear-gradient(145deg, rgba(255, 250, 238, 0.16), rgba(232, 219, 192, 0.08)),
-            rgba(244, 234, 214, 0.1);
+        border: 2px solid var(--retro-outline);
+        background: var(--card-bg);
+        box-shadow: 4px 4px 0 var(--retro-outline);
     }
 
     /* LQIP 占位渐变 */
@@ -616,4 +588,3 @@ html {
 .pagination-info {
   @apply text-sm text-(--text-secondary) text-center mb-2;
 }
-

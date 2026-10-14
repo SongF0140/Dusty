@@ -38,4 +38,5 @@ cache/
 package/
 .obsidian/
 .content-source/
+.content-sync-state.json
 src/content/posts/embedded/esp32-s3/

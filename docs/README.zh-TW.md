@@ -183,7 +183,6 @@ src/
 │   ├── fontConfig.ts             # 字型配置
 │   ├── footerConfig.ts           # 頁尾配置
 │   ├── friendsConfig.ts          # 友鏈配置
-│   ├── galleryConfig.ts          # 相簿配置
 │   ├── licenseConfig.ts          # 授權配置
 │   ├── musicConfig.ts            # 音樂播放器配置
 │   ├── navBarConfig.ts           # 導覽列配置
@@ -255,7 +254,6 @@ comment: true    # 是否允許留言
 
 ### 其他參考
 - 部落客`霞葉`的 [Bangumi 收藏](https://kasuha.com/posts/fuwari-enhance-ep2/) 頁面元件
-- 嗶哩嗶哩up主 `公公的日常` 的Q版 [流螢看板娘Spine切片資料](https://www.bilibili.com/video/BV1fuVzzdE5y)
 
 ## 📝 許可協議
 

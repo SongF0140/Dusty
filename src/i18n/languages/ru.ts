@@ -334,13 +334,6 @@ export const ru: Translation = {
 	[Key.codeCollapsibleCollapsed]: "Блок кода свернут",
 
 	// Страница галереи
-	[Key.gallery]: "Галерея",
-	[Key.galleryDescription]: "Запечатлеть прекрасные моменты жизни",
-	[Key.galleryPhotos]: "фото",
-	[Key.galleryAlbums]: "альбомов",
-	[Key.galleryNoAlbums]: "Пока нет альбомов",
-	[Key.galleryBackToAlbums]: "Вернуться к альбомам",
-	[Key.searchAlbums]: "Поиск альбомов...",
 
 	// Защита паролем
 	[Key.passwordProtected]: "Защищено паролем",

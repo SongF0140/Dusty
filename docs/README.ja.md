@@ -180,7 +180,6 @@ src/
 │   ├── fontConfig.ts             # フォント設定
 │   ├── footerConfig.ts           # フッター設定
 │   ├── friendsConfig.ts          # 友人リンク設定
-│   ├── galleryConfig.ts          # ギャラリー設定
 │   ├── licenseConfig.ts          # ライセンス設定
 │   ├── musicConfig.ts            # 音楽プレーヤー設定
 │   ├── navBarConfig.ts           # ナビゲーションバー設定
@@ -253,7 +252,6 @@ Astroがデフォルトで対応している[GitHub Flavored Markdown](https://g
 
 ### その他の参考
 - ブロガー`霞葉`の [Bangumi コレクション](https://kasuha.com/posts/fuwari-enhance-ep2/) ページコンポーネント
-- Bilibiliクリエイター `公公的日常` のQ版 [蛍看板娘Spineモデル](https://www.bilibili.com/video/BV1fuVzzdE5y)
 
 ## 📝 ライセンス
 

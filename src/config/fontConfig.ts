@@ -11,11 +11,11 @@ export const fontConfig: FontConfig = {
 
 	// 各区域独立字体设置（填写下方 fonts 中的字体 ID，留空则使用全局 selected 字体）
 	// 横幅标题字体
-	bannerTitleFont: "zen-maru-gothic",
+	bannerTitleFont: "luckiest-guy",
 	// 横幅副标题字体
-	bannerSubtitleFont: "inter",
+	bannerSubtitleFont: "",
 	// 导航栏标题字体
-	navbarTitleFont: "",
+	navbarTitleFont: "luckiest-guy",
 
 	// 字体列表
 	// 推荐使用可靠的 CDN 服务商提供的字体链接，它天然做了按需分片加载，且性能较好
@@ -23,6 +23,15 @@ export const fontConfig: FontConfig = {
 	// 也可以使用本地字体文件，但建议开启字体子集化处理，否则会因为字体文件庞大增加带宽负担导致页面加载缓慢甚至无法加载
 	// 如果进行字体子集化处理，会导致动态内容（如评论，Bangumi等）无法正确显示字体，因此不推荐使用本地字体文件
 	fonts: {
+		"luckiest-guy": {
+			id: "luckiest-guy",
+			name: "Luckiest Guy",
+			src: "/fonts/luckiest-guy.woff2",
+			family: "Luckiest Guy",
+			format: "woff2",
+			weight: 400,
+			display: "swap",
+		},
 		// 系统字体
 		system: {
 			id: "system",

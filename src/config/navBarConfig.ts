@@ -18,7 +18,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 	// 文章及其子菜单
 	links.push({
-		name: "札记",
+		name: "Posts",
 		url: "#",
 		icon: "material-symbols:article",
 		children: [
@@ -41,13 +41,10 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 	// 世界及其子菜单
 	links.push({
-		name: "世界",
+		name: "Explore",
 		url: "#",
 		icon: "material-symbols:public",
 		children: [
-			// 相册
-			LinkPresets.Gallery,
-
 			// 番组计划
 			LinkPresets.Bangumi,
 		],
@@ -55,7 +52,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 	// 关于及其子菜单
 	links.push({
-		name: "关于",
+		name: "About",
 		url: "#",
 		icon: "material-symbols:info",
 		children: [
@@ -66,19 +63,19 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 
 	// 自定义导航栏链接
 	links.push({
-		name: "链接",
+		name: "Links",
 		url: "#",
 		icon: "material-symbols:link",
 		// 子菜单
 		children: [
 			{
-				name: "我的 GitHub",
+				name: "GitHub",
 				url: "https://github.com/SongF0140",
 				external: true,
 				icon: "fa7-brands:github",
 			},
 			{
-				name: "QQ 交流",
+				name: "QQ",
 				url: "https://wpa.qq.com/msgrd?v=3&uin=1395543336&site=qq&menu=yes",
 				external: true,
 				icon: "fa7-brands:qq",
@@ -108,53 +105,47 @@ export const navBarSearchConfig: NavBarSearchConfig = {
 // ============================================================================
 export const LinkPresets: Record<string, NavBarLink> = {
 	Home: {
-		name: "荒原",
+		name: "Home",
 		url: "/",
 		icon: "material-symbols:home",
 	},
 	Archive: {
-		name: "编年",
+		name: "Archive",
 		url: "/archive/",
 		icon: "material-symbols:archive",
 	},
 	Categories: {
-		name: "领域",
+		name: "Categories",
 		url: "/categories/",
 		icon: "material-symbols:folder-open-rounded",
 	},
 	Tags: {
-		name: "印记",
+		name: "Tags",
 		url: "/tags/",
 		icon: "material-symbols:tag-rounded",
 	},
 	Friends: {
-		name: "羁绊",
+		name: "Friends",
 		url: "/friends/",
 		icon: "material-symbols:group",
 		pageKey: "friends",
 	},
 	Guestbook: {
-		name: "低语",
+		name: "Guestbook",
 		url: "/guestbook/",
 		icon: "material-symbols:chat",
 		pageKey: "guestbook",
 	},
 	About: {
-		name: "关于我",
+		name: "About",
 		url: "/about/",
 		icon: "material-symbols:person",
 	},
 	Bangumi: {
-		name: "追番",
+		name: "Watchlist",
 		url: "/bangumi/",
 		icon: "material-symbols:movie",
 		pageKey: "bangumi",
-	},
-	Gallery: {
-		name: "相册",
-		url: "/gallery/",
-		icon: "material-symbols:photo-library",
-		pageKey: "gallery",
 	},
 };
 

@@ -181,7 +181,6 @@ src/
 │   ├── fontConfig.ts             # Конфигурация шрифтов
 │   ├── footerConfig.ts           # Конфигурация подвала
 │   ├── friendsConfig.ts          # Конфигурация дружественных ссылок
-│   ├── galleryConfig.ts          # Конфигурация галереи
 │   ├── licenseConfig.ts          # Конфигурация лицензии
 │   ├── musicConfig.ts            # Конфигурация музыкального плеера
 │   ├── navBarConfig.ts           # Конфигурация навигационной панели
@@ -255,7 +254,6 @@ comment: true    # Включить комментарии
 
 ### Другие ссылки
 - Компонент страницы [Bangumi Collection](https://kasuha.com/posts/fuwari-enhance-ep2/) блогера `霞葉`
-- Q-версия [Firefly Mascot Spine Model](https://www.bilibili.com/video/BV1fuVzzdE5y) от создателя Bilibili `公公的日常`
 
 ## 📝 Лицензия
 

@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ master ]
+  repository_dispatch:
+    types: [content-updated, images-updated]
+  schedule:
+    # Fallback sync for external content/image repositories that cannot call repository_dispatch.
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 # Pages 部署需要的权限
@@ -14,7 +19,7 @@ permissions:
 # 确保只有一个部署任务同时运行
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:

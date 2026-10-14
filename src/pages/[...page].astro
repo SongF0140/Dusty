@@ -6,6 +6,7 @@ import PostPage from "@/components/layout/PostPage.astro";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getCategoryList, getSortedPosts } from "@/utils/content-utils";
+import { url } from "@/utils/url-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
@@ -106,15 +107,18 @@ const getMeta = (name: string, index: number) =>
   {
     isHome ? (
       <section class="home-category-board onload-animation">
-        <div class="home-category-hero glass-panel">
-          <p class="eyebrow">札记 · 领域</p>
-          <h1>从领域进入我的札记</h1>
-          <p class="hero-copy">
-            这里不再默认堆最新文章，而是按领域进入：嵌入式、数据结构、深度学习、计算机底层与算法记录。
-          </p>
-          <div class="hero-stats" aria-label="站点内容统计">
-            <span>{categories.length} 个领域</span>
-            <span>{totalPosts} 篇札记</span>
+        <div class="home-masthead">
+          <div class="masthead-topline"><span>THE FIELD NOTES</span><span>EST. 2026</span></div>
+          <div class="masthead-title-row">
+            <div>
+              <h1>ENKIDU</h1>
+              <p>技术笔记与项目记录</p>
+            </div>
+            <img src={url("/assets/images/retro-notebook.webp")} width="160" height="150" alt="复古卡通笔记本" class="retro-notebook" fetchpriority="high" />
+          </div>
+          <div class="masthead-bottomline" aria-label="站点内容统计">
+            <span>{categories.length} 个领域 / {totalPosts} 篇笔记</span>
+            <span>CODE &amp; CURIOSITY</span>
           </div>
         </div>
 
@@ -124,21 +128,20 @@ const getMeta = (name: string, index: number) =>
             return (
               <a
                 href={category.url}
-                class={`category-section-card glass-panel tone-${meta.tone}`}
+                class={`category-section-card tone-${meta.tone}`}
                 style={`--accent: ${meta.accent}; animation-delay: calc(var(--content-delay) + ${index * 60}ms);`}
               >
-                <div class="card-glow" aria-hidden="true" />
-                <div class={`ornament ornament-${meta.ornament}`} aria-hidden="true" />
+                <div class="print-halftone" aria-hidden="true" />
                 <div class="card-topline">
                   <span class="section-icon">
                     <Icon is:inline name={meta.icon} />
                   </span>
-                  <span class="section-count">{category.count} 篇札记</span>
+                  <span class="section-count">{category.count} 篇笔记</span>
                 </div>
                 <h2>{category.name}</h2>
                 <p>{meta.description}</p>
                 <div class="section-action">
-                  <span>进入领域</span>
+                  <span>阅读笔记</span>
                   <Icon is:inline name="material-symbols:chevron-right-rounded" />
                 </div>
               </a>

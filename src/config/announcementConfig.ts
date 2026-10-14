@@ -2,10 +2,10 @@ import type { AnnouncementConfig } from "../types/announcementConfig";
 
 export const announcementConfig: AnnouncementConfig = {
 	// 公告标题
-	title: "低语",
+	title: "公告",
 
 	// 公告内容
-	content: "天之锁永系天与地，而这里系着文字与记忆。欢迎来到乌鲁克的数字荒原。",
+	content: "欢迎来到我的技术博客，这里记录学习笔记和项目实践。",
 
 	// 是否允许用户关闭公告
 	closable: true,

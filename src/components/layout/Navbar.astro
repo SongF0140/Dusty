@@ -103,7 +103,7 @@ if (isLocalSrcLogo) {
 	}
 }
 ---
-<div id="navbar" class="z-50" style={`--navbar-glass-blur: ${navbarBlur}px;`} data-transparent-mode={navbarTransparentMode} data-enable-blur={String(navbarEnableBlur)} data-is-home={isHomePageCheck} data-full-width={navbarWidthFull}>
+<div id="navbar" class="retro-navbar z-50" style={`--navbar-glass-blur: ${navbarBlur}px;`} data-transparent-mode={navbarTransparentMode} data-enable-blur={String(navbarEnableBlur)} data-is-home={isHomePageCheck} data-full-width={navbarWidthFull}>
     <div class:list={[
         className,
         "overflow-visible! h-18 px-4"
@@ -147,7 +147,7 @@ if (isLocalSrcLogo) {
                     return <DropdownMenu link={l} />;
                 })}
             </div>
-            <div class="flex col-start-3 justify-self-end">
+            <div class="navbar-tools flex col-start-3 justify-self-end">
                 <!--<SearchPanel client:load>-->
                 <Search
                     client:load
@@ -155,17 +155,6 @@ if (isLocalSrcLogo) {
                 {musicPlayerConfig.showInNavbar && (
                     <button aria-label={i18n(I18nKey.music)} class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="music-player-switch">
                         <Icon is:inline name="material-symbols:music-note-rounded" class="text-[1.25rem]"></Icon>
-                    </button>
-                )}
-                {backgroundWallpaper.playerEnable && backgroundWallpaper.mode !== "none" && (
-                    <button
-                        aria-label={i18n(I18nKey.videoPlay)}
-                        class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90"
-                        id="bg-player-toggle"
-                        data-i18n-play={i18n(I18nKey.videoPlay)}
-                        data-i18n-pause={i18n(I18nKey.videoPause)}
-                    >
-                        <Icon is:inline name="material-symbols:play-arrow-rounded" class="text-[1.5rem]" />
                     </button>
                 )}
                 {hasDisplaySettings && (
@@ -177,6 +166,10 @@ if (isLocalSrcLogo) {
                 <LightDarkSwitch client:load></LightDarkSwitch>
                 <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:hidden!" id="nav-menu-switch">
                     <Icon is:inline name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
+                </button>
+                <button type="button" id="command-navigation-toggle" class="btn-plain navigation-toggle" aria-label="Navigation" aria-controls="command-navigation" aria-expanded="false" title="Navigation">
+                    <Icon is:inline name="material-symbols:explore-outline" class="navigation-compass" />
+                    <span>NAVIGATION</span>
                 </button>
             </div>
         </div>

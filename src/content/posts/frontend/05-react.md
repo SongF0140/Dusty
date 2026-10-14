@@ -45,7 +45,7 @@ npm start
 
 * 会自动打开浏览器，默认监听 3000 端口
 
-![image-20221001110328233](imgs/image-20221001110328233.png)
+![image-20221001110328233](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221001110328233.png)
 
 
 
@@ -67,13 +67,13 @@ PORT=7070
 
 插件地址 [New React Developer Tools – React Blog (reactjs.org)](https://reactjs.org/blog/2015/09/02/new-react-developer-tools.html#installation)
 
-![image-20221004105110150](imgs/image-20221004105110150.png)
+![image-20221004105110150](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221004105110150.png)
 
 #### VSCode
 
 推荐安装 Prettier 代码格式化插件
 
-![image-20221004090816142](imgs/image-20221004090816142.png)
+![image-20221004090816142](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221004090816142.png)
 
 
 
@@ -576,7 +576,7 @@ export default function P4({ id }: { id: number }) {
 
 当属性变化时，会重新触发 P4 组件执行，比如把 id 从 1 改成 2
 
-![image-20221005160308705](imgs/image-20221005160308705.png)
+![image-20221005160308705](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005160308705.png)
 
 执行流程
 
@@ -712,15 +712,15 @@ export default function P5(props: { id: number }) {
 
 首次使用 useState，用它的参数初始化 State
 
-![image-20221005173958351](imgs/image-20221005173958351.png)
+![image-20221005173958351](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005173958351.png)
 
 2s 后数据更新，setStudent 函数会更新 State 数据，并会触发下一次渲染（P5 的调用）
 
-![image-20221005174347981](imgs/image-20221005174347981.png)
+![image-20221005174347981](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005174347981.png)
 
 再次调用 useState，这时返回更新后的数据
 
-![image-20221005174739593](imgs/image-20221005174739593.png)
+![image-20221005174739593](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005174739593.png)
 
 这时再返回 jsx，内容就是 `姓名是：宋远桥` 了
 
@@ -732,19 +732,19 @@ export default function P5(props: { id: number }) {
 
 问题还没完：第二次调用 P5 时 updateStudent 还会执行，导致 2s 后响应返回又调用 setStudent，于是每隔 2s 就调用一次 P5（渲染一次）
 
-![image-20221005175440228](imgs/image-20221005175440228.png)
+![image-20221005175440228](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005175440228.png)
 
 怎么让 updateStudent 只执行一次？土办法是再设一个布尔 State 
 
-![image-20221005181042078](imgs/image-20221005181042078.png)
+![image-20221005181042078](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005181042078.png)
 
 接下来数据更新
 
-![image-20221005181428984](imgs/image-20221005181428984.png)
+![image-20221005181428984](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005181428984.png)
 
 第二次进入 P5 函数时，因为 fetch 条件不成立，就不会再执行两个 setXXX 了
 
-![image-20221005182505908](imgs/image-20221005182505908.png)
+![image-20221005182505908](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221005182505908.png)
 
 
 
@@ -2004,7 +2004,7 @@ export default function A3() {
 
 场景：组件0 改了数据，其它组件也想拿到改后的数据，如图所示
 
-![image-20221025104453534](imgs/image-20221025104453534.png)
+![image-20221025104453534](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221025104453534.png)
 
 这种多个组件间要共享状态数据的情况，useState 不够用，useContext 也不好用了
 
@@ -2772,7 +2772,7 @@ export default observer(A8Main)
 
 ctrl+shift+p 输入关键词**代码**
 
-![image-20221026102533928](imgs/image-20221026102533928.png)
+![image-20221026102533928](https://raw.githubusercontent.com/SongF0140/image_place/main/images/image-20221026102533928.png)
 
 定义 fun.code-snippets
 

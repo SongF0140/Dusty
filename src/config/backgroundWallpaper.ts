@@ -2,13 +2,13 @@ import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 
 export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 壁纸模式："banner" 横幅壁纸，"fullscreen" 全屏壁纸，"overlay" 全屏透明，"none" 纯色背景无壁纸
-	mode: "banner",
+	mode: "none",
 	// 是否允许用户通过导航栏切换壁纸模式
 	// 且同时维护多种壁纸模式过于复杂（已经屎山代码），在切换时有时候可能会出现一些奇怪的过渡效果或者bug
 	// 推荐只选择自己喜欢的模式并关闭切换功能
-	switchable: true,
+	switchable: false,
 	// 是否启用背景视频播放，配置后将在导航栏显示视频播放按钮
-	playerEnable: true,
+	playerEnable: false,
 	/**
 	 * 背景图片配置
 	 * 图片路径支持三种格式：
@@ -74,16 +74,12 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否允许用户通过控制面板切换横幅标题显示
 			switchable: true,
 			// 主页横幅主标题
-			title: "Chains of Heaven",
+			title: "ENKIDU",
 			// 主页横幅主标题字体大小
 			titleSize: "3.8rem",
 			// 主页横幅副标题（恩奇都·神造兵器的神圣破碎感）
 			subtitle: [
-				"由神之泥塑成，却拥有了心",
-				"银狼的嚎叫，是最初也是最后的召唤",
-				"天之锁系住天地，却系不住消逝的你",
-				"回归泥土的虚无，是众神给予的慈悲",
-				"这具兵器，曾为挚友流下过眼泪",
+				"技术笔记与项目记录",
 			],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",

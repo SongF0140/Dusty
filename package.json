@@ -3,14 +3,11 @@
   "type": "module",
   "version": "6.12.3",
   "scripts": {
-    "predev": "node scripts/sync-content-repo.mjs",
-    "dev": "astro dev",
-    "prestart": "node scripts/sync-content-repo.mjs",
-    "start": "astro dev",
-    "precheck": "node scripts/sync-content-repo.mjs",
-    "check": "astro check",
-    "prebuild": "node scripts/sync-content-repo.mjs",
-    "build": "node scripts/generate-icons.js && npx tsx scripts/generate-lqips.ts && astro build && npx tsx scripts/subset-fonts.ts && pagefind --site dist",
+    "sync-content": "node scripts/sync-content-repo.mjs",
+    "dev": "pnpm run sync-content && astro dev",
+    "start": "pnpm run dev",
+    "check": "pnpm run sync-content && astro check",
+    "build": "pnpm run sync-content && node scripts/generate-icons.js && npx tsx scripts/generate-lqips.ts && astro build && npx tsx scripts/subset-fonts.ts && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "tsc --noEmit --isolatedDeclarations",
@@ -19,7 +16,8 @@
     "lint": "biome check --write ./src",
     "preinstall": "npx only-allow pnpm",
     "icons": "node scripts/generate-icons.js",
-    "lqips": "npx tsx scripts/generate-lqips.ts"
+    "lqips": "npx tsx scripts/generate-lqips.ts",
+    "sync-knowledge": "node scripts/sync-knowledge-to-source.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

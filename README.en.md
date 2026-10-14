@@ -179,7 +179,6 @@ src/
 │   ├── fontConfig.ts             # Font configuration
 │   ├── footerConfig.ts           # Footer configuration
 │   ├── friendsConfig.ts          # Friend links configuration
-│   ├── galleryConfig.ts          # Gallery configuration
 │   ├── licenseConfig.ts          # License configuration
 │   ├── musicConfig.ts            # Music player configuration
 │   ├── navBarConfig.ts           # Navbar configuration
@@ -253,7 +252,6 @@ The copyright of Firefly-related image assets belongs to [miHoYo](https://www.mi
 
 ### Other References
 - Blogger `霞葉` [Bangumi Collection](https://kasuha.com/posts/fuwari-enhance-ep2/) page component
-- Bilibili creator `公公的日常` Q-version [Firefly Mascot Spine Model](https://www.bilibili.com/video/BV1fuVzzdE5y)
 
 ## 📝 License
 

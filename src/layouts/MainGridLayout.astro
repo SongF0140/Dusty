@@ -1,7 +1,6 @@
 ---
 import Live2DWidget from "@components/features/Live2DWidget.astro";
 
-import SpineModel from "@components/features/SpineModel.astro";
 import Footer from "@components/layout/Footer.astro";
 import Navbar from "@components/layout/Navbar.astro";
 import SideBar from "@components/layout/SideBar.astro";
@@ -11,6 +10,7 @@ import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import FloatingControls from "@/components/controls/FloatingControls.astro";
 import ScrollDownIndicator from "@/components/controls/ScrollDownIndicator.astro";
 import BackgroundPlayer from "@/components/features/BackgroundPlayer.astro";
+import CommandNavigation from "@/components/features/CommandNavigation.astro";
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
 import {
@@ -849,7 +849,7 @@ const bannerCarouselInterval = Math.max(
 )}
 
 <!-- Main content -->
-<div class={`absolute w-full z-30 pointer-events-none ${mobileNonHomeBannerClass ? 'mobile-main-no-banner' : ''} ${!(isBannerMode && isBackgroundEnabled) ? 'no-banner-layout' : ''}`} style={isFullscreenMode ? 'top: 0;' : `top: ${finalMainPanelTop}`}>
+<div id="blog-stage" class={`absolute w-full z-30 pointer-events-none ${mobileNonHomeBannerClass ? 'mobile-main-no-banner' : ''} ${!(isBannerMode && isBackgroundEnabled) ? 'no-banner-layout' : ''}`} style={isFullscreenMode ? 'top: 0;' : `top: ${finalMainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative w-full xl:w-[92vw] max-w-(--page-width) mx-auto pointer-events-auto">
         <div id="main-grid"
@@ -942,12 +942,12 @@ const bannerCarouselInterval = Math.max(
             </div>
         </div>
 
-        <SpineModel></SpineModel>
         {live2dWidgetConfig.enable && <Live2DWidget config={live2dWidgetConfig} />}
     </div>
 </div>
 
 <FloatingControls headings={headings} />
+<CommandNavigation />
 
 
 </Layout>
@@ -969,4 +969,3 @@ const bannerCarouselInterval = Math.max(
   }
 
 </style>
-

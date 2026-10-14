@@ -332,14 +332,6 @@ export const en: Translation = {
 	[Key.codeCollapsibleExpanded]: "Code block expanded",
 	[Key.codeCollapsibleCollapsed]: "Code block collapsed",
 
-	// Gallery Page
-	[Key.gallery]: "Gallery",
-	[Key.galleryDescription]: "Capturing beautiful moments in life",
-	[Key.galleryPhotos]: "photos",
-	[Key.galleryAlbums]: "albums",
-	[Key.galleryNoAlbums]: "No albums yet",
-	[Key.galleryBackToAlbums]: "Back to albums",
-	[Key.searchAlbums]: "Search albums...",
 
 	// Password Protection
 	[Key.passwordProtected]: "Password Protected",

@@ -6,27 +6,26 @@ const SITE_LANG = "zh_CN";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "ENKIDU - Chains of Heaven",
+	title: "ENKIDU 的技术博客",
 
 	// 站点副标题
-	subtitle: "Chains of Heaven",
+	subtitle: "技术笔记与项目记录",
 
 	// 站点 URL
 	site_url: "https://mjzy.tech",
 
 	// 站点描述
 	description:
-		"𒂗𒆠𒄭 ENKIDU — 由神创造之兵器，却拥有了心。天之锁永系天与地，在乌鲁克的荒原上，萤火仍为你低语。",
+		"记录嵌入式、通信协议、Qt、数据库、前端与计算机基础的学习笔记和项目实践。",
 
 	// 站点关键词
 	keywords: [
 		"ENKIDU",
-		"Fate",
-		"strange Fake",
-		"FGO",
-		"天之锁",
-		"Chains of Heaven",
-		"ACGN",
+		"技术博客",
+		"嵌入式",
+		"通信协议",
+		"Qt",
+		"前端",
 	],
 
 	// 主题色 - 恩奇都绿白+银狼银蓝（神圣破碎感）
@@ -36,7 +35,7 @@ export const siteConfig: SiteConfig = {
 		// 锁定主题色，保持恩奇都配色的视觉一致性
 		fixed: true,
 		// 默认暗色模式，契合天之锁的神圣肃穆氛围
-		defaultMode: "dark",
+		defaultMode: "light",
 	},
 
 	// 页面整体宽度（单位：rem）
@@ -49,7 +48,7 @@ export const siteConfig: SiteConfig = {
 		// 开启卡片边框和阴影，增强废土风格的层次感
 		border: true,
 		// 卡片背景跟随主题色相，统一莫兰迪灰紫色调
-		followTheme: true,
+		followTheme: false,
 	},
 
 	// Favicon 配置
@@ -107,8 +106,6 @@ export const siteConfig: SiteConfig = {
 		guestbook: true,
 		// 番组计划页面开关，含追番、游戏、书籍和音乐
 		bangumi: true,
-		// 相册页面开关
-		gallery: true,
 	},
 
 	// 分类导航栏开关，在首页和归档页顶部显示分类快捷导航
