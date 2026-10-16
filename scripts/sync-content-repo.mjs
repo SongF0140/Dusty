@@ -171,6 +171,21 @@ export function syncContent({
 				},
 			},
 		},
+		{
+			source: "感想",
+			target: path.join(root, "src", "content", "posts", "thoughts"),
+			category: "感想",
+		},
+		{
+			source: "AI工程实践",
+			target: path.join(root, "src", "content", "posts", "ai-engineering"),
+			category: "AI工程",
+		},
+		{
+			source: "Docker",
+			target: path.join(root, "src", "content", "posts", "docker"),
+			category: "Docker",
+		},
 	];
 
 	const published = "2026-08-21";

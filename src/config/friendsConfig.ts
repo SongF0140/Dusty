@@ -32,7 +32,7 @@ export const friendsConfig: FriendLink[] = [
 		enabled: true,
 	},
 	{
-		title: "ENKIDU Notes",
+		title: "Dusty Notes",
 		imgurl: "https://github.com/SongF0140.png",
 		desc: "物联网、ESP32-S3、嵌入式、计算机底层与深度学习笔记。",
 		siteurl: "https://mjzy.tech",

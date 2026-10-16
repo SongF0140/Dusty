@@ -75,7 +75,7 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 		// 气泡开关
 		enable: true,
 		// 初始欢迎消息
-		welcomeMessage: ["你好，旅人。", "欢迎来到乌鲁克的荒原。"],
+		welcomeMessage: ["你好，旅人。", "欢迎来到 Dusty 的技术小站。"],
 		// 循环提示内容
 		messages: [
 			"有什么需要帮助的吗？",

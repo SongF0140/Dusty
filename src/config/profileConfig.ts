@@ -5,7 +5,7 @@ export const profileConfig: ProfileConfig = {
 	avatar: "https://wallpaperaccess.com/download/fate-enkidu-8577378",
 
 	// 名字
-	name: "ENKIDU",
+	name: "JIA",
 
 	// 个人签名
 	bio: "深度学习 & 计算机底层原理 | 用代码理解世界",

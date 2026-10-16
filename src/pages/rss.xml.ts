@@ -54,7 +54,7 @@ export async function GET(context: APIContext) {
 		title: siteConfig.title,
 		description: siteConfig.subtitle || "No description",
 		site: context.site ?? siteConfig.site_url,
-		customData: `<generator>ENKIDU Notes</generator>
+		customData: `<generator>Dusty Notes</generator>
 		<generatorVersion>${pkg.version}</generatorVersion>
 		<lastBuildDate>${formatDateI18nWithTime(new Date())}</lastBuildDate>`,
 		items: feedItems,

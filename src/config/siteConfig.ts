@@ -6,7 +6,7 @@ const SITE_LANG = "zh_CN";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "ENKIDU 的技术博客",
+	title: "Dusty的高密乡",
 
 	// 站点副标题
 	subtitle: "技术笔记与项目记录",
@@ -20,7 +20,7 @@ export const siteConfig: SiteConfig = {
 
 	// 站点关键词
 	keywords: [
-		"ENKIDU",
+		"Dusty",
 		"技术博客",
 		"嵌入式",
 		"通信协议",
@@ -28,13 +28,13 @@ export const siteConfig: SiteConfig = {
 		"前端",
 	],
 
-	// 主题色 - 恩奇都绿白+银狼银蓝（神圣破碎感）
+	// 主题色 - 中性青灰调
 	themeColor: {
-		// 薄荷绿 148：恩奇都浅绿长发 + 银狼冷蓝银白的交汇点
-		hue: 148,
-		// 锁定主题色，保持恩奇都配色的视觉一致性
+		// 青色 200：中性偏冷的清爽色调
+		hue: 200,
+		// 锁定主题色，保持整体视觉一致性
 		fixed: true,
-		// 默认暗色模式，契合天之锁的神圣肃穆氛围
+		// 默认亮色模式
 		defaultMode: "light",
 	},
 
@@ -59,7 +59,15 @@ export const siteConfig: SiteConfig = {
 			// 可选，指定主题 'light' | 'dark'
 			// theme: "light",
 			// 可选，图标大小
-			// sizes: "32x32",
+			sizes: "32x32",
+		},
+		{
+			src: "/favicon/favicon-light-192.png",
+			sizes: "192x192",
+		},
+		{
+			src: "/favicon/favicon-light-128.png",
+			sizes: "128x128",
 		},
 	],
 
@@ -78,7 +86,7 @@ export const siteConfig: SiteConfig = {
 			alt: "Green Serpent Badge",
 		},
 		// 导航栏标题
-		title: "ENKIDU",
+		title: "Dusty",
 		// 全宽导航栏，导航栏是否占满屏幕宽度
 		widthFull: false,
 		// 导航菜单对齐方式，left：左对齐，center：居中

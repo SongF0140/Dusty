@@ -1,8 +1,8 @@
-# Firefly 项目学习笔记
+# 博客项目学习笔记
 
 ## 一、项目概述
 
-**Firefly** 是一个基于 **Astro 6.4** 框架构建的现代静态博客系统，版本 6.12.3。它从 **Fuwari** 主题衍生而来，支持多语言(i18n)、多种壁纸模式、音乐播放器、Live2D/Spine 看板娘、评论系统集成等丰富功能。
+本项目是一个基于 **Astro 6.4** 框架构建的现代静态博客系统，版本 6.12.3。它从 **Fuwari** 主题衍生而来，支持多语言(i18n)、多种壁纸模式、音乐播放器、Live2D/Spine 看板娘、评论系统集成等丰富功能。
 
 - **技术栈**: Astro + Svelte + TailwindCSS v4
 - **包管理器**: pnpm
@@ -14,7 +14,7 @@
 ## 二、项目目录结构
 
 ```
-Firefly/
+blog/
 ├── astro.config.mjs          # Astro 核心配置：集成、Markdown 插件、Vite 设置
 ├── src/
 │   ├── content.config.ts     # 内容集合定义（posts、spec）

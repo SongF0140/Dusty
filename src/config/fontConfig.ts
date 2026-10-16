@@ -7,6 +7,8 @@ export const fontConfig: FontConfig = {
 	// 是否预加载字体文件
 	preload: true,
 	// 当前选择的字体，支持多个字体组合
+	// 保持 system：正文沿用系统字体，手写体只用于 TAG / 标题等区域
+	// 中文字体在 FontManager 中单独加载，不进入全局 body 字体栈
 	selected: ["system"],
 
 	// 各区域独立字体设置（填写下方 fonts 中的字体 ID，留空则使用全局 selected 字体）
@@ -15,7 +17,7 @@ export const fontConfig: FontConfig = {
 	// 横幅副标题字体
 	bannerSubtitleFont: "",
 	// 导航栏标题字体
-	navbarTitleFont: "luckiest-guy",
+	navbarTitleFont: "fredoka-one",
 
 	// 字体列表
 	// 推荐使用可靠的 CDN 服务商提供的字体链接，它天然做了按需分片加载，且性能较好
@@ -31,6 +33,26 @@ export const fontConfig: FontConfig = {
 			format: "woff2",
 			weight: 400,
 			display: "swap",
+		},
+		// 站酷快乐体（ZCOOL KuaiLe）- 中文手写体
+		// Luckiest Guy / Fredoka One 均不含中文字形，中文需回退到本字体
+		// Google Fonts 已按 unicode-range 切成 93 个分片，浏览器按需加载
+		"zcool-kuaile": {
+			id: "zcool-kuaile",
+			name: "站酷快乐体",
+			src: "https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap",
+			family: "ZCOOL KuaiLe",
+			weight: 400,
+			display: "swap" as const,
+		},
+		// Google Fonts - Fredoka One（圆润卡通体，仅拉丁字形，可作英文备选）
+		"fredoka-one": {
+			id: "fredoka-one",
+			name: "Fredoka One",
+			src: "https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap",
+			family: "Fredoka One",
+			weight: 400,
+			display: "swap" as const,
 		},
 		// 系统字体
 		system: {
@@ -110,7 +132,9 @@ export const fontConfig: FontConfig = {
 	},
 
 	// 全局字体回退
+	// 顺序很重要：浏览器逐字符回退，英文走 Luckiest Guy，中文落到站酷快乐体
 	fallback: [
+		"ZCOOL KuaiLe",
 		"system-ui",
 		"-apple-system",
 		"BlinkMacSystemFont",

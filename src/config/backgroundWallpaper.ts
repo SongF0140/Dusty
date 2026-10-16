@@ -41,18 +41,20 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	 */
 	src: {
 		// 桌面背景图片（支持单张或多张随机）
-	// 恩奇都(Enkidu)·天之锁主题壁纸 - 绿白发+银蓝调（使用wallpaperaccess直链）
-	desktop: [
-		"https://wallpaperaccess.com/download/fate-enkidu-8577271",  // 3840x2160 Enkidu HD
-		"https://wallpaperaccess.com/download/fate-enkidu-3533598",  // Gilgamesh vs Enkidu 4K
-		"https://wallpaperaccess.com/download/fate-enkidu-8577296",  // 绿发+金链 微笑
-		"https://wallpaperaccess.com/download/fate-enkidu-8577378",  // 恩奇都肖像（与头像同源）
-	],
-	// 移动背景图片（恩奇都竖屏壁纸）
-	mobile: [
-		"https://wallpaperaccess.com/download/fate-enkidu-8577277",  // 1080x2160 竖屏
-		"https://wallpaperaccess.com/download/fate-enkidu-8577432",  // 1125x2436 手机竖屏
-	],
+	// 旧版：Fate 恩奇都主题壁纸 - 绿白发+银蓝调（保留备用，需要时取消注释）
+	// desktop: [
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577271",  // 3840x2160 Enkidu HD
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-3533598",  // Gilgamesh vs Enkidu 4K
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577296",  // 绿发+金链 微笑
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577378",  // 恩奇都肖像（与旧头像同源）
+	// ],
+	// 移动背景图片（旧版竖屏壁纸，保留备用）
+	// mobile: [
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577277",  // 1080x2160 竖屏
+	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577432",  // 1125x2436 手机竖屏
+	// ],
+	desktop: [],
+	mobile: [],
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组）
 		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
@@ -63,21 +65,21 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	},
 	// 横幅壁纸和全屏壁纸共享配置
 	common: {
-		// 横幅文字遮罩暗度，0-1之间（神圣破碎感：透亮但脆弱，不宜过暗）
+		// 横幅文字遮罩暗度，0-1之间（透亮但不宜过暗）
 		dimOpacity: 0.28,
 		// 多视频播放模式："order" 顺序循环，"random" 随机切换（仅当 playerUrl 为数组时生效）
 		playerMode: "random",
-		// 主页横幅文字（恩奇都·天之锁风格）
+		// 主页横幅文字
 		homeText: {
 			// 是否启用主页横幅文字
 			enable: true,
 			// 是否允许用户通过控制面板切换横幅标题显示
 			switchable: true,
 			// 主页横幅主标题
-			title: "ENKIDU",
+			title: "Dusty",
 			// 主页横幅主标题字体大小
 			titleSize: "3.8rem",
-			// 主页横幅副标题（恩奇都·神造兵器的神圣破碎感）
+			// 主页横幅副标题
 			subtitle: [
 				"技术笔记与项目记录",
 			],

@@ -1,5 +1,4 @@
 ---
-import ButtonLink from "@/components/common/ButtonLink.astro";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -8,7 +7,91 @@ import { getCategoryList } from "@/utils/content-utils";
 
 const categories = await getCategoryList();
 
-const COLLAPSED_HEIGHT = "7.5rem";
+interface GroupedCategory {
+	name: string;
+	url: string;
+	count: number;
+}
+
+// 分组定义：按 category 精确归组，未列出的分类归入「其他」
+const GROUPS: { title: string; members: string[] }[] = [
+	{
+		title: "技术",
+		members: [
+			"物联网",
+			"Qt学习",
+			"MySQL",
+			"前端",
+			"Git",
+			"通信协议",
+			"数据结构",
+			"计算机组成原理",
+			"Linux编程",
+			"算法题解",
+			"深度学习",
+			"AI工程",
+			"Docker",
+		],
+	},
+	{
+		title: "领域思考",
+		members: ["领域思考"],
+	},
+	{
+		title: "方法论",
+		members: ["方法论"],
+	},
+	{
+		title: "展望",
+		members: ["展望"],
+	},
+];
+
+// 建立分类名 -> 分组标题的映射
+const groupOf = new Map<string, string>();
+for (const g of GROUPS) {
+	for (const m of g.members) groupOf.set(m, g.title);
+}
+
+const buckets = new Map<string, GroupedCategory[]>();
+for (const g of GROUPS) buckets.set(g.title, []);
+
+let others: GroupedCategory[] = [];
+
+for (const c of categories) {
+	const name = c.name.trim();
+	const item: GroupedCategory = { name, url: c.url, count: c.count };
+	const g = groupOf.get(name);
+	if (g && buckets.has(g)) {
+		buckets.get(g)!.push(item);
+	} else {
+		others.push(item);
+	}
+}
+
+if (others.length > 0) {
+	buckets.set("其他", others);
+}
+
+// 组内按文章数降序
+for (const list of buckets.values()) {
+	list.sort((a, b) => b.count - a.count);
+}
+
+const groups = GROUPS.map((g) => ({
+	title: g.title,
+	items: buckets.get(g.title) || [],
+	count: (buckets.get(g.title) || []).reduce((s, c) => s + c.count, 0),
+})).filter((g) => g.items.length > 0);
+
+const othersGroup = buckets.get("其他");
+if (othersGroup && othersGroup.length > 0) {
+	groups.push({
+		title: "其他",
+		items: othersGroup,
+		count: othersGroup.reduce((s, c) => s + c.count, 0),
+	});
+}
 
 interface Props {
 	class?: string;
@@ -16,24 +99,36 @@ interface Props {
 	widgetConfig?: WidgetComponentConfig;
 }
 const { class: className, style, widgetConfig } = Astro.props;
-
-const collapseThreshold = widgetConfig?.specificConfig?.collapseThreshold;
 const showTitle = widgetConfig?.showTitle !== false;
-const isCollapsed = collapseThreshold
-	? categories.length > collapseThreshold
-	: false;
 ---
 
-<WidgetLayout name={i18n(I18nKey.categories)} showTitle={showTitle} id="categories" isCollapsed={isCollapsed} collapsedHeight={COLLAPSED_HEIGHT}
+<WidgetLayout name={i18n(I18nKey.categories)} showTitle={showTitle} id="categories"
                 class={className} style={style}
 >
-    {categories.map((c) =>
-        <ButtonLink
-            url={c.url}
-            badge={String(c.count)}
-            label={`View all posts in the ${c.name.trim()} category`}
-        >
-            {c.name.trim()}
-        </ButtonLink>
-    )}
+	<div class="category-groups">
+		{
+			groups.map((g) => (
+				<section class="category-group">
+					<header class="category-group-header">
+						<span class="category-group-title">{g.title}</span>
+						<span class="category-group-count">
+							{g.items.length} 类 · {g.count} 篇
+						</span>
+					</header>
+					<div class="category-group-body">
+						{g.items.map((c) => (
+							<a
+								href={c.url}
+								class="shadow-btn"
+								aria-label={`View all posts in the ${c.name} category`}
+							>
+								<span class="shadow-btn-label">{c.name}</span>
+								<span class="shadow-btn-badge">{c.count}</span>
+							</a>
+						))}
+					</div>
+				</section>
+			))
+		}
+	</div>
 </WidgetLayout>

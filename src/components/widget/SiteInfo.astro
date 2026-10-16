@@ -96,9 +96,9 @@ const mainItems = [
 		value: buildPlatform,
 	},
 	{
-		icon: "mdi:clover",
+		icon: "/assets/images/mascot.png",
 		label: i18n(I18nKey.siteInfoBlogVersion),
-		value: `ENKIDU Notes v${blogVersion}`,
+		value: `Dusty Notes v${blogVersion}`,
 		href: "https://github.com/SongF0140",
 	},
 	{
@@ -123,8 +123,8 @@ const detailItems: {
 		fullWidth: true,
 	},
 	{
-		icon: "mdi:clover",
-		label: "ENKIDU Notes",
+		icon: "/assets/images/mascot.png",
+		label: "Dusty Notes",
 		value: `v${blogVersion}`,
 	},
 	{
@@ -172,7 +172,11 @@ const detailItems: {
           <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-neutral-100/60 dark:bg-neutral-800/50">
             <div class="flex items-center gap-2.5">
               <div class="text-(--primary) text-lg">
-                <Icon is:inline name={item.icon} />
+                {item.icon.startsWith("/") ? (
+                  <img src={item.icon} alt={item.label} width="24" height="24" class="w-6 h-6 object-contain" />
+                ) : (
+                  <Icon is:inline name={item.icon} />
+                )}
               </div>
               <span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm">
                 {item.label}
@@ -216,7 +220,11 @@ const detailItems: {
                   { "col-span-2": item.fullWidth }
                 ]}>
                   <div class="text-(--primary) text-lg">
-                    <Icon is:inline name={item.icon} />
+                    {item.icon.startsWith("/") ? (
+                      <img src={item.icon} alt={item.label} width="24" height="24" class="w-6 h-6 object-contain" />
+                    ) : (
+                      <Icon is:inline name={item.icon} />
+                    )}
                   </div>
                   <span class="text-xs text-neutral-500 dark:text-neutral-400">
                     {item.label}

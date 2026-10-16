@@ -162,6 +162,71 @@ body #navbar.retro-navbar > div {
 .retro-navbar > div > div > a > div { font-size: 1.65rem; }
 .navbar-tools { align-items: center; gap: 2px; }
 
+/* ============================================
+   导航栏品牌字：纵向拉伸 + 上下渐隐的故障字效果
+   通过伪元素复制文字并纵向拉伸出丝状投影，
+   再用遮罩让上下两端自然淡出
+   ============================================ */
+.navbar-brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--retro-green, #46624f);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* 渐隐与拉伸只作用于文字本身，避免影响左侧 logo 图标 */
+.navbar-brand .navbar-brand-text {
+  position: relative;
+  display: inline-block;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 18%,
+    #000 42%,
+    #000 58%,
+    rgba(0, 0, 0, 0.35) 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 18%,
+    #000 42%,
+    #000 58%,
+    rgba(0, 0, 0, 0.35) 82%,
+    transparent 100%
+  );
+}
+
+.navbar-brand .navbar-brand-text::before,
+.navbar-brand .navbar-brand-text::after {
+  content: attr(data-brand-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--retro-green, #46624f);
+  mix-blend-mode: multiply;
+}
+
+.navbar-brand .navbar-brand-text::before {
+  transform: scaleY(1.55) scaleX(0.94);
+  filter: blur(1.5px);
+  opacity: 0.4;
+}
+
+.navbar-brand .navbar-brand-text::after {
+  transform: scaleY(1.22) scaleX(1.02);
+  filter: blur(0.6px);
+  opacity: 0.55;
+}
+
+/* 主文字置于拉丝层之上，保证清晰可读 */
+.navbar-brand .navbar-brand-text {
+  z-index: 1;
+}
+
 .retro-navbar .navigation-toggle {
   gap: 0.5rem;
   height: 44px;

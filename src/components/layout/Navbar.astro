@@ -110,10 +110,16 @@ if (isLocalSrcLogo) {
     ]}>
         <div class="mx-auto h-full w-full max-w-(--page-width) grid grid-cols-[auto_minmax(0,1fr)_auto] items-center">
             <a href={url('/')} class="btn-plain scale-animation rounded-lg h-13 px-5 font-bold active:scale-95">
-                <div class:list={[
-                    "flex flex-row items-center text-md",
-                    siteConfig.navbar.followTheme ? "text-(--primary)" : "dark:text-white text-black"
-                ]} style="font-family: var(--font-navbar-title, inherit)">
+                <div
+                    class:list={[
+                        "flex flex-row items-center text-md navbar-brand",
+                        siteConfig.navbar.followTheme
+                            ? "text-(--primary)"
+                            : "dark:text-white text-black",
+                    ]}
+                    data-brand-text={navbarTitle}
+                    style="font-family: var(--font-navbar-title, inherit)"
+                >
                                     {siteConfig.navbar.logo?.type === "icon" ? (
                                         <Icon is:inline name={siteConfig.navbar.logo.value || "material-symbols:home-pin-outline"} class="text-[1.75rem] mb-1 mr-2" />
                                     ) : siteConfig.navbar.logo?.type === "image" && logoImg ? (
@@ -134,7 +140,7 @@ if (isLocalSrcLogo) {
                                     ) : (
                                         <Icon is:inline name="material-symbols:home-pin-outline" class="text-[1.75rem] mb-1 mr-2" />
                                     )}
-                    {navbarTitle}
+                    <span class="navbar-brand-text">{navbarTitle}</span>
                 </div>
             </a>
             <div class:list={[

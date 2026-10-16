@@ -22,12 +22,15 @@ const selectedFonts = selectedIds
 	.map((id) => fontConfig.fonts[id])
 	.filter((font) => font?.src);
 
-// 需要加载的所有字体（selected + 各区域独立字体，去重）
+// 需要加载的所有字体（selected + 各区域独立字体 + TAG字体，去重）
 const allFontIds = new Set(selectedIds);
 if (fontConfig.bannerTitleFont) allFontIds.add(fontConfig.bannerTitleFont);
 if (fontConfig.bannerSubtitleFont)
 	allFontIds.add(fontConfig.bannerSubtitleFont);
 if (fontConfig.navbarTitleFont) allFontIds.add(fontConfig.navbarTitleFont);
+// TAG 字体（英文 Luckiest Guy + 中文站酷快乐体），不污染全局 body
+allFontIds.add("luckiest-guy");
+allFontIds.add("zcool-kuaile");
 
 const allFontsToLoad = Array.from(allFontIds)
 	.map((id) => fontConfig.fonts[id])
@@ -58,6 +61,10 @@ const navbarTitleFontFamily =
 	fontConfig.enable && fontConfig.navbarTitleFont
 		? resolveFontFamily(fontConfig.navbarTitleFont)
 		: "";
+// TAG 标签字体：英文 Luckiest Guy + 中文站酷快乐体
+const tagFontFamily = fontConfig.enable
+	? resolveFontFamily("luckiest-guy")
+	: "";
 ---
 
 <!-- 字体样式表链接 -->{
@@ -132,6 +139,7 @@ const navbarTitleFontFamily =
       ${bannerTitleFontFamily ? `--font-banner-title: ${bannerTitleFontFamily};` : ""}
       ${bannerSubtitleFontFamily ? `--font-banner-subtitle: ${bannerSubtitleFontFamily};` : ""}
       ${navbarTitleFontFamily ? `--font-navbar-title: ${navbarTitleFontFamily};` : ""}
+      ${tagFontFamily ? `--font-tag: ${tagFontFamily};` : ""}
     }
     
     /* 应用自定义字体到body */

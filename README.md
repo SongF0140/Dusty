@@ -1,6 +1,6 @@
-# ENKIDU Blog
+# Dusty Blog
 
-基于 Firefly/Astro 的个人技术博客。网站代码、文章和图床分别存放在三个 GitHub 仓库，站点由 GitHub Actions 构建并发布到 GitHub Pages。
+基于 Astro 的个人技术博客。网站代码、文章和图床分别存放在三个 GitHub 仓库，站点由 GitHub Actions 构建并发布到 GitHub Pages。
 
 | 用途 | 仓库 | 作用 |
 | --- | --- | --- |
@@ -10,11 +10,11 @@
 
 ## 更新流程
 
-文章仓库 `main` 推送后，仓库中的 `.github/workflows/trigger-firefly.yml` 向 Firefly 发送 `content-updated` 事件；图床仓库推送后发送 `images-updated`。Firefly 的 `.github/workflows/deploy.yml` 接收事件并重新构建。站点仓库 `master` 推送、手动运行部署工作流，以及每小时的定时任务也会触发重建。
+文章仓库 `main` 推送后，仓库中的 `.github/workflows/trigger-firefly.yml` 向站点仓库发送 `content-updated` 事件；图床仓库推送后发送 `images-updated`。站点仓库的 `.github/workflows/deploy.yml` 接收事件并重新构建。站点仓库 `master` 推送、手动运行部署工作流，以及每小时的定时任务也会触发重建。
 
 每次运行 `pnpm run build` 都会先执行 `pnpm run sync-content`：从 GitHub 文章仓库的 `main` 分支获取最新内容，再交给 Astro 生成静态页面和 Pagefind 搜索索引。文章并非在访客浏览器中实时从 GitHub 加载；访问者拿到的是已经构建好的页面。图片仓库更新会触发同一次重建，但远程图片仍按文章中的 URL 加载。
 
-要让两个源仓库的即时触发器生效，分别在 `blog_knowledge` 和 `image_place` 的 **Settings → Secrets and variables → Actions** 中配置 `FIREFLY_DISPATCH_TOKEN`。该 token 须有权限调用 Firefly 仓库的 repository dispatch API。详情见 [自动更新说明](docs/auto-update.md)。所有本地变更都必须推送到对应仓库，GitHub Actions 才能使用。
+要让两个源仓库的即时触发器生效，分别在 `blog_knowledge` 和 `image_place` 的 **Settings → Secrets and variables → Actions** 中配置 `FIREFLY_DISPATCH_TOKEN`。该 token 须有权限调用站点仓库的 repository dispatch API。详情见 [自动更新说明](docs/auto-update.md)。所有本地变更都必须推送到对应仓库，GitHub Actions 才能使用。
 
 ## 本地开发
 

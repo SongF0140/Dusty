@@ -261,7 +261,7 @@ export const zh_CN: Translation = {
 	[Key.shareOnSocialDescription]: "如果这篇文章对你有帮助，欢迎分享给更多人！",
 
 	// 站点统计
-	[Key.siteStats]: "站点统计",
+	[Key.siteStats]: "高密乡",
 	[Key.siteStatsPostCount]: "文章",
 	[Key.siteStatsCategoryCount]: "分类",
 	[Key.siteStatsTagCount]: "标签",
