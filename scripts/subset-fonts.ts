@@ -7,7 +7,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { glob } from "glob";
 import subsetFont from "subset-font";
-import { fontConfig } from "../src/config";
+// 直接引用具体配置文件，不走 src/config 索引 —— 索引会连带导出
+// commentConfig等使用 import.meta.env 的模块，在纯 Node/tsx 下会报
+// "Cannot read properties of undefined (reading 'PUBLIC_...')"
+import { fontConfig } from "../src/config/fontConfig";
 
 // ─── 配置 ───────────────────────────────────────────────
 
