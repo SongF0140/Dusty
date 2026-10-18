@@ -7,6 +7,7 @@ import SideBar from "@components/layout/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import PageSkeleton from "@/components/common/PageSkeleton.astro";
 import FloatingControls from "@/components/controls/FloatingControls.astro";
 import ScrollDownIndicator from "@/components/controls/ScrollDownIndicator.astro";
 import BackgroundPlayer from "@/components/features/BackgroundPlayer.astro";
@@ -887,9 +888,11 @@ const bannerCarouselInterval = Math.max(
             )}
                     
             {/* 主内容区包装器 - 包含静态栏位和swup容器，作为单个grid item */}
-            <div class={staticBarClass}>
+            <div id="main-column" class={staticBarClass}>
                 {/* 分类导航栏 - 全站渲染并显示 */}
                 {shouldRenderCategoryBar && <div id="category-bar-wrapper"><CategoryBar currentPostCategory={postCategory} /></div>}
+                <div id="page-content-shell">
+                <PageSkeleton navigation />
                 {/* 主内容区 - 始终渲染，确保 Swup 容器存在 */}
                 <main
                     id="swup-container"
@@ -904,6 +907,7 @@ const bannerCarouselInterval = Math.max(
                     <slot></slot>
                 </div>
             </main>
+                </div>
             </div>
 
             {/* 右侧边栏 - 双侧边栏模式或仅右侧栏模式 */}

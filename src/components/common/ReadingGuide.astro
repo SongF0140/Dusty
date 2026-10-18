@@ -1,0 +1,97 @@
+<div class="reading-hover-line" aria-hidden="true"></div>
+
+<script>
+import { getReadingProgress } from "@/utils/reading-progress";
+
+let dispose: (() => void) | undefined;
+
+function initReadingGuide() {
+    dispose?.();
+    const body = document.querySelector<HTMLElement>("[data-reading-body]");
+    const hover = body?.querySelector<HTMLElement>(".reading-hover-line");
+    if (!body || !hover) return;
+    let frame = 0;
+    let pointerFrame = 0;
+    let pointer: PointerEvent | undefined;
+
+    const update = () => {
+        frame = 0;
+        const rect = body.getBoundingClientRect();
+        if (!rect.height) return;
+        const anchor = Math.min(160, window.innerHeight * 0.25);
+        const progress = getReadingProgress(rect.top, rect.height, window.innerHeight, anchor);
+        document.querySelectorAll<HTMLElement>(".toc-reading-layout .reading-rail").forEach((rail) => {
+            rail.setAttribute("aria-valuenow", String(Math.round(progress * 100)));
+        });
+        hover.classList.remove("is-visible");
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+
+    const updateHover = () => {
+        pointerFrame = 0;
+        if (!pointer || pointer.pointerType === "touch") return;
+        const target = pointer.target instanceof Element ? pointer.target : null;
+        const block = target?.closest<HTMLElement>("p, li, h1, h2, h3, h4, h5, h6, blockquote");
+        if (!block || !body.contains(block) || block.closest("pre, .expressive-code, table")) {
+            hover.classList.remove("is-visible");
+            return;
+        }
+        const bodyRect = body.getBoundingClientRect();
+        const blockRect = block.getBoundingClientRect();
+        const lineHeight = Number.parseFloat(getComputedStyle(block).lineHeight) || 28;
+        let lineTop = blockRect.top + Math.floor(Math.max(0, pointer.clientY - blockRect.top) / lineHeight) * lineHeight;
+        // A character range follows real wrapped lines, including inline code and links.
+        const caret = document.caretPositionFromPoint?.(pointer.clientX, pointer.clientY);
+        if (caret?.offsetNode.nodeType === Node.TEXT_NODE && block.contains(caret.offsetNode)) {
+            const range = document.createRange();
+            const length = caret.offsetNode.textContent?.length || 0;
+            const start = Math.min(caret.offset, Math.max(0, length - 1));
+            range.setStart(caret.offsetNode, start);
+            range.setEnd(caret.offsetNode, Math.min(start + 1, length));
+            const charRect = range.getBoundingClientRect();
+            if (charRect.height) lineTop = charRect.top - Math.max(0, (lineHeight - charRect.height) / 2);
+        }
+        hover.style.top = `${Math.max(0, lineTop - bodyRect.top)}px`;
+        hover.style.height = `${lineHeight}px`;
+        hover.classList.add("is-visible");
+    };
+    const move = (event: PointerEvent) => {
+        pointer = event;
+        if (!pointerFrame) pointerFrame = requestAnimationFrame(updateHover);
+    };
+    const leave = () => {
+        pointer = undefined;
+        if (pointerFrame) cancelAnimationFrame(pointerFrame);
+        pointerFrame = 0;
+        hover.classList.remove("is-visible");
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    body.addEventListener("pointermove", move);
+    body.addEventListener("pointerleave", leave);
+    const resize = new ResizeObserver(schedule);
+    resize.observe(body);
+    document.querySelectorAll(".toc-reading-layout .reading-rail").forEach((rail) => resize.observe(rail));
+    schedule();
+    dispose = () => {
+        window.removeEventListener("scroll", schedule);
+        window.removeEventListener("resize", schedule);
+        body.removeEventListener("pointermove", move);
+        body.removeEventListener("pointerleave", leave);
+        resize.disconnect();
+        cancelAnimationFrame(frame);
+        cancelAnimationFrame(pointerFrame);
+    };
+}
+
+initReadingGuide();
+document.addEventListener("astro:page-load", initReadingGuide);
+document.addEventListener("password:decrypted", initReadingGuide);
+const attachReadingGuide = () => {
+    window.swup?.hooks.on("page:view", initReadingGuide);
+    window.swup?.hooks.on("visit:start", () => dispose?.());
+    window.swup?.hooks.on("visit:abort", initReadingGuide);
+};
+if (window.swup) attachReadingGuide();
+else document.addEventListener("swup:enable", attachReadingGuide, { once: true });
+</script>

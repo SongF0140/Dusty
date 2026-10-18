@@ -5,6 +5,7 @@
 
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
+import { getCurrentHeadingIndex, getReadingMarkerGeometry } from "./reading-progress";
 
 export interface TOCConfig {
 	contentId: string;
@@ -22,6 +23,25 @@ export class TOCManager {
 	private contentId: string;
 	private indicatorId: string;
 	private scrollOffset: number;
+	private activeItem: HTMLElement | null = null;
+	private frame = 0;
+	private onPageScroll = () => {
+		if (this.frame) return;
+		this.frame = requestAnimationFrame(() => {
+			this.frame = 0;
+			this.updateActiveState();
+		});
+	};
+	private onDirectoryScroll = () => {
+		if (this.activeItem) this.updateReadingMarker(this.activeItem);
+	};
+	private onGutterWheel = (event: WheelEvent) => {
+		const scroll = document.getElementById(this.contentId)?.closest<HTMLElement>(".toc-scroll-container");
+		if (!scroll || (event.target instanceof Node && scroll.contains(event.target))) return;
+		event.preventDefault();
+		const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? scroll.clientHeight : 1;
+		scroll.scrollTop += event.deltaY * unit;
+	};
 
 	constructor(config: TOCConfig) {
 		this.contentId = config.contentId;
@@ -217,43 +237,10 @@ export class TOCManager {
 	 * 获取可见的标题ID
 	 */
 	private getVisibleHeadingIds(): string[] {
-		const headings = this.getAllHeadings();
-		const visibleHeadingIds: string[] = [];
-
-		headings.forEach((heading) => {
-			if (heading.id) {
-				const rect = heading.getBoundingClientRect();
-				const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-
-				if (isVisible) {
-					visibleHeadingIds.push(heading.id);
-				}
-			}
-		});
-
-		// 如果没有可见标题，选择最接近屏幕顶部的标题
-		if (visibleHeadingIds.length === 0 && headings.length > 0) {
-			let closestHeading: string | null = null;
-			let minDistance = Number.POSITIVE_INFINITY;
-
-			headings.forEach((heading) => {
-				if (heading.id) {
-					const rect = heading.getBoundingClientRect();
-					const distance = Math.abs(rect.top);
-
-					if (distance < minDistance) {
-						minDistance = distance;
-						closestHeading = heading.id;
-					}
-				}
-			});
-
-			if (closestHeading) {
-				visibleHeadingIds.push(closestHeading);
-			}
-		}
-
-		return visibleHeadingIds;
+		const headings = this.filterHeadings(this.getAllHeadings());
+		const index = getCurrentHeadingIndex(headings.map((heading) => heading.getBoundingClientRect().top), this.scrollOffset + 32);
+		const heading = headings[index];
+		return heading?.id ? [heading.id] : [];
 	}
 
 	/**
@@ -312,11 +299,24 @@ export class TOCManager {
 		indicator.style.top = `${top}px`;
 		indicator.style.height = `${height}px`;
 		indicator.style.opacity = "1";
+		this.activeItem = firstActive;
+		this.updateReadingMarker(firstActive);
 
 		// 自动滚动到活动项
-		if (firstActive) {
-			this.scrollToActiveItem(firstActive);
-		}
+		this.scrollToActiveItem(firstActive);
+	}
+
+	private updateReadingMarker(item: HTMLElement): void {
+		const layout = item.closest(".toc-reading-layout");
+		const rail = layout?.querySelector<HTMLElement>(".reading-rail");
+		const marker = rail?.querySelector<HTMLElement>(".reading-rail-position");
+		const fill = rail?.querySelector<HTMLElement>(".reading-rail-fill");
+		if (!rail || !marker) return;
+		const row = item.getBoundingClientRect();
+		const geometry = getReadingMarkerGeometry(row.top, row.height, rail.getBoundingClientRect().top, rail.clientHeight);
+		marker.style.top = `${geometry.top}px`;
+		marker.style.opacity = geometry.visible ? "1" : "0";
+		if (fill) fill.style.height = `${geometry.fillHeight}px`;
 	}
 
 	/**
@@ -330,13 +330,13 @@ export class TOCManager {
 			?.closest(".toc-scroll-container");
 		if (!tocContainer) return;
 
-		// 清除之前的定时器
-		if (this.scrollTimeout) {
-			clearTimeout(this.scrollTimeout);
-		}
+		// Throttle without postponing forever during continuous page scrolling.
+		if (this.scrollTimeout) return;
 
 		// 使用节流机制
 		this.scrollTimeout = window.setTimeout(() => {
+			this.scrollTimeout = null;
+			activeItem = this.activeItem ?? activeItem;
 			const containerRect = tocContainer.getBoundingClientRect();
 			const itemRect = activeItem.getBoundingClientRect();
 
@@ -356,7 +356,7 @@ export class TOCManager {
 
 				tocContainer.scrollTo({
 					top: targetScroll,
-					behavior: "smooth",
+					behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
 				});
 			}
 		}, 100);
@@ -426,6 +426,13 @@ export class TOCManager {
 	 * 清理
 	 */
 	public cleanup(): void {
+		window.removeEventListener("scroll", this.onPageScroll);
+		window.removeEventListener("resize", this.onPageScroll);
+		document.getElementById(this.contentId)?.closest(".toc-scroll-container")?.removeEventListener("scroll", this.onDirectoryScroll);
+		document.getElementById(this.contentId)?.closest(".toc-reading-layout")?.removeEventListener("wheel", this.onGutterWheel);
+		cancelAnimationFrame(this.frame);
+		this.frame = 0;
+		this.activeItem = null;
 		if (this.observer) {
 			this.observer.disconnect();
 			this.observer = null;
@@ -444,6 +451,10 @@ export class TOCManager {
 		this.bindClickEvents();
 		this.setupObserver();
 		this.updateActiveState();
+		window.addEventListener("scroll", this.onPageScroll, { passive: true });
+		window.addEventListener("resize", this.onPageScroll);
+		document.getElementById(this.contentId)?.closest(".toc-scroll-container")?.addEventListener("scroll", this.onDirectoryScroll, { passive: true });
+		document.getElementById(this.contentId)?.closest(".toc-reading-layout")?.addEventListener("wheel", this.onGutterWheel, { passive: false });
 	}
 }
 

@@ -1,63 +1,72 @@
 ---
 import { commentConfig } from "@/config";
-
-if (!commentConfig?.giscus) {
-	throw new Error("Giscus comments are not configured");
-}
-
-const giscus = commentConfig.giscus;
-const lightTheme = "light";
-const darkTheme = "dark";
+import { githubCommentTerm, isGithubCommentsConfigured } from "@/utils/github-comments";
+const { path = Astro.url.pathname } = Astro.props;
+const giscus = commentConfig.giscus!;
+const configured = isGithubCommentsConfigured(giscus);
 ---
 
-<script is:inline type="module" src="https://esm.sh/giscus"></script>
+{configured ? (
+    <github-comments data-repo={giscus.repo} data-repo-id={giscus.repoId} data-category={giscus.category} data-category-id={giscus.categoryId} data-term={githubCommentTerm(path)}>
+        <p data-comment-status role="status">正在加载 GitHub 评论…</p>
+        <div class="giscus"></div>
+        <button type="button" data-retry-comments hidden>重新加载评论</button>
+    </github-comments>
+) : (
+    <div class="github-comments-pending">
+        <strong>使用 GitHub 账号参与讨论</strong>
+        <p>GitHub 评论暂未开放，配置完成后即可在这里登录、留言。</p>
+    </div>
+)}
 
-<!-- 
-  Giscus 官方Web Component用法，兼容Astro静态输出，无需import包，无需NPM依赖！
-  参考：https://giscus.app/ 详情配置说明
--->
-<giscus-widget
-  id="comments"
-  repo={giscus.repo}
-  repoId={giscus.repoId}
-  category={giscus.category}
-  categoryId={giscus.categoryId}
-  mapping={giscus.mapping}
-  strict={giscus.strict}
-  reactionsEnabled={giscus.reactionsEnabled}
-  emitMetadata={giscus.emitMetadata}
-  inputPosition={giscus.inputPosition}
-  theme={lightTheme}
-  lang={giscus.lang}
-  loading={giscus.loading}
-/>
+<style is:global>
+    github-comments { display: block; min-height: 120px; }
+    github-comments [data-comment-status], .github-comments-pending p { font-size: .85rem; line-height: 1.8; color: var(--retro-muted); }
+    .github-comments-pending { padding: 1.2rem; border: 1px dashed var(--retro-green); border-radius: 8px; }
+    .github-comments-pending strong { display: block; margin-bottom: .5rem; }
+    github-comments [data-retry-comments] { margin-top: .75rem; color: var(--retro-green); text-decoration: underline; cursor: pointer; }
+    github-comments [hidden] { display: none !important; }
+</style>
 
-<script is:inline define:vars={{ lightTheme, darkTheme }}>
-  function updateGiscusTheme() {
-    const isDark = document.documentElement.classList.contains('dark');
-    const theme = isDark ? darkTheme : lightTheme;
-    const widget = document.querySelector('giscus-widget');
-    if (widget) {
-      widget.setAttribute('theme', theme);
+<script>
+class GithubComments extends HTMLElement {
+    private dispose?: () => void;
+    connectedCallback() {
+        this.dispose?.();
+        const container = this.querySelector<HTMLElement>(".giscus")!;
+        const status = this.querySelector<HTMLElement>("[data-comment-status]")!;
+        const retry = this.querySelector<HTMLButtonElement>("[data-retry-comments]")!;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const theme = () => document.documentElement.classList.contains("dark") ? "dark" : "light";
+        const setTheme = () => {
+            const frame = this.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+            frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme() } } }, "https://giscus.app");
+        };
+        const failed = () => { status.hidden = false; status.textContent = "GitHub 评论加载失败，请检查网络后重试。"; retry.hidden = false; };
+        const ready = () => { clearTimeout(timer); status.hidden = true; retry.hidden = true; setTheme(); };
+        const observer = new MutationObserver(() => {
+            const frame = container.querySelector("iframe");
+            if (frame && !frame.dataset.observed) { frame.dataset.observed = "true"; frame.addEventListener("load", ready, { once: true }); }
+        });
+        observer.observe(container, { childList: true, subtree: true });
+        const load = () => {
+            clearTimeout(timer); container.replaceChildren(); status.hidden = false; retry.hidden = true; status.textContent = "正在加载 GitHub 评论…";
+            const script = document.createElement("script"); script.src = "https://giscus.app/client.js"; script.async = true; script.crossOrigin = "anonymous";
+            const settings = { repo: this.dataset.repo!, repoId: this.dataset.repoId!, category: this.dataset.category!, categoryId: this.dataset.categoryId!, mapping: "specific", term: this.dataset.term!, strict: "1", reactionsEnabled: "1", emitMetadata: "0", inputPosition: "top", theme: theme(), lang: "zh-CN", loading: "eager" };
+            Object.entries(settings).forEach(([key, value]) => { script.dataset[key] = value; });
+            script.onerror = failed; container.append(script);
+            timer = setTimeout(failed, 20000);
+        };
+        retry.addEventListener("click", load);
+        window.addEventListener("theme-change", setTheme);
+        // Start loading and its timeout only when the reader approaches the comments.
+        const visibility = new IntersectionObserver(entries => {
+            if (entries.some(entry => entry.isIntersecting)) { visibility.disconnect(); load(); }
+        }, { rootMargin: "300px" });
+        visibility.observe(this);
+        this.dispose = () => { clearTimeout(timer); visibility.disconnect(); observer.disconnect(); window.removeEventListener("theme-change", setTheme); retry.removeEventListener("click", load); };
     }
-  }
-
-  // Initial update
-  updateGiscusTheme();
-
-  // Clean up previous observer if exists
-  if (window.giscusThemeObserver) {
-    window.giscusThemeObserver.disconnect();
-  }
-
-  // Create new observer
-  window.giscusThemeObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        updateGiscusTheme();
-      }
-    });
-  });
-
-  window.giscusThemeObserver.observe(document.documentElement, { attributes: true });
+    disconnectedCallback() { this.dispose?.(); }
+}
+if (!customElements.get("github-comments")) customElements.define("github-comments", GithubComments);
 </script>

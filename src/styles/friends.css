@@ -1,0 +1,72 @@
+body:has(friends-directory) #main-grid { grid-template-columns: minmax(0, 1fr); max-width: 74rem; }
+body:has(friends-directory) :is(#left-sidebar-wrapper, #left-sidebar-dynamic, #left-sidebar, #right-sidebar, #right-sidebar-static, #right-sidebar-dynamic, #mobile-bottom-sidebar) { display: none !important; }
+body:has(friends-directory) :is(#main-column, #main-grid > .footer) { grid-column: 1 / -1 !important; min-width: 0; }
+.friends-page { display: block; padding: clamp(1.25rem, 3vw, 2.5rem); color: var(--retro-ink); container-type: inline-size; }
+.friends-page [hidden] { display: none !important; }
+.friends-heading .friends-eyebrow { font: 10px/1.5 "JetBrains Mono Variable", monospace; letter-spacing: .14em; color: var(--retro-muted); margin-bottom: .7rem; }
+.friends-heading h1 { display: flex; gap: .7rem; align-items: center; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800; }
+.friends-heading-mark { color: var(--retro-green); transform: rotate(-15deg); }
+.friends-heading-mark svg { width: 1.7rem; height: 1.7rem; }
+.friends-summary { margin: 1rem 0 0; color: var(--retro-muted); display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
+.friends-summary strong { font-size: 1.4rem; color: var(--retro-green); }
+.friends-summary > span { margin-left: .75rem; font-size: .85rem; }
+.friends-tabs { display: flex; gap: clamp(.8rem, 2vw, 1.6rem); flex-wrap: wrap; border-bottom: 1px solid color-mix(in srgb, var(--retro-ink) 20%, transparent); margin: 1.75rem 0 2rem; }
+.friends-tabs button { position: relative; padding: 0 0 .8rem; color: var(--retro-muted); cursor: pointer; font-weight: 700; font-size: .9rem; }
+.friends-tabs button[aria-pressed="true"] { color: var(--retro-green); }
+.friends-tabs button[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--retro-green); border-radius: 3px; }
+.friends-tabs sup { font: .65rem/1 monospace; margin-left: .35rem; }
+.friends-group { margin-bottom: 2rem; }
+.friends-group > h2 { display: flex; align-items: center; gap: .6rem; font-size: 1.25rem; font-weight: 800; }
+.friends-group > h2 > svg { color: var(--retro-green); width: 1.35rem; height: 1.35rem; }
+.friends-rule { height: 1px; background: color-mix(in srgb, var(--retro-green) 25%, transparent); flex: 1; }
+.friends-group small { color: var(--retro-muted); font-size: .75rem; font-weight: 400; }
+.friends-group > p { margin: .5rem 0 1.1rem; color: var(--retro-muted); font-size: .9rem; }
+.friends-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1rem; }
+.friends-page .friend-card { display: flex; align-items: center; gap: 1rem; padding: 1.15rem; border: 1px solid color-mix(in srgb, var(--retro-ink) 24%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--retro-paper) 35%, var(--retro-surface)); transition: transform 180ms ease, border-color 180ms ease; }
+.friends-page .friend-card:hover { transform: translateY(-3px); border-color: var(--retro-green); }
+.friend-card img { width: 62px; height: 62px; flex-shrink: 0; border-radius: 50%; object-fit: cover; padding: 3px; border: 2px solid var(--friend-color); }
+.friend-card > div { min-width: 0; flex: 1; }
+.friend-card h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: .5rem; font-size: 1.05rem; font-weight: 800; }
+.friend-card h3 span { color: var(--retro-muted); font-size: .8rem; font-weight: 400; }
+.friend-card p { color: var(--retro-muted); font-size: .85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: .35rem; }
+.friend-arrow { width: 1rem; height: 1rem; flex-shrink: 0; color: var(--retro-green); }
+.friends-empty { padding: 1.75rem; display: flex; align-items: center; gap: 1.25rem; margin: 0 0 2.5rem; border: 1px dashed color-mix(in srgb, var(--retro-green) 45%, transparent); border-radius: 12px; }
+.friends-empty-symbol { width: 3.3rem; height: 3.3rem; display: grid; place-items: center; flex-shrink: 0; background: var(--retro-sage); border-radius: 50%; color: var(--retro-green); }
+.friends-empty-symbol svg { width: 1.6rem; height: 1.6rem; }
+.friends-empty h2 { font-size: 1.05rem; font-weight: 700; }
+.friends-empty p { font-size: .85rem; color: var(--retro-muted); margin-top: .4rem; }
+.friend-application { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.75rem; padding: 1.75rem; border: 1px solid color-mix(in srgb, var(--retro-ink) 25%, transparent); border-radius: 18px; }
+.friend-application-form > h2 { display: flex; align-items: center; gap: .6rem; font-size: 1.5rem; font-weight: 800; }
+.friend-application-form > h2 svg { width: 1.7rem; height: 1.7rem; color: var(--retro-green); }
+.friend-application-form > p { font-size: .9rem; margin-top: .6rem; margin-bottom: 1.75rem; color: var(--retro-muted); }
+.friend-application form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+.friend-application label { display: flex; flex-direction: column; gap: .45rem; min-width: 0; color: var(--retro-muted); font-size: .8rem; font-weight: 700; }
+.friend-field-wide { grid-column: 1 / -1; }
+.friend-application input:not([type="color"]) { width: 100%; min-width: 0; border: 1px solid color-mix(in srgb, var(--retro-ink) 35%, transparent); border-radius: 9px; background: transparent; color: var(--retro-ink); font: inherit; font-weight: 400; padding: .8rem .9rem; height: 48px; }
+.friend-application input::placeholder { color: color-mix(in srgb, var(--retro-muted) 70%, transparent); }
+.friend-color-field { display: flex; align-items: center; gap: .5rem; height: 48px; border: 1px solid color-mix(in srgb, var(--retro-ink) 35%, transparent); border-radius: 9px; padding: .3rem .5rem; }
+.friend-color-field input { border: 0; background: none; width: 32px; height: 32px; padding: 0; cursor: pointer; flex-shrink: 0; }
+.friend-color-field output { font: .75rem monospace; color: var(--retro-ink); }
+.friend-config-panel { background: color-mix(in srgb, var(--retro-paper) 60%, var(--retro-surface)); padding: 1.25rem; border-radius: 14px; min-width: 0; }
+.friend-config-heading { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; justify-content: space-between; margin-bottom: 1.2rem; }
+.friend-config-heading h3 { font-size: 1.1rem; font-weight: 800; }
+.friend-config-heading button { display: flex; align-items: center; gap: .35rem; border: 1px dashed var(--retro-green); padding: .55rem .65rem; border-radius: 8px; font-size: .8rem; font-weight: 700; color: var(--retro-green); cursor: pointer; }
+.friend-config-heading button svg { width: 1rem; height: 1rem; }
+.friend-config-heading button:hover { background: var(--retro-sage); }
+.friend-config-panel pre { background: color-mix(in srgb, var(--retro-paper) 80%, var(--retro-outline)); border: 1px solid color-mix(in srgb, var(--retro-ink) 20%, transparent); border-radius: 10px; padding: 1rem; min-height: 220px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--retro-ink); }
+.friend-config-panel pre code { font: .75rem/1.9 "JetBrains Mono Variable", monospace; }
+.friend-application-note { font-size: .8rem; line-height: 1.8; background: var(--retro-sage); padding: .9rem; border-radius: 9px; margin-top: 1rem; color: var(--retro-ink); }
+.friend-application-note a { text-decoration: underline; text-underline-offset: 3px; }
+.friend-copy-status { min-height: 1.5rem; margin-top: .6rem; font-size: .8rem; color: var(--retro-green); }
+.friends-page :is(button, input):focus-visible { outline: 2px solid var(--retro-green); outline-offset: 3px; }
+@container (max-width: 740px) { .friend-application { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 540px) {
+    .friends-summary > span { margin-left: 0; width: 100%; }
+    .friends-tabs { gap: 1rem; }
+    .friends-tabs button { font-size: .8rem; }
+    .friends-empty { padding: 1.1rem; align-items: flex-start; gap: .75rem; }
+    .friends-empty-symbol { width: 2.5rem; height: 2.5rem; }
+    .friend-application { padding: 1.1rem; }
+    .friend-application form { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .friends-page .friend-card { transition: none; } }

@@ -1,0 +1,160 @@
+<div id="christmas-burst-layer" aria-hidden="true"></div>
+<template data-festive-sprite="snowflake">
+    <svg viewBox="0 0 32 32" fill="none" stroke="#d4ece4" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M16 3v26M5 9l22 14M5 23 27 9M12 6l4 4 4-4M12 26l4-4 4 4M7 10l1 5-5 1M25 22l-1-5 5-1M7 22l5-1-1-5M25 10l-5 1 1 5" />
+    </svg>
+</template>
+<template data-festive-sprite="candy">
+    <svg viewBox="0 0 32 32" fill="none" stroke-linecap="round" aria-hidden="true">
+        <path d="M10 28V10C10 1 24 1 24 10v3" stroke="#633c2d" stroke-width="8" />
+        <path d="M10 28V10C10 1 24 1 24 10v3" stroke="#fff1d6" stroke-width="6" />
+        <path d="m8 25 4-2m-4-5 4-2m-3-6 4 1m5-7-1 5m6 1-3 2" stroke="#b94339" stroke-width="3" />
+    </svg>
+</template>
+<template data-festive-sprite="star">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 2 4 9 10 1-8 7 3 11-9-6-9 6 3-11-8-7 10-1Z" fill="#d6ab58" stroke="#77552f" stroke-width="1.5" /></svg>
+</template>
+<template data-festive-sprite="bell">
+    <svg viewBox="0 0 32 32" stroke="#77552f" stroke-width="1.5" aria-hidden="true">
+        <circle cx="16" cy="5" r="3" fill="none" /><circle cx="16" cy="26" r="3" fill="#b97b35" />
+        <path d="M5 24c4-4 3-8 4-12a7 7 0 0 1 14 0c1 4 0 8 4 12Z" fill="#e2b85d" />
+        <path d="M12 12q-2 4-2 8" fill="none" stroke="#fff1d6" stroke-width="2" />
+        <path d="m16 7-6-3v6Zm0 0 6-3v6Z" fill="#b94339" stroke="none" />
+    </svg>
+</template>
+<template data-festive-sprite="tree">
+    <svg viewBox="0 0 32 32" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 23h4v7h-4Z" fill="#865637" />
+        <path d="m16 3-8 10h4L5 20h5l-6 7h24l-6-7h5l-7-7h4Z" fill="#44775b" stroke="#315440" stroke-width="1.5" />
+        <path d="m16 0 1.5 3 3.5.5-2.5 2.3.5 3.2-3-1.5L13 9l.5-3.2L11 3.5l3.5-.5Z" fill="#e2b85d" />
+        <circle cx="13" cy="15" r="1.5" fill="#f0d58c" /><circle cx="20" cy="22" r="1.8" fill="#d35c4e" /><circle cx="11" cy="24" r="1.5" fill="#fff1d6" />
+    </svg>
+</template>
+<template data-festive-sprite="stocking">
+    <svg viewBox="0 0 32 32" stroke="#633c2d" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5h13v14c0 5-5 8-10 10l-5 1c-6 0-8-7-3-10l5-2Z" fill="currentColor" />
+        <path d="M11 3h15v6H11Z" fill="#fff1d6" /><path d="M5 23q5-2 7 6M20 17q-1 5 4 6" fill="none" stroke="#f0d58c" stroke-width="3" />
+        <path d="M16 12h5m-2.5-2.5v5" stroke="#fff1d6" />
+    </svg>
+</template>
+
+<style is:global>
+    #christmas-burst-layer { position: fixed; inset: 0; z-index: 1100; pointer-events: none; overflow: hidden; }
+    .christmas-particle { position: absolute; display: block; pointer-events: none; will-change: transform, opacity; }
+    .christmas-particle svg { width: 100%; height: 100%; overflow: visible; }
+    #christmas-effect-switch { color: var(--retro-ink); }
+    #christmas-effect-switch:hover { background: transparent; }
+    #christmas-effect-switch .gingerbread-motion {
+        display: inline-flex;
+        transform-origin: 50% 80%;
+        transform: scale(1.12);
+    }
+    #christmas-effect-switch[aria-pressed="false"] .gingerbread-motion { transform: scale(1); }
+</style>
+
+<script>
+import { createChristmasBurst, createChristmasFallFrames } from "@/utils/christmas-burst";
+
+const layer = document.getElementById("christmas-burst-layer")!;
+const button = document.getElementById("christmas-effect-switch");
+const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+let enabled = localStorage.getItem("christmasEffectEnabled") !== "false";
+const active = new Map<HTMLElement, Animation>();
+const motion = button?.querySelector<HTMLElement>(".gingerbread-motion");
+let buttonAnimation: Animation | null = null;
+
+function animateButton(frames: Keyframe[], duration: number, name: string) {
+    buttonAnimation?.cancel();
+    if (!motion || preference.matches) return;
+    const animation = motion.animate(frames, { duration, easing: "ease-in-out" });
+    buttonAnimation = animation;
+    button?.setAttribute("data-motion", name);
+    animation.finished.catch(() => {}).finally(() => {
+        if (buttonAnimation !== animation) return;
+        buttonAnimation = null;
+        button?.removeAttribute("data-motion");
+    });
+}
+
+function bounceButton() {
+    if (button?.getAttribute("data-motion") === "shake") return;
+    const scale = enabled ? 1.12 : 1;
+    const height = enabled ? 5 : 3;
+    animateButton([
+        { transform: `translateY(0) scale(${scale})` },
+        { transform: `translateY(-${height}px) scale(${scale})`, offset: 0.28 },
+        { transform: `translateY(0) scale(${scale})`, offset: 0.5 },
+        { transform: `translateY(-${height / 2}px) scale(${scale})`, offset: 0.72 },
+        { transform: `translateY(0) scale(${scale})` },
+    ], 460, "bounce");
+}
+
+button?.addEventListener("pointerenter", bounceButton);
+button?.addEventListener("focusin", bounceButton);
+
+function syncButton() {
+    button?.setAttribute("aria-pressed", String(enabled));
+    button?.setAttribute("title", enabled ? "关闭圣诞姜饼点击特效" : "开启圣诞姜饼点击特效");
+    layer.dataset.enabled = String(enabled);
+}
+
+function clearParticles() {
+    active.forEach((animation, particle) => { animation.cancel(); particle.remove(); });
+    active.clear();
+}
+
+button?.addEventListener("click", () => {
+    const previousScale = enabled ? 1.12 : 1;
+    const previousTransform = motion ? getComputedStyle(motion).transform : `scale(${previousScale})`;
+    enabled = !enabled;
+    localStorage.setItem("christmasEffectEnabled", String(enabled));
+    if (!enabled) clearParticles();
+    syncButton();
+    const nextScale = enabled ? 1.12 : 1;
+    animateButton([
+        { transform: previousTransform },
+        { transform: `translateX(-3px) rotate(-9deg) scale(${previousScale})`, offset: 0.16 },
+        { transform: `translateX(3px) rotate(9deg) scale(${previousScale})`, offset: 0.32 },
+        { transform: `translateX(-2px) rotate(-6deg) scale(${previousScale})`, offset: 0.48 },
+        { transform: `translateX(2px) rotate(5deg) scale(${previousScale})`, offset: 0.64 },
+        { transform: `translateX(0) rotate(0) scale(${previousScale})`, offset: 0.75 },
+        { transform: `translateX(0) rotate(0) scale(${nextScale})` },
+    ], 360, "shake");
+});
+
+document.addEventListener("click", (event) => {
+    if (!enabled || event.button !== 0 || event.detail === 0) return;
+    if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable], #christmas-effect-switch")) return;
+    const particles = createChristmasBurst();
+    for (const spec of preference.matches ? particles.slice(0, 3) : particles) {
+        while (active.size >= 32) {
+            const oldest = active.entries().next().value;
+            if (!oldest) break;
+            oldest[1].cancel(); oldest[0].remove(); active.delete(oldest[0]);
+        }
+        const template = document.querySelector<HTMLTemplateElement>(`template[data-festive-sprite="${spec.kind}"]`);
+        if (!template) continue;
+        const particle = document.createElement("span");
+        particle.className = "christmas-particle";
+        particle.dataset.kind = spec.kind;
+        particle.style.cssText = `left:${event.clientX}px;top:${event.clientY}px;width:${spec.size}px;height:${spec.size}px`;
+        particle.style.color = spec.color;
+        particle.appendChild(template.content.cloneNode(true));
+        layer.appendChild(particle);
+        const animation = particle.animate(preference.matches ? [
+            { opacity: 0.7, transform: "translate(-50%, -50%)" },
+            { opacity: 0, transform: "translate(-50%, -50%)" },
+        ] : createChristmasFallFrames(spec), {
+            duration: preference.matches ? 160 : spec.duration,
+            delay: preference.matches ? 0 : spec.delay,
+            easing: "linear", fill: "both",
+        });
+        active.set(particle, animation);
+        animation.finished.catch(() => {}).finally(() => { particle.remove(); active.delete(particle); });
+    }
+}, { passive: true });
+
+document.addEventListener("visibilitychange", () => { if (document.hidden) clearParticles(); });
+window.addEventListener("pagehide", clearParticles);
+syncButton();
+</script>

@@ -1,0 +1,90 @@
+---
+import WidgetLayout from "@/components/common/WidgetLayout.astro";
+const { class: className, style, noteId = "reading-tips" } = Astro.props;
+---
+<WidgetLayout id={noteId} name="Tips · 随手记" class={className} style={style}>
+    <reading-note>
+        <label for={`${noteId}-input`}>读到这里，有什么想法或问题？</label>
+        <textarea id={`${noteId}-input`} aria-label="这篇文章的阅读便签" placeholder="记下灵感、疑问，或下次想试的事…" maxlength="12000" spellcheck="false"></textarea>
+        <div class="reading-note-footer"><span data-note-status role="status" aria-live="polite">自动保存到此浏览器</span><span data-note-count>0</span></div>
+        <small>仅自己可见 · 每篇文章单独保存</small>
+    </reading-note>
+</WidgetLayout>
+
+<style is:global>
+    reading-note { display: flex; flex-direction: column; gap: .55rem; width: 100%; }
+    reading-note label { font-size: .75rem; color: var(--retro-muted); }
+    reading-note textarea {
+        width: 100%; height: 104px; min-height: 0; resize: none; overflow-y: auto;
+        border: 0; border-radius: 4px; padding: .5rem; background: color-mix(in srgb, var(--retro-yellow) 25%, var(--retro-surface));
+        color: var(--retro-ink); font: inherit; font-size: .85rem; line-height: 1.8;
+        scrollbar-width: thin;
+    }
+    reading-note textarea:focus-visible { outline: 2px solid var(--retro-green); outline-offset: 2px; }
+    reading-note textarea::placeholder { color: var(--retro-muted); opacity: .7; }
+    .reading-note-footer { display: flex; justify-content: space-between; gap: .25rem; font-size: .65rem; color: var(--retro-green); }
+    reading-note small { color: var(--retro-muted); font-size: .6rem; }
+    #mobile-bottom-sidebar widget-layout:has(reading-note) { width: min(100%, 20rem); margin-inline: auto; }
+</style>
+
+<script>
+import { loadReadingNote, readingNoteKey, saveReadingNote } from "@/utils/reading-notes";
+
+class ReadingNote extends HTMLElement {
+    private dispose?: () => void;
+    connectedCallback() {
+        this.dispose?.();
+        const input = this.querySelector("textarea")!;
+        const status = this.querySelector<HTMLElement>("[data-note-status]")!;
+        const count = this.querySelector<HTMLElement>("[data-note-count]")!;
+        let path = "", timer: ReturnType<typeof setTimeout> | undefined, dirty = false;
+        const storage = () => { try { return localStorage; } catch { return null; } };
+        const counter = () => { count.textContent = String(input.value.length); };
+        const save = () => {
+            clearTimeout(timer);
+            if (!dirty || !path) return;
+            const store = storage();
+            const ok = store && saveReadingNote(store, path, input.value);
+            status.textContent = ok ? "已自动保存" : "浏览器存储不可用，暂未保存";
+            if (ok) dirty = false;
+        };
+        const load = () => {
+            if (!location.pathname.includes("/posts/")) { save(); path = ""; return; }
+            const next = location.pathname;
+            if (path === next) return;
+            save(); path = next;
+            const store = storage();
+            input.value = store ? loadReadingNote(store, path) : "";
+            status.textContent = store ? (input.value ? "已恢复阅读便签" : "自动保存到此浏览器") : "浏览器存储不可用";
+            counter();
+        };
+        const onInput = () => { dirty = true; counter(); status.textContent = "正在保存…"; clearTimeout(timer); timer = setTimeout(save, 300); };
+        const onVisibility = () => { if (document.hidden) save(); };
+        const onStorage = (event: StorageEvent) => {
+            if (path && event.key === readingNoteKey(path) && document.activeElement !== input && !dirty) {
+                input.value = event.newValue || ""; counter(); status.textContent = "已同步此浏览器的便签";
+            }
+        };
+        input.addEventListener("input", onInput);
+        input.addEventListener("blur", save);
+        window.addEventListener("pagehide", save);
+        window.addEventListener("storage", onStorage);
+        document.addEventListener("visibilitychange", onVisibility);
+        document.addEventListener("astro:page-load", load);
+        const swup = window.swup;
+        const attach = () => { window.swup?.hooks.on("visit:start", save); window.swup?.hooks.on("page:view", load); };
+        if (swup) attach(); else document.addEventListener("swup:enable", attach, { once: true });
+        load();
+        this.dispose = () => {
+            save(); clearTimeout(timer);
+            input.removeEventListener("input", onInput); input.removeEventListener("blur", save);
+            window.removeEventListener("pagehide", save); window.removeEventListener("storage", onStorage);
+            document.removeEventListener("visibilitychange", onVisibility); document.removeEventListener("astro:page-load", load);
+            document.removeEventListener("swup:enable", attach);
+            window.swup?.hooks.off("visit:start", save); window.swup?.hooks.off("page:view", load);
+        };
+    }
+    disconnectedCallback() { this.dispose?.(); }
+}
+if (!customElements.get("reading-note")) customElements.define("reading-note", ReadingNote);
+</script>

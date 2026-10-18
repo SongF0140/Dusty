@@ -1,12 +1,17 @@
 ---
 // 只加载基础的等宽字体，减少加载时间
 import "@fontsource-variable/jetbrains-mono";
+import ReadingGuide from "@/components/common/ReadingGuide.astro";
+import "@/styles/reading-guide.css";
 
 interface Props {
 	class: string;
+	reading?: boolean;
 }
 const className = Astro.props.class;
+const reading = Astro.props.reading ?? false;
 ---
-<div data-pagefind-body class={`prose dark:prose-invert prose-base max-w-none! custom-md ${className}`}>
+<div data-pagefind-body data-reading-body={reading || undefined} class={`prose dark:prose-invert prose-base max-w-none! custom-md ${className}`}>
+    {reading && <ReadingGuide />}
     <slot/>
 </div>

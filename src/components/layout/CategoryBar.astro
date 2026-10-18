@@ -2,7 +2,7 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { Icon } from "astro-icon/components";
-import { getCategoryList, getSortedPostsList } from "@/utils/content-utils";
+import { getCategoryList } from "@/utils/content-utils";
 import { url } from "@/utils/url-utils";
 
 interface Props {
@@ -12,7 +12,6 @@ interface Props {
 const { currentPostCategory } = Astro.props as Props;
 
 const categories = await getCategoryList();
-const totalPosts = (await getSortedPostsList()).length;
 const homeUrl = url("/");
 const archiveUrl = url("/archive/");
 ---
@@ -41,7 +40,6 @@ const archiveUrl = url("/archive/");
       data-category-name="__archive__"
     >
       {i18n(I18nKey.archive)}
-      <span class="pill-count">{totalPosts}</span>
     </a>
     <div class="category-divider shrink-0"></div>
     <div class="scroll-area relative">
@@ -56,7 +54,6 @@ const archiveUrl = url("/archive/");
               data-category-name={cat.name}
             >
               {cat.name}
-              <span class="pill-count">{cat.count}</span>
             </a>
           ))
         }
@@ -131,57 +128,51 @@ const archiveUrl = url("/archive/");
     display: none;
   }
   .category-pill {
-    border: 1.5px solid var(--retro-outline, currentColor);
+    position: relative;
+    min-height: 44px;
+    border: 2px solid var(--retro-outline, currentColor);
+    border-radius: 1px;
     color: var(--retro-ink, var(--btn-content));
-    background: var(--retro-surface, var(--btn-regular-bg));
-    font-weight: 500;
+    background-color: var(--retro-surface, var(--btn-regular-bg));
+    background-image:
+      radial-gradient(color-mix(in srgb, var(--retro-ink) 16%, transparent) 0.65px, transparent 0.8px),
+      linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--retro-yellow) 22%, transparent));
+    background-size: 3px 3px, 100% 100%;
+    font-weight: 800;
+    letter-spacing: 0.035em;
     gap: 0.375rem;
     box-shadow: 3px 3px 0 var(--retro-outline, currentColor);
     transition: transform 0.12s ease, box-shadow 0.12s ease,
       background-color 0.12s ease, color 0.12s ease;
   }
   .category-pill:hover {
-    background: var(--retro-sage, var(--btn-regular-bg-hover));
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 var(--retro-outline, currentColor);
+    background-color: var(--retro-yellow, var(--btn-regular-bg-hover));
+    transform: translate(-1px, -2px);
+    box-shadow: 4px 5px 0 var(--retro-outline, currentColor);
   }
   .category-pill:active {
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 var(--retro-outline, currentColor);
   }
-  .category-pill .pill-count {
-    font-size: 0.7rem;
-    font-weight: 700;
-    opacity: 0.85;
-    padding: 0.05rem 0.35rem;
-    border-radius: 4px;
-    color: var(--retro-ink, var(--btn-content));
-    background: var(--retro-paper, var(--card-bg));
-    border: 1px solid var(--retro-outline, currentColor);
-  }
   .category-pill[data-category-name=""] {
     color: var(--retro-ink, var(--btn-content));
-    background: var(--retro-sage, var(--btn-regular-bg));
+    background-color: var(--retro-sage, var(--btn-regular-bg));
   }
   .category-pill[data-active] {
-    background: var(--retro-green, var(--primary));
+    background-color: var(--retro-green, var(--primary));
     color: var(--retro-paper, white);
     box-shadow: 3px 3px 0 var(--retro-outline, currentColor);
   }
-  .category-pill[data-active] .pill-count {
-    color: var(--retro-ink, #fff);
-    background: var(--retro-blue, rgba(255, 255, 255, 0.2));
-  }
   .category-pill[data-soft-active] {
-    background: var(--retro-moss, color-mix(in srgb, var(--primary) 18%, transparent));
+    background-color: var(--retro-moss, color-mix(in srgb, var(--primary) 18%, transparent));
     color: var(--retro-ink, var(--btn-content));
     font-weight: 700;
   }
   .category-pill[data-soft-active]:hover {
-    background: var(--retro-sage, color-mix(in srgb, var(--primary) 25%, transparent));
+    background-color: var(--retro-sage, color-mix(in srgb, var(--primary) 25%, transparent));
   }
   .category-pill[data-active]:hover {
-    background: var(--retro-green, var(--primary));
+    background-color: var(--retro-green, var(--primary));
     opacity: 1;
   }
 </style>

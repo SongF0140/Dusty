@@ -108,7 +108,7 @@ body .category-bar {
   border-bottom: 2px solid var(--retro-outline);
   border-radius: 0;
   box-shadow: none;
-  padding: 0 0 1rem;
+  padding: 1rem 0 1.5rem;
 }
 
 body :is(.text-90, .text-75, .post-card-title) { color: var(--retro-ink); }

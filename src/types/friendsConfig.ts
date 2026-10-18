@@ -5,6 +5,9 @@ export type FriendLink = {
 	desc: string; // 友链描述
 	siteurl: string; // 友链地址
 	tags?: string[]; // 标签数组
+	category?: "熟人" | "友链小伙伴" | "单向关注"; // 友链分组，默认友链小伙伴
+	owner?: string; // 站长昵称
+	color?: string; // 头像描边颜色
 	weight: number; // 权重，数字越大排序越靠前
 	enabled: boolean; // 是否启用
 };

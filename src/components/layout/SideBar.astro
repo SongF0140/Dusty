@@ -7,6 +7,7 @@ import Categories from "@/components/widget/Categories.astro";
 import Music from "@/components/widget/Music.astro";
 import Profile from "@/components/widget/Profile.astro";
 import SidebarTOC from "@/components/widget/SidebarTOC.astro";
+import ReadingNotes from "../widget/ReadingNotes.astro";
 import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
 import Tags from "@/components/widget/Tags.astro";
@@ -45,6 +46,7 @@ const componentMap = {
 	categories: Categories,
 	tags: Tags,
 	sidebarToc: SidebarTOC,
+	readingNotes: ReadingNotes,
 	advertisement: Advertisement,
 	stats: SiteStats,
 	calendar: Calendar,
@@ -153,6 +155,7 @@ const getComponentProps = (
 	if (config.type === "sidebarToc") {
 		return { ...baseProps, headings: Astro.props.headings || [] };
 	}
+	if (config.type === "readingNotes") return { ...baseProps, noteId: `reading-tips-${side}` };
 
 	return baseProps;
 };

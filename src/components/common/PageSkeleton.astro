@@ -1,0 +1,29 @@
+---
+interface Props {
+    navigation?: boolean;
+    layout?: "grid" | "list" | "article";
+}
+const { navigation = false, layout = "list" } = Astro.props;
+---
+
+<div class="page-skeleton" data-navigation-skeleton={navigation || undefined}
+    data-layout={layout} hidden={navigation} role="status" aria-live="polite">
+    <span class="sr-only">正在加载内容…</span>
+    <div class="skeleton-heading" aria-hidden="true">
+        <span class="skeleton-block skeleton-kicker"></span>
+        <span class="skeleton-block skeleton-title"></span>
+        <span class="skeleton-block skeleton-subtitle"></span>
+    </div>
+    <div class="skeleton-cards" aria-hidden="true">
+        {Array.from({ length: 6 }, () => (
+            <div class="skeleton-card">
+                <span class="skeleton-block skeleton-thumbnail"></span>
+                <div class="skeleton-copy">
+                    <span class="skeleton-block skeleton-line"></span>
+                    <span class="skeleton-block skeleton-line"></span>
+                    <span class="skeleton-block skeleton-line skeleton-short"></span>
+                </div>
+            </div>
+        ))}
+    </div>
+</div>

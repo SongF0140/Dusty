@@ -150,8 +150,17 @@ const handleInput = () => {
     <!-- Results Area -->
     <div>
         {#if isSearching}
-            <div class="flex justify-center py-10">
-                <Icon icon="svg-spinners:ring-resize" class="text-4xl text-(--primary)" />
+            <div class="search-skeleton" role="status" aria-live="polite">
+                <span class="sr-only">正在搜索…</span>
+                {#each [1, 2, 3] as item (item)}
+                    <div class="skeleton-card" aria-hidden="true">
+                        <div class="skeleton-copy">
+                            <span class="skeleton-block skeleton-line"></span>
+                            <span class="skeleton-block skeleton-line"></span>
+                            <span class="skeleton-block skeleton-line skeleton-short"></span>
+                        </div>
+                    </div>
+                {/each}
             </div>
         {:else if results.length > 0}
             <div class="space-y-4">

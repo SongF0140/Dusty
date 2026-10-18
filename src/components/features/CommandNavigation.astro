@@ -1,182 +1,213 @@
 ---
 import { Icon } from "astro-icon/components";
+import TerminalCompanions from "@/components/common/TerminalCompanions.astro";
 import { siteConfig } from "@/config";
 import { navigationCommands } from "@/utils/command-navigation";
-import { url } from "@/utils/url-utils";
+import { getSortedPostsList } from "@/utils/content-utils";
+import { getPostUrlBySlug, removeFileExtension, url } from "@/utils/url-utils";
+import "../../styles/terminal.css";
 
 const commands = navigationCommands
-	.filter((item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false)
-	.map((item) => ({ ...item, path: item.path ? url(item.path) : "" }));
+    .filter((item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false)
+    .map((item) => ({ ...item, path: item.path ? url(item.path) : "" }));
+const posts = await getSortedPostsList();
+const names = new Set<string>();
+const files = posts.map(post => {
+    const category = (post.data.category || "未分类").replace(/[/\\\x00-\x1f]/g, "-").trim() || "未分类";
+    const base = post.data.title.replace(/[/\\\x00-\x1f]/g, "-").trim() || "untitled";
+    let name = `${base}.md`, suffix = 2;
+    while (names.has(`${category}/${name}`)) name = `${base}-${suffix++}.md`;
+    names.add(`${category}/${name}`);
+    return {
+        path: `/blog/${category}/${name}`, title: post.data.title, url: getPostUrlBySlug(post.id),
+        // The dev router applies trailingSlash to rest endpoints; static output is a JSON file.
+        contentUrl: url(`/api/terminal-posts/${removeFileExtension(post.id)}/index.json${import.meta.env.DEV ? "/" : ""}`),
+        locked: Boolean(post.data.password),
+    };
+});
+const pageFiles = commands.filter(item => item.path && item.command !== "/blog").map(item => ({
+    path: `${item.command}/index.txt`, title: item.label, url: item.path,
+    content: `${item.label}\n${item.path}\n\nUse open ${item.command} to visit this page.`,
+}));
 ---
 
 <button id="command-navigation-backdrop" class="command-navigation-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
-<aside id="command-navigation" class="command-navigation" aria-label="Command navigation" inert data-commands={JSON.stringify(commands)}>
-	<header class="terminal-titlebar">
-		<div class="terminal-window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
-		<span>NAVIGATION</span>
-		<button type="button" id="command-navigation-close" aria-label="Close navigation" title="Close navigation">
-			<Icon is:inline name="material-symbols:close-rounded" />
-		</button>
-	</header>
-	<div class="terminal-session">
-		<div class="terminal-identity"><span>dusty@blog_room</span><span>zsh</span></div>
-		<div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-relevant="additions">
-			<p class="terminal-banner">DUSTY / NAVIGATION</p>
-			<div class="terminal-route-list">
-				{commands.filter((item) => item.path).map((item) => (
-					<button type="button" data-terminal-command={item.command}>{item.command}<span>{item.label}</span></button>
-				))}
-			</div>
-		</div>
-		<form id="terminal-command-form" class="terminal-prompt" autocomplete="off">
-			<label for="terminal-command-input">~ $</label>
-			<input id="terminal-command-input" name="command" type="text" aria-label="Navigation command" autocomplete="off" autocapitalize="off" spellcheck="false" />
-			<button type="submit" aria-label="Run command" title="Run command"><Icon is:inline name="material-symbols:keyboard-return-rounded" /></button>
-		</form>
-		<div id="terminal-completions" class="terminal-completions" aria-live="polite"></div>
-	</div>
-	<footer class="terminal-status"><span class="terminal-status-dot"></span><span>LOCAL SESSION</span><span id="terminal-current-path">/</span></footer>
+<aside id="command-navigation" class="command-navigation" aria-label="Command navigation" inert data-commands={JSON.stringify(commands)} data-files={JSON.stringify([...files, ...pageFiles])}>
+    <header class="terminal-titlebar">
+        <TerminalCompanions />
+        <span>DUSTY / SHELL</span>
+        <button type="button" id="command-navigation-close" aria-label="Close navigation" title="Close navigation"><Icon is:inline name="material-symbols:close-rounded" /></button>
+    </header>
+    <div class="terminal-session">
+        <div class="terminal-identity"><span>guest@dusty</span><span>CONNECTED <i aria-hidden="true"></i></span></div>
+        <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Terminal output">
+            <div class="terminal-welcome">
+                <p class="terminal-eyebrow">PERSONAL KNOWLEDGE NETWORK</p>
+                <p class="terminal-banner">Follow the<br /><span>green cursor.</span></p>
+                <p class="terminal-intro">{posts.length} articles. One command away.</p>
+                <p class="terminal-hint">Type /help to get started.</p>
+                <div class="terminal-shortcuts">
+                    <button type="button" data-terminal-command="/blog">/blog <span>enter articles ↵</span></button>
+                    <button type="button" data-terminal-command="ls">ls <span>explore directories ↵</span></button>
+                </div>
+            </div>
+        </div>
+        <form id="terminal-command-form" class="terminal-prompt" autocomplete="off">
+            <label for="terminal-command-input"><span id="terminal-prompt-path">~</span><b>❯</b></label>
+            <input id="terminal-command-input" name="command" type="text" aria-label="Navigation command" autocomplete="off" autocapitalize="off" spellcheck="false" />
+            <button type="submit" aria-label="Run command" title="Run command"><Icon is:inline name="material-symbols:keyboard-return-rounded" /></button>
+        </form>
+        <div id="terminal-completions" class="terminal-completions" aria-live="polite"></div>
+    </div>
+    <footer class="terminal-status"><span class="terminal-status-dot"></span><span>TAB complete · ↑↓ history</span><span id="terminal-current-path">/</span></footer>
 </aside>
 
 <script>
-	import { completeCommand, resolveCommand } from "@/utils/command-navigation";
-
-	const drawer = document.getElementById("command-navigation") as HTMLElement;
-	const backdrop = document.getElementById("command-navigation-backdrop") as HTMLButtonElement;
-	const input = document.getElementById("terminal-command-input") as HTMLInputElement;
-	const output = document.getElementById("terminal-output") as HTMLElement;
-	const suggestions = document.getElementById("terminal-completions") as HTMLElement;
-	const commands = JSON.parse(drawer.dataset.commands || "[]") as { command: string; path: string; label: string }[];
-	const names = commands.map((item) => item.command);
-	const history: string[] = [];
-	let historyIndex = 0;
-	let draft = "";
-	let completionSeed: string | null = null;
-	let completionIndex = -1;
-
-	function isOpen() {
-		return document.documentElement.classList.contains("nav-terminal-open");
-	}
-
-	function setOpen(open: boolean) {
-		document.documentElement.classList.toggle("nav-terminal-open", open);
-		drawer.inert = !open;
-		backdrop.hidden = !open;
-		document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(open));
-		if (open) {
-			const focusInput = () => {
-				if (isOpen()) input.focus({ preventScroll: true });
-			};
-			drawer.addEventListener("transitionend", focusInput, { once: true });
-			window.setTimeout(focusInput, 450);
-		} else document.getElementById("command-navigation-toggle")?.focus({ preventScroll: true });
-	}
-
-	function appendLine(text: string, error = false) {
-		const line = document.createElement("p");
-		line.textContent = text;
-		if (error) line.className = "terminal-error";
-		output.append(line);
-		while (output.childElementCount > 80) output.firstElementChild?.remove();
-		output.scrollTop = output.scrollHeight;
-	}
-
-	function resetCompletion() {
-		completionSeed = null;
-		completionIndex = -1;
-		suggestions.textContent = "";
-	}
-
-	async function execute(value: string) {
-		const text = value.trim();
-		if (!text) return;
-		history.push(text);
-		historyIndex = history.length;
-		input.value = "";
-		resetCompletion();
-		const command = resolveCommand(text, commands);
-		if (command?.command === "/clear") {
-			output.replaceChildren();
-			return;
-		}
-		appendLine(`~ $ ${text}`);
-		if (!command) {
-			appendLine(`Command not found: ${text}`, true);
-			return;
-		}
-		if (command.command === "/close") {
-			setOpen(false);
-			return;
-		}
-		if (command.command === "/help") {
-			commands.forEach((item) => appendLine(`${item.command.padEnd(14)} ${item.label}`));
-			return;
-		}
-		appendLine(`${command.label} -> ${command.path}`);
-		try {
-			if (window.swup) await window.swup.navigate(command.path);
-			else window.location.assign(command.path);
-		} catch {
-			appendLine("Navigation failed.", true);
-		}
-	}
-
-	document.addEventListener("click", (event) => {
-		const target = event.target instanceof Element ? event.target : null;
-		if (target?.closest("#command-navigation-toggle")) setOpen(!isOpen());
-		if (target?.closest("#command-navigation-close, #command-navigation-backdrop")) setOpen(false);
-		const route = target?.closest<HTMLElement>("[data-terminal-command]");
-		if (route?.dataset.terminalCommand) {
-			void execute(route.dataset.terminalCommand);
-			input.focus();
-		}
-	});
-
-	document.addEventListener("keydown", (event) => {
-		if (event.key === "Escape" && isOpen()) {
-			event.preventDefault();
-			setOpen(false);
-		}
-	});
-
-	document.getElementById("terminal-command-form")?.addEventListener("submit", (event) => {
-		event.preventDefault();
-		void execute(input.value);
-	});
-
-	input.addEventListener("input", () => {
-		resetCompletion();
-		const matches = completeCommand(input.value, names);
-		suggestions.textContent = input.value ? matches.join("  ") : "";
-	});
-
-	input.addEventListener("keydown", (event) => {
-		if (event.isComposing) return;
-		if (event.key === "Tab" && !event.shiftKey && input.value.trim()) {
-			event.preventDefault();
-			completionSeed ??= input.value;
-			const matches = completeCommand(completionSeed, names);
-			if (!matches.length) return;
-			completionIndex = (completionIndex + 1) % matches.length;
-			input.value = matches[completionIndex];
-			suggestions.textContent = matches.join("  ");
-		} else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-			event.preventDefault();
-			if (historyIndex === history.length) draft = input.value;
-			historyIndex = Math.max(0, Math.min(history.length, historyIndex + (event.key === "ArrowUp" ? -1 : 1)));
-			input.value = historyIndex === history.length ? draft : history[historyIndex];
-			resetCompletion();
-		}
-	});
-
-	function updatePath() {
-		const path = document.getElementById("terminal-current-path");
-		if (path) path.textContent = window.location.pathname;
-		document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(isOpen()));
-	}
-
-	updatePath();
-	const attachSwup = () => window.swup?.hooks.on("page:view", updatePath);
-	if (window.swup) attachSwup();
-	else document.addEventListener("swup:enable", attachSwup, { once: true });
+    import { createBlogShell, type ShellFile, type ShellState } from "@/utils/blog-shell";
+    const drawer = document.getElementById("command-navigation")!;
+    const backdrop = document.getElementById("command-navigation-backdrop")!;
+    const input = document.getElementById("terminal-command-input") as HTMLInputElement;
+    const output = document.getElementById("terminal-output")!;
+    const suggestions = document.getElementById("terminal-completions")!;
+    const commands = JSON.parse(drawer.dataset.commands || "[]");
+    const shell = createBlogShell(JSON.parse(drawer.dataset.files || "[]"), commands);
+    const state: ShellState = { cwd: "/", previous: "/" };
+    const history: string[] = [];
+    const cache = new Map<string, string>();
+    let historyIndex = 0, draft = "", completionSeed: string | null = null, completionIndex = -1;
+    let request: AbortController | null = null;
+    let generation = 0;
+    const isOpen = () => document.documentElement.classList.contains("nav-terminal-open");
+    function setOpen(open: boolean) {
+        document.documentElement.classList.toggle("nav-terminal-open", open);
+        drawer.inert = !open;
+        backdrop.hidden = !open;
+        document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(open));
+        if (open) window.setTimeout(() => { if (isOpen()) input.focus({ preventScroll: true }); }, 230);
+        else document.getElementById("command-navigation-toggle")?.focus({ preventScroll: true });
+    }
+    function updatePath() {
+        document.getElementById("terminal-prompt-path")!.textContent = state.cwd === "/" ? "~" : state.cwd;
+        document.getElementById("terminal-current-path")!.textContent = state.cwd;
+        document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(isOpen()));
+    }
+    function appendLine(text: string, className = "") {
+        const line = document.createElement("p");
+        line.textContent = text;
+        line.className = className;
+        output.append(line);
+        while (output.childElementCount > 160) output.firstElementChild?.remove();
+        return line;
+    }
+    function resetCompletion() {
+        completionSeed = null; completionIndex = -1; suggestions.replaceChildren();
+    }
+    function showCompletions(matches: string[]) {
+        suggestions.replaceChildren();
+        for (const match of matches.slice(0, 8)) {
+            const button = document.createElement("button");
+            button.type = "button"; button.textContent = match; button.title = match;
+            button.addEventListener("click", () => { input.value = match; input.focus(); resetCompletion(); });
+            suggestions.append(button);
+        }
+        if (matches.length > 8) {
+            const more = document.createElement("span"); more.textContent = `+${matches.length - 8} · Tab to cycle`; suggestions.append(more);
+        }
+    }
+    async function readFile(file: ShellFile, signal: AbortSignal) {
+        if (file.content !== undefined) return file.content;
+        if (!file.contentUrl) throw new Error("File content is unavailable.");
+        if (cache.has(file.path)) return cache.get(file.path)!;
+        const response = await fetch(file.contentUrl, { signal });
+        if (!response.ok) throw new Error("Unable to read the article.");
+        const data = await response.json();
+        if (typeof data.body !== "string") throw new Error("Invalid article content.");
+        cache.set(file.path, data.body);
+        return data.body as string;
+    }
+    async function execute(value: string) {
+        const text = value.trim();
+        if (!text) return;
+        request?.abort();
+        const run = ++generation;
+        history.push(text); if (history.length > 100) history.shift();
+        historyIndex = history.length; draft = ""; input.value = ""; resetCompletion();
+        appendLine(`${state.cwd} ❯ ${text}`, "terminal-echo");
+        const result = shell.execute(text, state, history);
+        updatePath();
+        if (result.clear) { output.replaceChildren(); return; }
+        if (result.close) { setOpen(false); return; }
+        if (result.error) appendLine(result.error, "terminal-error");
+        if (result.lines) appendLine(result.lines.join("\n"));
+        if (result.entries) {
+            const list = document.createElement("div"); list.className = "terminal-files";
+            for (const entry of result.entries) {
+                const button = document.createElement("button"); button.type = "button";
+                button.textContent = `${entry.directory ? "▸ " : "· "}${entry.name}`;
+                button.title = entry.title || entry.path;
+                button.className = entry.directory ? "terminal-directory" : "terminal-file";
+                button.addEventListener("click", () => { void execute(`${entry.directory ? "cd" : "cat"} ${JSON.stringify(entry.path)}`); input.focus({ preventScroll: true }); });
+                list.append(button);
+            }
+            output.append(list);
+            if (!result.entries.length) appendLine("(empty directory)", "terminal-muted");
+        }
+        if (result.read) {
+            const controller = new AbortController(); request = controller;
+            const timeout = window.setTimeout(() => controller.abort(), 15000);
+            const loading = appendLine("Reading…", "terminal-muted");
+            output.scrollTop = output.scrollHeight;
+            try {
+                const bodies = await Promise.all(result.read.map(file => readFile(file, controller.signal)));
+                if (run !== generation) return;
+                loading.remove();
+                const start = appendLine(result.read.map(file => file.title).join("\n"), "terminal-article-title");
+                for (const body of bodies) {
+                    const lines = body.split("\n");
+                    appendLine(result.lineLimit === undefined ? body : (result.tail ? (result.lineLimit ? lines.slice(-result.lineLimit) : []) : lines.slice(0, result.lineLimit)).join("\n"), "terminal-article");
+                }
+                output.scrollTop = start.offsetTop;
+            } catch (error) {
+                if (run === generation) appendLine(`${controller.signal.aborted ? "Reading timed out." : (error as Error).message} Type /help for usage.`, "terminal-error");
+            } finally { loading.remove(); clearTimeout(timeout); if (request === controller) request = null; }
+            return;
+        }
+        if (result.navigate) {
+            try { if (window.swup) await window.swup.navigate(result.navigate); else location.assign(result.navigate); }
+            catch { appendLine("Navigation failed. Type /help for usage.", "terminal-error"); }
+        }
+        output.scrollTop = output.scrollHeight;
+    }
+    document.addEventListener("click", event => {
+        const target = event.target instanceof Element ? event.target : null;
+        if (target?.closest("#command-navigation-toggle")) setOpen(!isOpen());
+        if (target?.closest("#command-navigation-close, #command-navigation-backdrop")) setOpen(false);
+        const command = target?.closest<HTMLElement>("[data-terminal-command]")?.dataset.terminalCommand;
+        if (command) { void execute(command); input.focus(); }
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && isOpen()) { event.preventDefault(); setOpen(false); }
+    });
+    document.getElementById("terminal-command-form")?.addEventListener("submit", event => { event.preventDefault(); void execute(input.value); });
+    input.addEventListener("input", () => { resetCompletion(); if (input.value) showCompletions(shell.complete(input.value, state)); });
+    input.addEventListener("keydown", event => {
+        if (event.isComposing) return;
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
+            event.preventDefault(); void execute("clear");
+        } else if (event.key === "Tab" && input.value) {
+            event.preventDefault(); completionSeed ??= input.value;
+            const matches = shell.complete(completionSeed, state);
+            if (!matches.length) return;
+            completionIndex = (completionIndex + (event.shiftKey ? (completionIndex < 0 ? 0 : -1) : 1) + matches.length) % matches.length;
+            input.value = matches[completionIndex]; showCompletions(matches);
+        } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            event.preventDefault();
+            if (historyIndex === history.length) draft = input.value;
+            historyIndex = Math.max(0, Math.min(history.length, historyIndex + (event.key === "ArrowUp" ? -1 : 1)));
+            input.value = historyIndex === history.length ? draft : history[historyIndex]; resetCompletion();
+        } else if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) resetCompletion();
+    });
+    updatePath();
+    const attachSwup = () => window.swup?.hooks.on("page:view", updatePath);
+    if (window.swup) attachSwup(); else document.addEventListener("swup:enable", attachSwup, { once: true });
 </script>

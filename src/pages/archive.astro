@@ -1,5 +1,6 @@
 ---
 import ArchivePanel from "@components/controls/ArchivePanel.svelte";
+import PageSkeleton from "@/components/common/PageSkeleton.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
@@ -24,5 +25,7 @@ const sortedPostsList = await getSortedPostsList();
       }
     })();
   </script>
-  <ArchivePanel sortedPosts={sortedPostsList} client:only="svelte" />
+  <ArchivePanel sortedPosts={sortedPostsList} client:only="svelte">
+    <PageSkeleton slot="fallback" layout="list" />
+  </ArchivePanel>
 </MainGridLayout>

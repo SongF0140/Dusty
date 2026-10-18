@@ -149,9 +149,7 @@ const remoteReferrerPolicy =
 
 	<!-- 加载动画 -->
 	{showLoading && (
-		<div class="loading-spinner absolute inset-0 flex items-center justify-center z-10" style="background-color: var(--card-bg);">
-			<div class="spinner"></div>
-		</div>
+		<div class="image-skeleton skeleton-block absolute inset-0 z-10" aria-hidden="true"></div>
 	)}
 
 	<!-- 错误提示（覆盖在回退图片上） -->
@@ -235,18 +233,18 @@ const remoteReferrerPolicy =
 	}
 
 	/* 加载动画容器 */
-	.loading-spinner {
+	.image-skeleton {
 		transition: opacity 0.3s ease-out;
 	}
 
 	/* 加载完成后隐藏 */
-	.cover-image-container[data-loading="false"] .loading-spinner {
+	.cover-image-container[data-loading="false"] .image-skeleton {
 		opacity: 0;
 		pointer-events: none;
 	}
 
 	/* 错误状态隐藏加载动画 */
-	.cover-image-container[data-error="true"] .loading-spinner {
+	.cover-image-container[data-error="true"] .image-skeleton {
 		display: none;
 	}
 
@@ -262,22 +260,6 @@ const remoteReferrerPolicy =
 	/* 错误状态隐藏失败的远程图片 */
 	.cover-image-container[data-error="true"] img[data-remote="true"] {
 		display: none;
-	}
-
-	/* 旋转加载动画 */
-	.spinner {
-		width: 40px;
-		height: 40px;
-		border: 3px solid oklch(0.9 0.05 var(--hue));
-		border-top-color: oklch(0.6 0.15 var(--hue));
-		border-radius: 50%;
-		animation: spin 0.8s linear infinite;
-	}
-
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
 	}
 
 	/* 图片样式 */

@@ -1,0 +1,33 @@
+/* Reading workspace: compact contents, article, and a private sticky note. */
+body:has(#post-container) #main-grid { grid-template-columns: minmax(0, 1fr); max-width: 96rem; }
+body:has(#post-container) :is(#left-sidebar, #right-sidebar) { display: none !important; }
+body:has(#post-container) #main-column,
+body:has(#post-container) #main-grid > .footer { grid-column: 1 / -1 !important; min-width: 0; }
+body:has(#post-container) #left-sidebar widget-layout:not([data-id="sidebar-toc"]),
+body:has(#post-container) #right-sidebar widget-layout:not([data-id^="reading-tips"]) { display: none !important; }
+body:has(#post-container) .profile-card { display: none !important; }
+body:has(#post-container) :is(#left-sidebar-sticky, #right-sidebar-sticky) { top: 5.5rem !important; }
+body:has(#post-container) :is(#left-sidebar, #right-sidebar) widget-layout { animation-delay: 0ms !important; }
+body:has(#post-container) #sidebar-toc .toc-scroll-container { max-height: min(24rem, calc(100dvh - 14rem)); overflow-y: auto; }
+@media (min-width: 768px) and (max-width: 1023px) {
+    body:has(#post-container) #mobile-bottom-sidebar { display: block !important; }
+}
+@media (min-width: 1024px) {
+    body:has(#post-container) #main-grid { grid-template-columns: 13.5rem minmax(0, 1fr) 13.5rem; }
+    body:has(#post-container) #left-sidebar-wrapper { display: contents !important; }
+    body:has(#post-container) #left-sidebar {
+        display: flex !important; grid-column: 1 / 2 !important; grid-row: 1 / 3;
+        width: 100%; max-width: none;
+    }
+    body:has(#post-container) #main-column { grid-column: 2 / 3 !important; grid-row: 1; }
+    body:has(#post-container) #main-grid > .footer { grid-column: 2 / 3 !important; }
+    body:has(#post-container) #right-sidebar {
+        display: flex !important; grid-column: 3 / 4 !important; grid-row: 1 / 3;
+        width: 100%; max-width: none;
+    }
+    body:has(#post-container) #mobile-bottom-sidebar { display: none !important; }
+    body:has(#post-container) #floating-toc-wrapper { display: none; }
+}
+@media (min-width: 1536px) {
+    body:has(#post-container) #main-grid { grid-template-columns: 15rem minmax(0, 1fr) 15rem; }
+}

@@ -7,6 +7,21 @@
 	-webkit-overflow-scrolling: touch;
 	scroll-behavior: smooth;
 	padding-right: 0.125rem;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.toc-reading-layout .toc-scroll-container {
+	scrollbar-width: none;
+	overscroll-behavior-y: contain;
+	touch-action: pan-y;
+}
+
+.toc-reading-layout .toc-scroll-container::-webkit-scrollbar,
+.toc-reading-layout .toc-scroll-container::-webkit-scrollbar-button {
+	display: none;
+	width: 0;
+	height: 0;
 }
 
 /* TOC 内容容器 */

@@ -87,45 +87,97 @@ html.is-animating .transition-swup-fade {
 .onload-animation:nth-child(5) { animation-delay: 120ms; }
 
 /* --------------------------------------------------------------------------
-   4. Navigation Progress Bar
+   4. Theme updates and loading placeholders
    -------------------------------------------------------------------------- */
 
-#progress-bar {
-    --progress-height: 3px;
-    --progress-duration: 8s;
-
+.theme-apply *, .theme-apply *::before, .theme-apply *::after {
+    transition: none !important;
+}
+.theme-page-cover {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: var(--progress-height);
-    z-index: 9999;
+    inset: 0;
+    z-index: 10000;
+    overflow: hidden;
+    background: var(--retro-paper);
+    backdrop-filter: blur(6px);
+    cursor: wait;
+}
+.theme-page-cover > .page-skeleton {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 6rem 2rem 2rem;
+    filter: blur(2px);
+    opacity: .85;
+}
+.theme-page-pending #blog-stage { filter: blur(6px); }
+@media (prefers-reduced-motion: reduce) {
+    .theme-apply *, .theme-apply *::before, .theme-apply *::after { transition: none !important; }
+}
+
+/* Content-shaped placeholders share the site's paper and ink palette. */
+#page-content-shell { position: relative; }
+#page-content-shell.is-content-loading { min-height: 32rem; }
+.is-content-loading > #swup-container {
+    /* Opacity hides the entire subtree, including children with visibility: visible. */
+    opacity: 0 !important;
+    visibility: hidden;
     pointer-events: none;
-    background: var(--primary);
-    box-shadow: 0 0 8px color-mix(in oklch, var(--primary) 60%, transparent);
-    opacity: 0;
+    transition: none !important;
 }
-
-@keyframes progress-loading {
-    0% { width: 0; }
-    100% { width: 95%; }
+.page-skeleton[hidden] { display: none !important; }
+#page-content-shell:not(.is-content-loading) > [data-navigation-skeleton] { display: none !important; }
+.page-skeleton[data-navigation-skeleton] {
+    position: absolute;
+    inset: var(--skeleton-offset, 0px) 0 0;
+    z-index: 1;
+    overflow: hidden;
+    padding: 1.25rem;
+    border-radius: var(--radius-large, 12px);
+    background: var(--retro-surface);
 }
-
-#progress-bar.loading {
-    opacity: 1;
-    width: 0;
-    animation: progress-loading var(--progress-duration) cubic-bezier(0.1, 0.05, 0.1, 1) forwards;
+.page-skeleton { padding: 0.5rem 0; }
+.skeleton-heading { display: grid; gap: 1rem; padding: 1rem 0 1.75rem; }
+.skeleton-block {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--retro-muted) 17%, var(--retro-surface));
 }
-
-#progress-bar.finishing {
-    animation: none;
-    width: 100%;
-    opacity: 1;
-    transition: width 200ms ease-out;
+.skeleton-block::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--retro-paper) 65%, transparent) 50%, transparent 80%);
+    transform: translateX(-100%);
+    animation: skeleton-sweep 1.7s ease-in-out infinite;
 }
-
-#progress-bar.done {
-    width: 100%;
-    opacity: 0;
-    transition: opacity 300ms ease-out;
+.skeleton-kicker { width: 22%; height: 0.65rem; }
+.skeleton-title { width: 60%; height: 2.2rem; }
+.skeleton-subtitle { width: 40%; height: 0.8rem; }
+.skeleton-cards, .search-skeleton { display: grid; gap: 1rem; }
+.skeleton-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 2px solid color-mix(in srgb, var(--retro-ink) 18%, transparent);
+    border-radius: 8px;
+    background: var(--retro-surface);
+}
+.skeleton-thumbnail { width: 3rem; height: 3rem; flex-shrink: 0; }
+.skeleton-copy { display: grid; gap: 0.7rem; flex: 1; min-width: 0; }
+.skeleton-line { width: 90%; height: 0.7rem; }
+.skeleton-line:first-child { height: 1rem; width: 65%; }
+.skeleton-short { width: 45%; }
+[data-layout="grid"] .skeleton-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+[data-layout="grid"] .skeleton-card { flex-direction: column; min-height: 12rem; }
+[data-layout="grid"] .skeleton-copy { flex: initial; }
+[data-layout="article"] .skeleton-thumbnail { display: none; }
+[data-layout="article"] .skeleton-card { border: 0; background: transparent; padding-inline: 0; }
+@keyframes skeleton-sweep { to { transform: translateX(100%); } }
+@media (max-width: 480px) {
+    [data-layout="grid"] .skeleton-cards { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-block::after { animation: none; }
 }

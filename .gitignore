@@ -16,6 +16,7 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.local
 
 # macOS-specific files
 .DS_Store
@@ -39,4 +40,7 @@ package/
 .obsidian/
 .content-source/
 .content-sync-state.json
-src/content/posts/embedded/esp32-s3/
+
+# 文章内容由 scripts/sync-content-repo.mjs 从 blog_knowledge 仓库拉取生成，
+# 属构建产物，不纳入版本管理（build 前会自动同步）
+src/content/posts/

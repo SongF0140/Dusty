@@ -1,0 +1,63 @@
+#command-navigation {
+    --terminal-green: #74ff9b;
+    --terminal-muted: #6c9b7b;
+    background: #030b07;
+    border: 1px solid #285d3a;
+    border-radius: 12px;
+    color: #b1d8bb;
+    box-shadow: 0 22px 70px #0009, 0 0 30px #3dff7410, inset 0 0 50px #32ff6405;
+    font: 13px/1.75 "JetBrains Mono Variable", "Courier New", monospace;
+}
+#command-navigation .terminal-titlebar {
+    min-height: 60px;
+    padding: 8px 12px;
+    border-radius: 12px 12px 0 0;
+    border-color: #1c3928;
+    background: #09170f;
+    color: #87ae92;
+    font-size: 10px;
+    letter-spacing: .12em;
+}
+#command-navigation .terminal-companions { display: flex; align-items: center; gap: 3px; }
+#command-navigation .terminal-companions svg { width: 34px; height: 34px; transition: transform 160ms ease; }
+#command-navigation .terminal-companions svg:hover { transform: translateY(-2px) rotate(-5deg); }
+#command-navigation .terminal-session {
+    padding: 16px;
+    background: repeating-linear-gradient(0deg, transparent 0 3px, #82ff9c03 3px 4px);
+}
+#command-navigation .terminal-identity { border-color: #193422; color: var(--terminal-muted); margin-bottom: 16px; font-size: 10px; }
+#command-navigation .terminal-identity > span:last-child { font-size: 9px; letter-spacing: .1em; display: flex; align-items: center; gap: 7px; }
+#command-navigation .terminal-identity i { width: 5px; height: 5px; background: #74ff9b; border-radius: 50%; box-shadow: 0 0 7px #74ff9b; }
+#command-navigation .terminal-output { position: relative; overscroll-behavior: contain; padding-right: 5px; scrollbar-color: #285d3a #030b07; }
+#command-navigation .terminal-output p { color: #b1d8bb; margin: 0 0 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#command-navigation .terminal-welcome { padding-top: 10px; }
+#command-navigation .terminal-eyebrow { font-size: 8px; letter-spacing: .15em; color: #6c9b7b; }
+#command-navigation .terminal-banner { font-size: clamp(23px, 2.3vw, 34px); line-height: 1.25; letter-spacing: -.06em; color: #d9ffe2; margin: 20px 0; font-weight: 700; }
+#command-navigation .terminal-banner span { color: var(--terminal-green); text-shadow: 0 0 18px #52ff7940; }
+#command-navigation .terminal-intro { font-size: 11px; color: #90b79c; }
+#command-navigation .terminal-hint { font-size: 11px; color: #6c9b7b; margin-top: 22px; }
+#command-navigation .terminal-shortcuts { display: grid; gap: 8px; margin-top: 18px; }
+#command-navigation .terminal-shortcuts button { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; background: #0c2114; border: 1px solid #23472f; border-radius: 3px; color: #74ff9b; cursor: pointer; text-align: left; }
+#command-navigation .terminal-shortcuts span { font-size: 9px; color: #8aaa94; }
+#command-navigation .terminal-output .terminal-echo { color: #70ff95; margin: 18px 0 8px; font-size: 12px; }
+#command-navigation .terminal-output .terminal-error { color: #efb68a; }
+#command-navigation .terminal-output .terminal-muted { color: #6c9b7b; }
+#command-navigation .terminal-output .terminal-article-title { padding-top: 12px; border-top: 1px solid #285d3a; color: #74ff9b; font-size: 15px; }
+#command-navigation .terminal-output .terminal-article { font-size: 12px; line-height: 1.9; }
+#command-navigation .terminal-files { display: grid; gap: 2px; }
+#command-navigation .terminal-files button { display: block; width: 100%; padding: 4px 6px; text-align: left; overflow-wrap: anywhere; border-radius: 2px; cursor: pointer; color: #b1d8bb; }
+#command-navigation .terminal-files .terminal-directory { color: #74ff9b; }
+#command-navigation button:hover { background: #163322; color: #bdffcf; }
+#command-navigation .terminal-prompt { position: relative; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px; border: 1px solid #285d3a; border-radius: 4px; background: #08190f; margin-top: 16px; }
+#command-navigation .terminal-prompt:focus-within { border-color: #65d989; box-shadow: 0 0 0 2px #74ff9b0d; }
+#command-navigation .terminal-prompt label { width: 100%; display: flex; gap: 8px; color: #6c9b7b; font-size: 10px; overflow-wrap: anywhere; white-space: normal; }
+#command-navigation .terminal-prompt label b { color: #74ff9b; }
+#command-navigation #terminal-command-input { flex: 1; height: 28px; padding: 0; background: transparent; color: #d9ffe2; caret-color: #74ff9b; border: 0; outline: none; box-shadow: none; font: inherit; font-size: 14px; }
+#command-navigation .terminal-prompt button { width: 26px; height: 26px; color: #74ff9b; }
+#command-navigation .terminal-completions { display: flex; flex-wrap: wrap; gap: 4px; max-height: 100px; overflow-y: auto; min-height: 16px; margin-top: 8px; font-size: 10px; color: #6c9b7b; }
+#command-navigation .terminal-completions button { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 2px 5px; background: #0c2114; color: #8fcca1; border-radius: 2px; cursor: pointer; }
+#command-navigation .terminal-status { border-color: #1c3928; background: #09170f; color: #6c9b7b; font-size: 9px; padding: 9px 12px; border-radius: 0 0 12px 12px; }
+#command-navigation .terminal-status-dot { background: #74ff9b; box-shadow: 0 0 8px #74ff9b55; width: 5px; height: 5px; }
+#command-navigation #terminal-current-path { max-width: 40%; }
+#command-navigation :is(button, .terminal-output):focus-visible { outline: 1px solid #74ff9b; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { #command-navigation .terminal-companions svg { transition: none; } }

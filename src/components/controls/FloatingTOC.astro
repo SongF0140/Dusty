@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import FloatingButton from "@/components/common/FloatingButton.astro";
+import ReadingProgress from "@/components/common/ReadingProgress.astro";
 import { sidebarLayoutConfig } from "@/config/sidebarConfig";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -14,7 +15,7 @@ interface Props {
 let { headings: _ = [] } = Astro.props;
 // ... (保留之前的逻辑)
 // 检查侧边栏目录组件是否启用
-const sidebarTocComponent = sidebarLayoutConfig.rightComponents?.find(
+const sidebarTocComponent = [...sidebarLayoutConfig.leftComponents, ...sidebarLayoutConfig.rightComponents].find(
 	(c) => c.type === "sidebarToc",
 );
 const isSidebarTocEnabled = sidebarTocComponent?.enable ?? false;
@@ -57,7 +58,9 @@ const sidebarPosition = sidebarLayoutConfig.position;
         </div>
     </div>
 
-    <div class="toc-scroll-container p-4">
+    <div class="toc-reading-layout floating-reading-layout">
+      <ReadingProgress />
+      <div class="toc-scroll-container p-4">
         <div
         class="toc-content"
         id="floating-toc-content"
@@ -65,6 +68,7 @@ const sidebarPosition = sidebarLayoutConfig.position;
         >
         <!-- TOC内容将由JavaScript动态生成 -->
         </div>
+      </div>
     </div>
   </div>
 </div>
@@ -79,8 +83,8 @@ const sidebarPosition = sidebarLayoutConfig.position;
 	position: absolute
 	bottom: calc(100% + 1rem)
 	right: 0
-	transition: all 0.3s ease
-	transform: translateY(20px)
+	transition: transform 200ms ease, opacity 150ms ease, visibility 0s 200ms
+	transform: translateY(12px) scale(0.75)
 	opacity: 0
 	pointer-events: none
 	overflow: hidden
@@ -90,12 +94,14 @@ const sidebarPosition = sidebarLayoutConfig.position;
 	z-index: 1001
 	
 	&.show
-		transform: translateY(0)
+		transform: translateY(0) scale(1)
 		opacity: 1
 		pointer-events: auto
+		visibility: visible
+		transition-delay: 0s
 		
 	&.hide
-		transform: translateY(20px)
+		transform: translateY(12px) scale(0.75)
 		opacity: 0
 		pointer-events: none
 		visibility: hidden

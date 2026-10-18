@@ -6,7 +6,7 @@ import UmamiAnalytics from "@components/analytics/UmamiAnalytics.astro";
 import FancyboxManager from "@components/features/FancyboxManager.astro";
 import FontManager from "@components/features/FontManager.astro";
 import MusicManager from "@components/features/MusicManager.astro";
-import SakuraEffect from "@components/features/SakuraEffect.astro";
+import ChristmasEffect from "@components/features/ChristmasEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 
 import {
@@ -33,6 +33,8 @@ import "@/styles/variables.styl";
 import "@/styles/markdown-extend.styl";
 import "@rehype-callouts-theme";
 import "@/styles/retro-theme.css";
+import "@/styles/popover-motion.css";
+import "@/styles/article-layout.css";
 
 interface Props {
 	title?: string;
@@ -249,30 +251,14 @@ const siteLang = lang.replace("_", "-");
       }}
     >
       // 主题初始化 - 与setting-utils.ts保持一致
-      const LIGHT_MODE = "light";
       const DARK_MODE = "dark";
-      const SYSTEM_MODE = "system";
 
       // 获取存储的主题，如果没有则使用默认值
-      const theme = localStorage.getItem("theme") || defaultMode;
+      const storedTheme = localStorage.getItem("theme");
+      const theme = storedTheme === "dark" || storedTheme === "light"
+        ? storedTheme : defaultMode === "dark" ? "dark" : "light";
 
-      // 获取系统主题
-      function getSystemTheme() {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? DARK_MODE
-          : LIGHT_MODE;
-      }
-
-      // 解析主题（如果是system模式，则获取系统主题）
-      function resolveTheme(themeValue) {
-        if (themeValue === SYSTEM_MODE) {
-          return getSystemTheme();
-        }
-        return themeValue;
-      }
-
-      const resolvedTheme = resolveTheme(theme);
-      const isDark = resolvedTheme === DARK_MODE;
+      const isDark = theme === DARK_MODE;
 
       // 应用主题
       if (isDark) {
@@ -571,8 +557,6 @@ const siteLang = lang.replace("_", "-");
     ]}
   >
 
-    <div id="progress-bar"></div>
-
     <!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}
     <ConfigCarrier />
@@ -581,8 +565,7 @@ const siteLang = lang.replace("_", "-");
 
 
 
-    <!-- Sakura Effect -->
-    <SakuraEffect />
+    <ChristmasEffect />
 
     <!-- Fancybox Manager -->
     <FancyboxManager />
@@ -728,6 +711,9 @@ const siteLang = lang.replace("_", "-");
 
 <script>
   import { pathsEqual, url } from "@/utils/url-utils";
+  import { showPageSkeleton, hidePageSkeleton } from "@/utils/page-loading";
+  import { initPopoverMotion } from "@/utils/popover-motion";
+  initPopoverMotion();
   import {
     BANNER_HEIGHT,
     BANNER_HEIGHT_HOME,
@@ -798,10 +784,6 @@ function disableAnimation() {
           panelDom.classList.add("float-panel-closed");
       });
   }
-  setClickOutsideToClose("display-setting", [
-    "display-setting",
-    "display-settings-switch",
-  ]);
   setClickOutsideToClose("nav-menu-panel", [
     "nav-menu-panel",
     "nav-menu-switch",
@@ -814,10 +796,6 @@ function disableAnimation() {
   setClickOutsideToClose("wallpaper-mode-panel", [
     "wallpaper-mode-panel",
     "wallpaper-mode-switch",
-  ]);
-  setClickOutsideToClose("theme-mode-panel", [
-    "theme-mode-panel",
-    "scheme-switch",
   ]);
 
   function initCustomScrollbar() {
@@ -1041,14 +1019,7 @@ function disableAnimation() {
 
     });
     window.swup.hooks.on("visit:start", (visit: { to: { url: string } }) => {
-      // Start progress bar
-      const progressBar = document.getElementById("progress-bar");
-      if (progressBar) {
-        progressBar.classList.remove("finishing", "done");
-        // Force reflow so the animation restarts cleanly
-        void progressBar.offsetWidth;
-        progressBar.classList.add("loading");
-      }
+      showPageSkeleton(visit.to.url);
 
       // change banner height immediately when a link is clicked
       const bodyElement = document.querySelector("body");
@@ -1214,6 +1185,7 @@ function disableAnimation() {
       }
     });
     window.swup.hooks.on("page:view", () => {
+      hidePageSkeleton();
       // 更新网格列数和侧边栏组件可见性
       updateMainGridCols();
       updateSidebarComponentsVisibility();
@@ -1289,12 +1261,7 @@ function disableAnimation() {
       const storedTheme = localStorage.getItem("theme") || siteConfig.themeColor.defaultMode || "light";
       let isDark = false;
       
-      // 处理 system 模式
-      if (storedTheme === "system") {
-        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      } else {
-        isDark = storedTheme === "dark";
-      }
+      isDark = storedTheme === "dark";
       
       const expectedTheme = isDark
         ? expressiveCodeConfig.darkTheme
@@ -1325,19 +1292,7 @@ function disableAnimation() {
       }, 300);
     });
     window.swup.hooks.on("visit:end", (_visit: { to: { url: string } }) => {
-      // Finish progress bar
-      const progressBar = document.getElementById("progress-bar");
-      if (progressBar) {
-        progressBar.classList.remove("loading");
-        progressBar.classList.add("finishing");
-        setTimeout(() => {
-          progressBar.classList.remove("finishing");
-          progressBar.classList.add("done");
-          setTimeout(() => {
-            progressBar.classList.remove("done");
-          }, 300);
-        }, 200);
-      }
+      hidePageSkeleton();
 
       setTimeout(() => {
         const heightExtend = document.getElementById("page-height-extend");
@@ -1359,10 +1314,18 @@ function disableAnimation() {
 
 
   };
+  window.addEventListener("pageshow", () => hidePageSkeleton());
+  const registerLoadingRecovery = () => {
+    window.swup.hooks.on("visit:abort", () => hidePageSkeleton());
+    window.swup.hooks.on("fetch:error", () => hidePageSkeleton());
+    window.swup.hooks.on("fetch:timeout", () => hidePageSkeleton());
+  };
   if (window?.swup?.hooks) {
     setup();
+    registerLoadingRecovery();
   } else {
     document.addEventListener("swup:enable", setup);
+    document.addEventListener("swup:enable", registerLoadingRecovery, { once: true });
   }
 
   document.addEventListener("astro:page-load", scheduleContentOverflowEnhancements);
