@@ -24,7 +24,7 @@
 
 ### [Auto-Memories-Doll](https://github.com/SongF0140/Auto-Memories-Doll)
 
-本地优先的 AI 记忆协作系统。在和 AI 对话学习新领域时，自动从对话噪声中提炼体系化的 Markdown 笔记——多源采集（Trae / Cursor / Claude Code / 浏览器）、七类话题自动归类、HNSW 向量检索 + MMR 重排、三层审计管线防幻觉。核心目标一句话：**让 AI 在第 N 轮对话时仍记得第 1 轮发生过什么。**
+本地优先的 AI 记忆协作系统：多源采集学习对话（Trae / Cursor / Claude Code / 浏览器），HNSW 向量检索 + MMR 重排做记忆召回，三层审计管线防幻觉。核心目标一句话：**把嘈杂的学习对话蒸馏成纯净的知识图谱——遗漏的与已得的拆解归类、连点成图，让回看时能注意到当初 attention 从未注意到的地方。**
 
 ### 关于命名
 
