@@ -436,7 +436,8 @@ body .custom-md code:not(.expressive-code code) {
   .nav-terminal-open #main-grid { gap: 1rem; transition: none; }
   .nav-terminal-open #main-grid > div { min-width: 0; }
   .nav-terminal-open #main-grid { grid-template-columns: 14rem minmax(0, 1fr); }
-  .nav-terminal-open :is(#right-sidebar, #right-sidebar-static, #right-sidebar-dynamic) { display: none; }
+  /* Article pages keep their reading note in the reserved right-hand column. */
+  .nav-terminal-open body:not(:has(#post-container)) :is(#right-sidebar, #right-sidebar-static, #right-sidebar-dynamic) { display: none; }
   .nav-terminal-open .footer { grid-column: 2; }
 }
 
