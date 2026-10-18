@@ -20,8 +20,21 @@ export const friendsPageConfig: FriendsPageConfig = {
 	randomizeSort: false,
 };
 
-// 真实友链待添加。category 可选：熟人、友链小伙伴、单向关注。
-export const friendsConfig: FriendLink[] = [];
+// 真实友链。category 可选：熟人、友链小伙伴、单向关注。
+export const friendsConfig: FriendLink[] = [
+	{
+		title: "belluna",
+		imgurl: "https://belluna.love/_astro/avatar.CDGnQpej_2bNC6X.avif",
+		desc: "记录生活与技术，铃月和我共同存在的地方",
+		siteurl: "https://belluna.love",
+		tags: ["生活", "技术"],
+		category: "熟人",
+		owner: "jianyanya",
+		color: "#972F2F",
+		weight: 10,
+		enabled: true,
+	},
+];
 
 // 获取启用的友链并进行排序
 export const getEnabledFriends = (): FriendLink[] => {
