@@ -41,6 +41,9 @@ package/
 .content-source/
 .content-sync-state.json
 
-# 文章内容由 scripts/sync-content-repo.mjs 从 blog_knowledge 仓库拉取生成，
-# 属构建产物，不纳入版本管理（build 前会自动同步）
-src/content/posts/
+# 文章大部分由 scripts/sync-content-repo.mjs 从 blog_knowledge 仓库拉取生成，
+# 属构建产物，不纳入版本管理（build 前会自动同步）。
+# 例外：knowledge/（深度学习 21 篇）在 blog_knowledge 无内容源，
+# 只存在于本仓库，必须纳入版本管理，否则云端构建会丢失这批文章。
+src/content/posts/*
+!src/content/posts/knowledge/
