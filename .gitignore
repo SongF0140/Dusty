@@ -37,6 +37,28 @@ Firefly-docs/
 
 cache/
 package/
+# Local verification output (screenshots, browser reports, scratch files)
+/artifacts/
+/.playwright-mcp/
+/playwright-report/
+/test-results/
+/tmp/
+/temp/
+*.tmp
+*.temp
+*.log
+*.swp
+*.swo
+*~
+__pycache__/
+*.py[cod]
+Thumbs.db
+
+# Local environment variants; keep public configuration templates
+.env.*
+!.env.example
+!.env.*.example
+
 .obsidian/
 .content-source/
 .content-sync-state.json
