@@ -34,6 +34,18 @@ export const friendsConfig: FriendLink[] = [
 		weight: 10,
 		enabled: true,
 	},
+	{
+		title: "栀子苒",
+		imgurl: "https://zzran.online/favicon.svg",
+		desc: "喵喵喵",
+		siteurl: "https://zzran.online/",
+		tags: ["博客"],
+		category: "友链小伙伴",
+		owner: "栀子苒",
+		color: "#8cae91",
+		weight: 9,
+		enabled: true,
+	},
 ];
 
 // 获取启用的友链并进行排序
