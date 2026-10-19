@@ -46,6 +46,18 @@ export const friendsConfig: FriendLink[] = [
 		weight: 9,
 		enabled: true,
 	},
+	{
+		title: "Joye Blog",
+		imgurl: "https://www.joyehuang.me/favicon/favicon.ico",
+		desc: "Stay hungry, stay foolish",
+		siteurl: "https://www.joyehuang.me/",
+		tags: ["博客"],
+		category: "友链小伙伴",
+		owner: "Joye",
+		color: "#5a7d9a",
+		weight: 8,
+		enabled: true,
+	},
 ];
 
 // 获取启用的友链并进行排序
