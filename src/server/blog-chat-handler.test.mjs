@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import handler from "./blog-chat.ts";
+import handler from "../../api/blog-chat.ts";
 
 test("Vercel handler reads the built article snapshot and hides credentials", async () => {
 	const articles = JSON.parse(
