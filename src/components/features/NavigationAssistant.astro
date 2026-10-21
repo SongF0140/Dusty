@@ -1,0 +1,58 @@
+---
+import { url } from "@/utils/url-utils";
+---
+
+<section id="navigation-assistant-panel" class="navigation-mode-panel assistant-panel" role="tabpanel" aria-labelledby="navigation-assistant-tab" hidden>
+    <haiwenxiang-assistant>
+        <div class="assistant-heading">
+            <div><span class="assistant-eyebrow">guest@haiwenxiang</span><h2>HAIWENXIANG / AGENT</h2></div>
+            <span class="assistant-connection">正在检查连接</span>
+        </div>
+                <animated-agent-avatar class="assistant-startup-avatar">
+                    <button type="button" class="assistant-avatar-touch" aria-label="戳戳海问香" title="戳戳海问香">
+                    <img src={url("/assets/images/assistant/haiwenxiang-avatar.png")} width="160" height="160" alt="海问香的 Q 版像素头像" decoding="async" />
+                    <canvas width="80" height="80" role="img" aria-label="海问香的 Q 版像素头像" hidden></canvas>
+                    <img data-puff-source src={url("/assets/images/assistant/haiwenxiang-pout.png")} alt="" aria-hidden="true" hidden decoding="async" />
+                    <svg class="assistant-puff-burst" viewBox="0 -8 88 80" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
+                        <path fill="#fffdf7" d="M36 -8h4v4h-4ZM40 -8h4v4h-4ZM44 -8h4v4h-4ZM36 -4h4v4h-4ZM40 -4h4v4h-4ZM44 -4h4v4h-4ZM36 0h4v4h-4ZM40 0h4v4h-4ZM44 0h4v4h-4ZM36 4h4v4h-4ZM40 4h4v4h-4ZM44 4h4v4h-4ZM48 -4h4v4h-4ZM48 0h4v4h-4ZM48 4h4v4h-4ZM52 -4h4v4h-4ZM52 0h4v4h-4ZM52 4h4v4h-4ZM56 -4h4v4h-4ZM56 0h4v4h-4ZM56 4h4v4h-4ZM36 8h4v4h-4ZM40 8h4v4h-4ZM44 8h4v4h-4ZM48 8h4v4h-4ZM52 8h4v4h-4ZM32 4h4v4h-4ZM32 8h4v4h-4ZM32 12h4v4h-4ZM36 12h4v4h-4ZM40 12h4v4h-4ZM44 12h4v4h-4ZM48 12h4v4h-4ZM52 12h4v4h-4ZM32 16h4v4h-4ZM36 16h4v4h-4ZM40 16h4v4h-4ZM44 16h4v4h-4ZM48 16h4v4h-4ZM32 20h4v4h-4ZM36 20h4v4h-4ZM40 20h4v4h-4ZM44 20h4v4h-4ZM48 20h4v4h-4ZM28 16h4v4h-4ZM28 20h4v4h-4ZM28 24h4v4h-4ZM32 24h4v4h-4ZM36 24h4v4h-4ZM40 24h4v4h-4ZM44 24h4v4h-4ZM56 16h4v4h-4ZM60 16h4v4h-4ZM64 16h4v4h-4ZM56 20h4v4h-4ZM60 20h4v4h-4ZM64 20h4v4h-4ZM56 24h4v4h-4ZM60 24h4v4h-4ZM64 24h4v4h-4ZM68 16h4v4h-4ZM68 20h4v4h-4ZM68 24h4v4h-4ZM72 16h4v4h-4ZM72 20h4v4h-4ZM72 24h4v4h-4ZM52 20h4v4h-4ZM52 24h4v4h-4ZM52 28h4v4h-4ZM56 28h4v4h-4ZM60 28h4v4h-4ZM64 28h4v4h-4ZM68 28h4v4h-4ZM72 28h4v4h-4ZM48 24h4v4h-4ZM44 28h4v4h-4ZM48 28h4v4h-4ZM44 32h4v4h-4ZM48 32h4v4h-4ZM52 32h4v4h-4ZM56 32h4v4h-4ZM60 32h4v4h-4ZM64 32h4v4h-4ZM68 32h4v4h-4ZM72 32h4v4h-4ZM76 24h4v4h-4ZM76 28h4v4h-4ZM76 32h4v4h-4ZM44 36h4v4h-4ZM48 36h4v4h-4ZM52 36h4v4h-4ZM56 36h4v4h-4ZM60 36h4v4h-4ZM64 36h4v4h-4ZM68 36h4v4h-4ZM44 40h4v4h-4ZM48 40h4v4h-4ZM52 40h4v4h-4ZM56 40h4v4h-4ZM60 40h4v4h-4ZM44 44h4v4h-4ZM48 44h4v4h-4ZM52 44h4v4h-4ZM44 48h4v4h-4ZM48 48h4v4h-4ZM52 48h4v4h-4ZM56 44h4v4h-4ZM56 48h4v4h-4ZM60 44h4v4h-4ZM60 48h4v4h-4ZM64 40h4v4h-4ZM64 44h4v4h-4ZM64 48h4v4h-4ZM68 40h4v4h-4ZM68 44h4v4h-4ZM68 48h4v4h-4ZM44 52h4v4h-4ZM48 52h4v4h-4ZM52 52h4v4h-4ZM56 52h4v4h-4ZM60 52h4v4h-4ZM64 52h4v4h-4ZM68 52h4v4h-4ZM72 44h4v4h-4ZM72 48h4v4h-4ZM72 52h4v4h-4ZM76 44h4v4h-4ZM76 48h4v4h-4ZM76 52h4v4h-4ZM40 48h4v4h-4ZM40 52h4v4h-4ZM40 56h4v4h-4ZM44 56h4v4h-4ZM48 56h4v4h-4ZM52 56h4v4h-4ZM56 56h4v4h-4ZM60 56h4v4h-4ZM64 56h4v4h-4ZM68 56h4v4h-4ZM72 56h4v4h-4ZM76 56h4v4h-4ZM52 60h4v4h-4ZM56 60h4v4h-4ZM60 60h4v4h-4ZM64 60h4v4h-4ZM68 60h4v4h-4ZM72 60h4v4h-4Z" />
+                        <g fill="#ffd65b" data-pixel-rays>
+                            <path d="M40 -4h4v4h-4ZM40 0h4v4h-4ZM44 0h4v4h-4ZM48 0h4v4h-4ZM52 0h4v4h-4ZM40 4h4v4h-4ZM44 4h4v4h-4ZM48 4h4v4h-4ZM36 8h4v4h-4ZM40 8h4v4h-4ZM44 8h4v4h-4ZM48 8h4v4h-4ZM36 12h4v4h-4ZM40 12h4v4h-4ZM44 12h4v4h-4ZM36 16h4v4h-4ZM40 16h4v4h-4ZM44 16h4v4h-4ZM32 20h4v4h-4ZM36 20h4v4h-4ZM40 20h4v4h-4Z" />
+                            <path d="M60 20h4v4h-4ZM64 20h4v4h-4ZM68 20h4v4h-4ZM56 24h4v4h-4ZM60 24h4v4h-4ZM64 24h4v4h-4ZM68 24h4v4h-4ZM48 28h4v4h-4ZM52 28h4v4h-4ZM56 28h4v4h-4ZM60 28h4v4h-4ZM64 28h4v4h-4ZM68 28h4v4h-4ZM72 28h4v4h-4ZM48 32h4v4h-4ZM52 32h4v4h-4ZM56 32h4v4h-4ZM60 32h4v4h-4ZM64 32h4v4h-4ZM48 36h4v4h-4ZM52 36h4v4h-4ZM56 36h4v4h-4Z" />
+                            <path d="M48 44h4v4h-4ZM52 44h4v4h-4ZM56 44h4v4h-4ZM60 44h4v4h-4ZM64 44h4v4h-4ZM48 48h4v4h-4ZM52 48h4v4h-4ZM56 48h4v4h-4ZM60 48h4v4h-4ZM64 48h4v4h-4ZM68 48h4v4h-4ZM72 48h4v4h-4ZM44 52h4v4h-4ZM48 52h4v4h-4ZM52 52h4v4h-4ZM56 52h4v4h-4ZM60 52h4v4h-4ZM64 52h4v4h-4ZM68 52h4v4h-4ZM72 52h4v4h-4ZM56 56h4v4h-4ZM60 56h4v4h-4ZM64 56h4v4h-4ZM68 56h4v4h-4Z" />
+                        </g>
+                    </svg>
+                    </button>
+                </animated-agent-avatar>
+                <terminal-verse class="assistant-startup-verse" role="group" aria-label="枕星河之倒影兮与星光同流，望群星之包覆兮随繁星同辉。">
+                    <span class="verse-line" data-verse-line="枕星河之倒影兮与星光同流，" aria-hidden="true"><span data-verse-text>枕星河之倒影兮与星光同流，</span><span class="verse-cursor" hidden>|</span></span>
+                    <span class="verse-line" data-verse-line="望群星之包覆兮随繁星同辉。" aria-hidden="true"><span data-verse-text>望群星之包覆兮随繁星同辉。</span><span class="verse-cursor" hidden>|</span></span>
+                </terminal-verse>
+        <div class="assistant-conversation" tabindex="0" aria-label="海问香对话记录">
+            <div class="assistant-empty" data-assistant-empty>
+
+                <div class="assistant-draft-prompts" aria-label="草稿灵感">
+                    <button type="button" data-assistant-prompt="这篇文章的核心观点是什么？">梳理文章的观点<span aria-hidden="true">↗</span></button>
+                    <button type="button" data-assistant-prompt="这个判断在什么条件下不成立？">想一想结论的边界<span aria-hidden="true">↗</span></button>
+                </div>
+                <p class="assistant-preview-note">可以聊聊，也可以一起读博文。扩展内容单独标注，仅提供站内博文链接。<br />对话和草稿仅保存在此浏览器。</p>
+            </div>
+            <div data-assistant-messages></div>
+        </div>
+        <form class="assistant-composer" aria-label="给海问香写下问题">
+            <label for="haiwenxiang-draft">guest@haiwenxiang:~ ❯</label>
+            <textarea id="haiwenxiang-draft" name="draft" maxlength="4000" rows="3" placeholder="关于博文，有什么想聊的？" aria-describedby="assistant-send-note" spellcheck="false"></textarea>
+            <div class="assistant-composer-actions"><span id="assistant-send-note" role="status" aria-live="polite">正在检查模型服务</span><button type="submit" disabled aria-label="发送消息">发送<span aria-hidden="true">↑</span></button></div>
+        </form>
+        <footer class="assistant-footer"><span data-assistant-save-status role="status" aria-live="polite">仅保存在此浏览器</span><button type="button" data-assistant-clear>清空对话</button></footer>
+        <div class="assistant-clear-confirm" data-assistant-confirm hidden role="group" aria-labelledby="assistant-clear-title">
+            <p id="assistant-clear-title">清空此浏览器的对话和草稿？</p><span>清空后无法恢复。</span>
+            <div><button type="button" data-assistant-cancel>保留</button><button type="button" data-assistant-confirm-clear>确认清空</button></div>
+        </div>
+    </haiwenxiang-assistant>
+</section>
+
+<script>
+    import "@/scripts/blog-assistant";
+    import "@/scripts/assistant-verse";
+    import "@/scripts/assistant-avatar";
+</script>

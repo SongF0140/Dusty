@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { normalizePostTags } from "./utils/post-tags";
 
 const postsCollection = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts" }),
@@ -28,7 +29,10 @@ const postsCollection = defineCollection({
 		prevSlug: z.string().default(""),
 		nextTitle: z.string().default(""),
 		nextSlug: z.string().default(""),
-	}),
+	}).transform((post) => ({
+		...post,
+		tags: normalizePostTags(post.tags, post.category),
+	})),
 });
 
 const specCollection = defineCollection({

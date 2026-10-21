@@ -39,7 +39,9 @@ function getAllFiles(dir, extensions = [".svelte"]) {
 	function walk(currentDir) {
 		const items = readdirSync(currentDir);
 		for (const item of items) {
+			// 构建完整路径
 			const fullPath = join(currentDir, item);
+			// 检查是否为目录
 			const stat = statSync(fullPath);
 
 			if (stat.isDirectory()) {
@@ -52,7 +54,7 @@ function getAllFiles(dir, extensions = [".svelte"]) {
 			}
 		}
 	}
-
+	// 递归遍历目录树
 	walk(dir);
 	return files;
 }

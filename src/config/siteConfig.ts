@@ -6,7 +6,7 @@ const SITE_LANG = "zh_CN";
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "Dusty的高密乡",
+	title: "Dusty の 秘密报社",
 
 	// 站点副标题
 	subtitle: "技术笔记与项目记录",

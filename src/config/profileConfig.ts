@@ -2,7 +2,7 @@ import type { ProfileConfig } from "../types/profileConfig";
 
 export const profileConfig: ProfileConfig = {
 	// 头像 - 恩奇都(Enkidu) 微笑肖像
-	avatar: "https://wallpaperaccess.com/download/fate-enkidu-8577378",
+	avatar: "assets/images/profile/author-portrait.png",
 
 	// 名字
 	name: "JIA",
@@ -21,7 +21,7 @@ export const profileConfig: ProfileConfig = {
 		{
 			name: "Email",
 			icon: "fa7-solid:envelope",
-			url: "mailto:xiaye@msn.com",
+			url: "mailto:15271810140@163.com",
 			showName: false,
 		},
 		{

@@ -1,11 +1,13 @@
 ---
 import { Icon } from "astro-icon/components";
 import TerminalCompanions from "@/components/common/TerminalCompanions.astro";
+import NavigationAssistant from "./NavigationAssistant.astro";
 import { siteConfig } from "@/config";
 import { navigationCommands } from "@/utils/command-navigation";
 import { getSortedPostsList } from "@/utils/content-utils";
 import { getPostUrlBySlug, removeFileExtension, url } from "@/utils/url-utils";
 import "../../styles/terminal.css";
+import "../../styles/navigation-assistant.css";
 
 const commands = navigationCommands
     .filter((item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false)
@@ -32,12 +34,13 @@ const pageFiles = commands.filter(item => item.path && item.command !== "/blog")
 ---
 
 <button id="command-navigation-backdrop" class="command-navigation-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>
-<aside id="command-navigation" class="command-navigation" aria-label="Command navigation" inert data-commands={JSON.stringify(commands)} data-files={JSON.stringify([...files, ...pageFiles])}>
+<aside id="command-navigation" class="command-navigation" aria-label="Command navigation" inert data-mode="terminal" data-commands={JSON.stringify(commands)} data-files={JSON.stringify([...files, ...pageFiles])}>
     <header class="terminal-titlebar">
         <TerminalCompanions />
-        <span>DUSTY / SHELL</span>
+        <span data-navigation-title>DUSTY / SHELL</span>
         <button type="button" id="command-navigation-close" aria-label="Close navigation" title="Close navigation"><Icon is:inline name="material-symbols:close-rounded" /></button>
     </header>
+    <section id="navigation-terminal-panel" class="navigation-mode-panel" role="tabpanel" aria-labelledby="navigation-terminal-tab">
     <div class="terminal-session">
         <div class="terminal-identity"><span>guest@dusty</span><span>CONNECTED <i aria-hidden="true"></i></span></div>
         <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Terminal output">
@@ -60,14 +63,18 @@ const pageFiles = commands.filter(item => item.path && item.command !== "/blog")
         <div id="terminal-completions" class="terminal-completions" aria-live="polite"></div>
     </div>
     <footer class="terminal-status"><span class="terminal-status-dot"></span><span>TAB complete · ↑↓ history</span><span id="terminal-current-path">/</span></footer>
+    </section>
+    <NavigationAssistant />
 </aside>
 
 <script>
     import { createBlogShell, type ShellFile, type ShellState } from "@/utils/blog-shell";
+    import { createNavigationWorkspace } from "@/scripts/navigation-workspace";
     const drawer = document.getElementById("command-navigation")!;
     const backdrop = document.getElementById("command-navigation-backdrop")!;
     const input = document.getElementById("terminal-command-input") as HTMLInputElement;
     const output = document.getElementById("terminal-output")!;
+    const workspace = createNavigationWorkspace(drawer);
     const suggestions = document.getElementById("terminal-completions")!;
     const commands = JSON.parse(drawer.dataset.commands || "[]");
     const shell = createBlogShell(JSON.parse(drawer.dataset.files || "[]"), commands);
@@ -83,7 +90,7 @@ const pageFiles = commands.filter(item => item.path && item.command !== "/blog")
         drawer.inert = !open;
         backdrop.hidden = !open;
         document.getElementById("command-navigation-toggle")?.setAttribute("aria-expanded", String(open));
-        if (open) window.setTimeout(() => { if (isOpen()) input.focus({ preventScroll: true }); }, 230);
+        if (open) window.setTimeout(() => { if (isOpen()) workspace.focusInput(); }, 230);
         else document.getElementById("command-navigation-toggle")?.focus({ preventScroll: true });
     }
     function updatePath() {

@@ -1,0 +1,30 @@
+---
+import { getImage } from "astro:assets";
+import strips from "@/assets/images/post-cards/rubber-hose-wide.png";
+import extraStrips from "@/assets/images/post-cards/rubber-hose-extra-wide.png";
+import { POST_ART_COUNT } from "@/utils/post-card-art";
+
+const { entryId } = Astro.props;
+const sheets = await Promise.all(
+  [{ src: strips, width: 1024, count: 4 }, { src: extraStrips, width: 768, count: 3 }].map(async (spec) => {
+    const image = await getImage({ src: spec.src, width: spec.width, format: "webp", quality: 90 });
+    return { src: image.src, width: Number(image.attributes.width), height: Number(image.attributes.height), count: spec.count };
+  }),
+);
+const initial = String(entryId).length % POST_ART_COUNT;
+const sheet = sheets[initial < 4 ? 0 : 1];
+const column = initial < 4 ? initial : initial - 4;
+const frameWidth = sheet.width / sheet.count;
+---
+<post-card-art data-art-sheets={JSON.stringify(sheets)} data-art-index={initial} aria-hidden="true">
+  <svg class="post-art-viewport" viewBox={`${column * frameWidth} 0 ${frameWidth} ${sheet.height}`} preserveAspectRatio="xMidYMid slice" overflow="hidden" focusable="false">
+    <image href={sheet.src} width={sheet.width} height={sheet.height} x="0" y="0" preserveAspectRatio="xMidYMid meet" />
+  </svg>
+</post-card-art>
+<style>
+  post-card-art { position: absolute; inset: 0; display: block; pointer-events: none; }
+  .post-art-viewport { display: block; width: 100%; height: 100%; overflow: hidden; transition: transform 180ms ease; }
+  :global(.post-card-enter-btn:hover) .post-art-viewport { transform: scale(1.035); }
+  @media (prefers-reduced-motion: reduce) { .post-art-viewport { transition: none; transform: none !important; } }
+</style>
+<script>import "@/scripts/post-card-art";</script>

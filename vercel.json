@@ -3,6 +3,12 @@
   "outputDirectory": "dist",
   "installCommand": "pnpm install",
   "framework": "astro",
+  "functions": {
+    "api/blog-chat.ts": {
+      "includeFiles": "dist/api/rag/*.json",
+      "maxDuration": 60
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

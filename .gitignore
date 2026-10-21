@@ -44,6 +44,13 @@ package/
 /test-results/
 /tmp/
 /temp/
+
+# Superseded illustration atlases kept locally as editing references
+/src/assets/images/post-cards/rubber-hose-strips.png
+/src/assets/images/post-cards/rubber-hose-extra-strips.png
+/src/assets/images/profile/garden-companion-pixel-sprites.png
+/src/assets/images/profile/garden-companion-gentle-sprites.png
+/src/assets/images/profile/scenes/tea.png
 *.tmp
 *.temp
 *.log

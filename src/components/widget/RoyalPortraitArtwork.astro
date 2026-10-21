@@ -1,0 +1,42 @@
+---
+import { getImage } from "astro:assets";
+import reference from "@/assets/images/profile/royal-portrait-reference.png";
+
+interface Props { part: "frame" | "backing" | "curtain" | "tassel"; }
+const { part } = Astro.props;
+const optimized = await getImage({ src: reference, format: "webp", quality: 88 });
+const source = optimized.src;
+const clipId = `royal-art-${crypto.randomUUID()}`;
+const keyId = `${clipId}-paper-key`;
+const maskId = `${clipId}-paper-mask`;
+const views = {
+  frame: "0 0 590 640",
+  backing: "1550 142 384 408",
+  curtain: "228 142 400 408",
+  tassel: "1984 410 70 176",
+};
+// Browser-side viewports preserve the approved source bitmap unchanged.
+const frameOutline = "M31 82 L41 72 L71 79 L99 80 L140 77 L170 69 L193 65 L211 47 L229 46 L238 32 L250 29 L253 15 L265 15 L265 30 L282 38 L298 38 L314 52 L334 65 L357 67 L378 76 L431 79 L461 70 L482 78 L508 74 L526 87 L524 117 L521 148 L520 268 L533 290 L532 325 L520 338 L519 490 L530 515 L531 547 L521 562 L526 592 L512 620 L472 615 L438 619 L350 619 L330 632 L309 635 L278 629 L258 635 L225 628 L207 617 L116 616 L82 622 L49 622 L22 615 L18 598 L22 567 L16 549 L18 519 L29 499 L29 338 L15 326 L14 298 L27 277 L27 123 L21 106 Z M80 142 H464 V550 H80 Z";
+const tasselOutline = "M22 0 L28 1 L32 6 L32 12 L28 17 L28 24 L32 28 L37 37 L37 45 L32 52 L28 55 L28 58 L32 59 L33 63 L31 66 L35 70 L37 79 L39 81 L40 89 L43 100 L47 125 L54 164 L51 168 L43 170 L36 171 L29 173 L23 172 L17 173 L10 172 L5 171 L0 169 L0 131 L6 96 L7 89 L6 84 L8 80 L7 75 L9 69 L13 65 L10 63 L10 59 L15 57 L15 54 L10 50 L7 43 L8 35 L13 28 L16 25 L16 17 L12 12 L12 6 L16 2 Z";
+---
+<svg class={`royal-art royal-art-${part}`} viewBox={views[part]} preserveAspectRatio={part === "tassel" ? "xMidYMid meet" : "none"} aria-hidden="true" data-royal-art={part}>
+  {(part === "frame" || part === "tassel") && <defs>
+    {part === "tassel" && <clipPath id={clipId}><path d={tasselOutline} transform="translate(1996 410)" /></clipPath>}
+    <filter id={keyId} color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  -2 -2 -2 0 4.5" result="darkMaterial" />
+      <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  5 0 -5 0 -0.7" result="goldMaterial" />
+      <feComposite in="darkMaterial" in2="goldMaterial" operator="arithmetic" k2="1" k3="1" />
+      <feComponentTransfer><feFuncA type="discrete" tableValues="0 1" /></feComponentTransfer>
+    </filter>
+    <mask id={maskId} maskUnits="userSpaceOnUse" x={part === "frame" ? "0" : "1996"} y={part === "frame" ? "0" : "410"} width={part === "frame" ? "590" : "58"} height={part === "frame" ? "640" : "176"} style="mask-type:alpha">
+      <image href={source} width="2172" height="724" x={part === "frame" ? "-1470" : "0"} filter={`url(#${keyId})`} />
+    </mask>
+  </defs>}
+  {part === "frame" ? <>
+    <defs><clipPath id={clipId}><path d={frameOutline} clip-rule="evenodd" fill-rule="evenodd" /></clipPath></defs>
+    <image href={source} width="2172" height="724" x="-1470" clip-path={`url(#${clipId})`} mask={`url(#${maskId})`} />
+  </> : <image href={source} width="2172" height="724" mask={part === "tassel" ? `url(#${maskId})` : undefined} clip-path={part === "tassel" ? `url(#${clipId})` : undefined} />}
+</svg>
+<style>
+  .royal-art { display: block; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+</style>

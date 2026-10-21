@@ -202,6 +202,7 @@ export function syncContent({
 	]);
 
 	function contentFingerprint(dir) {
+		// 计算目录下的所有文件的 SHA256 哈希值
 		const hash = createHash("sha256");
 		function visit(current) {
 			for (const entry of readdirSync(current).sort()) {

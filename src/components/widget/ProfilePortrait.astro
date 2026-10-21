@@ -1,0 +1,69 @@
+---
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import GardenCompanion from "./GardenCompanion.astro";
+import RoyalPortraitArtwork from "./RoyalPortraitArtwork.astro";
+const { src, name } = Astro.props;
+---
+<profile-portrait data-flipped="false" data-open="false" data-curtain="closed">
+  <div class="portrait-turn">
+    <button type="button" class="portrait-face portrait-front" data-portrait-flip aria-label="翻转头像卡片" aria-expanded="false">
+      <ImageWrapper src={src || ""} alt={`${name} 的头像`} class="portrait-image" loading="eager" fetchpriority="high" widths={[350]} sizes="350px" />
+    </button>
+    <section class="portrait-face portrait-back" data-portrait-back aria-label="蓝黄星月旗帘与海问香的花园" aria-hidden="true" inert>
+      <div class="royal-window">
+        <GardenCompanion />
+        <div class="royal-curtain curtain-upper" aria-hidden="true"><RoyalPortraitArtwork part="curtain" /></div>
+        <div class="royal-curtain curtain-lower" aria-hidden="true"><RoyalPortraitArtwork part="curtain" /></div>
+      </div>
+      <div class="royal-frame" aria-hidden="true"><RoyalPortraitArtwork part="frame" /></div>
+      <div class="royal-pulley" aria-hidden="true"></div>
+      <div class="royal-cord">
+        <span class="cord-line" aria-hidden="true"></span>
+        <button type="button" class="cord-handle" data-curtain-pull aria-label="拉绳打开旗帘" aria-expanded="false" title="拉绳打开旗帘"><RoyalPortraitArtwork part="tassel" /></button>
+      </div>
+      <button type="button" class="portrait-back-flip" data-portrait-return aria-label="翻回头像" title="点击相框翻回头像"></button>
+    </section>
+  </div>
+</profile-portrait>
+<style>
+  profile-portrait { --royal-blue: #244db1; --royal-gold: #f2ca58; --cord-axis: 91.1%; display: block; perspective: 1000px; margin-bottom: .75rem; }
+  .portrait-turn { position: relative; width: 100%; aspect-ratio: 590 / 640; transform-style: preserve-3d; transition: transform 650ms cubic-bezier(.2,.75,.2,1); }
+  profile-portrait[data-flipped="true"] .portrait-turn { transform: rotateY(180deg); }
+  .portrait-face { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .portrait-front { overflow: hidden; padding: 0; border: 0; border-radius: 10px; cursor: pointer; background: var(--retro-paper); color: white; transform: translateZ(1px); }
+  .portrait-front :global(.portrait-image), .portrait-front :global(img) { width: 100%; height: 100%; }
+  .portrait-front :global(img) { object-fit: cover; object-position: center; transform: scale(1.1); animation: portrait-idle-shake 6s linear infinite; }
+  profile-portrait[data-flipped="true"] .portrait-front :global(img) { animation-play-state: paused; }
+  @keyframes portrait-idle-shake {
+    0%, 90%, 100% { transform: translateX(0) rotate(0deg) scale(1.1); }
+    92%, 96% { transform: translateX(-1px) rotate(-0.35deg) scale(1.1); }
+    94%, 98% { transform: translateX(1px) rotate(0.35deg) scale(1.1); }
+  }
+  .portrait-back { transform: rotateY(180deg) translateZ(1px); }
+  .portrait-back-flip { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; z-index: 4; }
+  profile-portrait[data-curtain="opening"] .portrait-back-flip, profile-portrait[data-curtain="closing"] .portrait-back-flip { cursor: wait; }
+  .royal-frame { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .royal-window { position: absolute; left: 13.5593%; top: 22.1875%; width: 65.0847%; height: 63.75%; overflow: hidden; background: #17324b; }
+  .royal-curtain { position: absolute; inset: 0; will-change: transform; transition: transform 1350ms cubic-bezier(.55,.05,.22,1); }
+  .curtain-upper { clip-path: polygon(0 0, 100% 0, 100% 31%, 50% 69%, 0 31%); transform-origin: 50% 0; z-index: 2; }
+  .curtain-lower { clip-path: polygon(0 19%, 50% 55%, 100% 19%, 100% 100%, 0 100%); transform-origin: 50% 100%; z-index: 1; }
+  profile-portrait[data-open="true"] .curtain-upper { transform: translateY(-105%) scaleY(.58); }
+  profile-portrait[data-open="true"] .curtain-lower { transform: translateY(105%) scaleY(.58); }
+  .royal-pulley { position: absolute; left: calc(var(--cord-axis) - 1.9%); top: 25%; width: 3.8%; height: 3.5%; border: 2px solid #bca05f; border-radius: 50%; background: #73532f; box-shadow: inset 0 0 0 1px #4a3424; z-index: 4; }
+  .royal-pulley::before { content: ''; position: absolute; right: 100%; top: calc(50% - 1px); width: 5px; height: 2px; background: #bca05f; }
+  .royal-cord { --cord-handle-height: clamp(46px,5vw,62px); position: absolute; left: calc(var(--cord-axis) - 5%); top: 27%; width: 10%; height: calc(48% + var(--pull-drag,0px)); transition: height 800ms cubic-bezier(.3,.8,.2,1); z-index: 5; }
+  profile-portrait[data-open="true"] .royal-cord { height: calc(56% + var(--pull-drag,0px)); }
+  profile-portrait[data-dragging="true"] .royal-cord { transition: none; }
+  .cord-line { position: absolute; top: 0; bottom: var(--cord-handle-height); left: 50%; transform: translateX(-50%); width: 2px; background: repeating-linear-gradient(150deg,#b59b5c 0 2px,#e9d08a 2px 4px,#8d6c3f 4px 5px); }
+  .cord-handle { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: grid; place-items: center; width: 150%; min-width: 44px; height: var(--cord-handle-height); padding: 0; border: 0; background: transparent; cursor: grab; transition: filter 150ms ease; touch-action: none; user-select: none; }
+  profile-portrait[data-dragging="true"] .cord-handle { cursor: grabbing; }
+  .cord-handle :global(svg) { width: 100%; height: 100%; }
+  .cord-handle:hover { filter: brightness(1.12); }
+  :global(.royal-ribbon-burst) { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1000; }
+  :global(.royal-ribbon-burst .royal-ribbon) { position: absolute; pointer-events: none; filter: drop-shadow(0 1px 1px #19283a4d); }
+  :global(.royal-ribbon-burst .royal-ribbon svg) { display: block; width: 100%; height: 100%; overflow: visible; }
+  profile-portrait button:focus-visible { outline: 2px solid #ffe59c; outline-offset: 2px; }
+  @media (max-width: 1023px) { profile-portrait { max-width: 17rem; margin-inline: auto; } }
+  @media (prefers-reduced-motion: reduce) { .portrait-turn, .royal-curtain, .royal-cord { transition: none; } .portrait-front :global(img) { animation: none; } }
+</style>
+<script>import "@/scripts/profile-portrait";</script>

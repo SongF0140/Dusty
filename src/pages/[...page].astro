@@ -6,7 +6,7 @@ import PostPage from "@/components/layout/PostPage.astro";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getCategoryList, getSortedPosts } from "@/utils/content-utils";
-import { url } from "@/utils/url-utils";
+import { getPostUrlBySlug, url } from "@/utils/url-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
@@ -22,133 +22,63 @@ const len = page.data.length;
 const categories = await getCategoryList();
 const totalPosts = categories.reduce((sum, category) => sum + category.count, 0);
 const isHome = page.currentPage === 1;
+const recentPosts = isHome
+	? (await getSortedPosts())
+		.slice()
+		.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+		.slice(0, 5)
+	: [];
 
-const categoryMeta: Record<
-	string,
-	{ icon: string; description: string; tone: string; accent: string; ornament: string }
-> = {
-	物联网: {
-		icon: "material-symbols:computer-outline",
-		description: "ESP32-S3、外设驱动、通信协议与 FreeRTOS 实战笔记。",
-		tone: "green",
-		accent: "#7f927c",
-		ornament: "vine",
-	},
-	数据结构: {
-		icon: "material-symbols:folder-open-rounded",
-		description: "链表、栈、队列、树与图搜索，把基础结构拆到可实现。",
-		tone: "blue",
-		accent: "#7e929d",
-		ornament: "thunder",
-	},
-	深度学习: {
-		icon: "material-symbols:article-outline",
-		description: "全连接网络、卷积网络与模型结构学习记录。",
-		tone: "yellow",
-		accent: "#a89161",
-		ornament: "lion",
-	},
-	计算机组成原理: {
-		icon: "material-symbols:computer-outline",
-		description: "从晶体管到 CPU 执行流程，整理计算机底层运行逻辑。",
-		tone: "green",
-		accent: "#80938d",
-		ornament: "rosette",
-	},
-	Linux编程: {
-		icon: "material-symbols:build-outline",
-		description: "进程、多进程编程与操作系统接口相关实践。",
-		tone: "blue",
-		accent: "#9a8d72",
-		ornament: "vine",
-	},
-	算法题解: {
-		icon: "material-symbols:tag-rounded",
-		description: "洛谷题解与算法思路复盘，关注可解释的解法路径。",
-		tone: "yellow",
-		accent: "#a89161",
-		ornament: "thunder",
-	},
-	前端: {
-		icon: "material-symbols:code-rounded",
-		description: "从后端视角系统补前端：HTML/CSS、JavaScript 到 Vue 与 React。",
-		tone: "blue",
-		accent: "#8b9bb8",
-		ornament: "rosette",
-	},
-	MySQL: {
-		icon: "material-symbols:database-outline",
-		description: "关系型数据库入门：建库建表、增删改查、联表查询、分组与子查询。",
-		tone: "green",
-		accent: "#6f9bb0",
-		ornament: "vine",
-	},
-	Git: {
-		icon: "material-symbols:account-tree-rounded",
-		description: "版本控制与团队协作：基础操作、分支管理、撤销回退、远程与标签。",
-		tone: "yellow",
-		accent: "#c08a54",
-		ornament: "thunder",
-	},
-};
 
-const fallbackTones = ["green", "blue", "yellow"];
-const getMeta = (name: string, index: number) =>
-	categoryMeta[name] ?? {
-		icon: "material-symbols:folder-open-rounded",
-		description: "持续整理中的学习笔记与项目记录。",
-		tone: fallbackTones[index % fallbackTones.length],
-		accent: ["#7f927c", "#7e929d", "#a89161"][index % 3],
-		ornament: ["vine", "thunder", "lion", "rosette"][index % 4],
-	};
 ---
 
 <MainGridLayout>
   {
     isHome ? (
-      <section class="home-category-board onload-animation">
-        <div class="home-masthead">
-          <div class="masthead-topline"><span>THE FIELD NOTES</span><span>EST. 2026</span></div>
-          <div class="masthead-title-row">
-            <div>
-              <h1>高密乡</h1>
-              <p>技术笔记与项目记录</p>
-            </div>
-            <img src={url("/assets/images/retro-notebook.webp")} width="160" height="150" alt="复古卡通笔记本" class="retro-notebook" fetchpriority="high" />
+      <>
+      <section class="newspaper-welcome" aria-labelledby="newspaper-welcome-title">
+        <div class="newspaper-dateline"><span>私人发行 · 不定期更新</span><span>已刊 {totalPosts} 篇</span></div>
+        <header class="newspaper-title-row">
+          <div class="newspaper-greeting">
+            <h1 id="newspaper-welcome-title"><span>欢迎来到我的</span><span>秘密报社</span></h1>
+            <p>把技术、灵感和生活里的发现，编进每一期手记。</p>
           </div>
-          <div class="masthead-bottomline" aria-label="站点内容统计">
-            <span>{categories.length} 个领域 / {totalPosts} 篇笔记</span>
-            <span>CODE &amp; CURIOSITY</span>
-          </div>
-        </div>
-
+          <figure class="article-list-mascot">
+            <img src={url("/assets/images/retro-notebook.webp")} width="160" height="150" alt="挥手的笔记本吉祥物" fetchpriority="high" />
+            <figcaption>CODE &amp; CURIOSITY</figcaption>
+          </figure>
+        </header>
+        <nav class="newspaper-briefs" aria-label="报社导读">
+          {recentPosts[0] && <a href={getPostUrlBySlug(recentPosts[0].id)}><span class="newspaper-column-label">本期导读</span><strong>{recentPosts[0].data.title}</strong><span>翻开最新一页 →</span></a>}
+          <a href={url("/archive/")}><span class="newspaper-column-label">往期报纸</span><strong>{totalPosts} 篇文章存档</strong><span>从旧页里找新发现 →</span></a>
+          <a href="#category-reading-title"><span class="newspaper-column-label">分栏索引</span><strong>{categories.length} 个阅读栏目</strong><span>按兴趣翻阅 →</span></a>
+        </nav>
+      </section>
+      <section class="home-recent-posts" aria-labelledby="recent-posts-title">
+        <header class="home-section-heading"><h2 id="recent-posts-title">文章列表</h2></header>
+        <PostPage page={{ ...page, data: recentPosts }} />
+        <a class="home-all-posts" href={url("/archive/")}>
+          <span>查看全部文章</span>
+          <Icon is:inline name="material-symbols:arrow-forward-rounded" />
+        </a>
+      </section>
+      <section class="home-category-board onload-animation" aria-labelledby="category-reading-title">
+        <header class="category-reading-heading">
+          <span aria-hidden="true"></span>
+          <h2 id="category-reading-title">分类阅读</h2>
+          <span aria-hidden="true"></span>
+        </header>
         <div class="category-section-grid">
-          {categories.map((category, index) => {
-            const meta = getMeta(category.name, index);
-            return (
-              <a
-                href={category.url}
-                class={`category-section-card tone-${meta.tone}`}
-                style={`--accent: ${meta.accent}; animation-delay: calc(var(--content-delay) + ${index * 60}ms);`}
-              >
-                <div class="print-halftone" aria-hidden="true" />
-                <div class="card-topline">
-                  <span class="section-icon">
-                    <Icon is:inline name={meta.icon} />
-                  </span>
-                  <span class="section-count">{category.count} 篇笔记</span>
-                </div>
-                <h2>{category.name}</h2>
-                <p>{meta.description}</p>
-                <div class="section-action">
-                  <span>阅读笔记</span>
-                  <Icon is:inline name="material-symbols:chevron-right-rounded" />
-                </div>
-              </a>
-            );
-          })}
+          {categories.map((category, index) => (
+            <a href={category.url} class="category-section-card">
+              <span class="category-card-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{category.name}</h3>
+              <span class="category-card-count">{category.count} 篇文章</span>
+            </a>
+          ))}
         </div>
       </section>
+      </>
     ) : (
       <>
         <PostPage page={page} />
@@ -165,303 +95,182 @@ const getMeta = (name: string, index: number) =>
 </MainGridLayout>
 
 <style>
-  .home-category-board {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1rem;
+  .home-recent-posts { margin-bottom: 2.5rem; }
+  .newspaper-welcome {
+    margin-bottom: 1.75rem;
+    color: var(--retro-ink);
+    border-bottom: 3px double var(--retro-outline);
+    padding: 0.25rem 0.25rem 1.25rem;
   }
-
-  .glass-panel {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid color-mix(in oklab, var(--accent, #94b8a2) 62%, rgba(255, 246, 226, 0.48));
-    background:
-      linear-gradient(135deg, rgba(255, 250, 238, 0.82), rgba(232, 219, 192, 0.48)),
-      color-mix(in oklab, var(--accent, #94b8a2) 13%, rgba(244, 234, 214, 0.72));
-    box-shadow:
-      0 24px 60px rgba(14, 9, 4, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.62),
-      inset 0 -1px 0 rgba(58, 42, 25, 0.1);
-    backdrop-filter: blur(20px) saturate(1.2);
-    -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  }
-
-  .home-category-hero {
-    --accent: #94b8a2;
-    padding: clamp(1.45rem, 3vw, 2.45rem);
-    border-radius: 1.25rem;
-  }
-
-  .home-category-hero::before,
-  .home-category-hero::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .home-category-hero::before {
-    inset: 0.85rem;
-    border: 1px solid rgba(111, 83, 48, 0.14);
-    border-radius: 0.72rem;
-  }
-
-  .home-category-hero::after {
-    width: 14rem;
-    height: 14rem;
-    right: -4rem;
-    top: -5rem;
-    border-radius: 999px;
-    background: rgba(122, 88, 49, 0.1);
-    filter: blur(34px);
-  }
-
-  .eyebrow {
-    position: relative;
-    z-index: 1;
-    color: #5f4126;
-    font-size: 0.78rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .home-category-hero h1 {
-    position: relative;
-    z-index: 1;
-    color: #352616;
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    line-height: 1.1;
-    font-weight: 900;
-    letter-spacing: -0.035em;
-    margin: 0;
-  }
-
-  .hero-copy {
-    position: relative;
-    z-index: 1;
-    max-width: 42rem;
-    color: #4b3823;
-    line-height: 1.82;
-    margin: 0.9rem 0 0;
-    font-weight: 600;
-  }
-
-  .hero-stats {
-    position: relative;
-    z-index: 1;
+  .newspaper-dateline {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1.25rem;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--retro-outline);
+    font-size: 0.75rem;
+    color: var(--retro-muted);
+    letter-spacing: 0.06em;
   }
-
-  .hero-stats span {
-    border: 1px solid rgba(91, 64, 34, 0.22);
-    border-radius: 999px;
-    padding: 0.42rem 0.8rem;
-    color: #4a321b;
-    background: rgba(255, 250, 238, 0.58);
-    font-size: 0.86rem;
-    font-weight: 700;
-  }
-
-  .category-section-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-  }
-
-  .category-section-card {
-    min-height: 10.5rem;
-    border-radius: 1.05rem;
-    padding: 1.15rem 1.25rem;
-    color: #352616;
-    text-decoration: none;
-    transform: translateY(0);
-    transition:
-      transform 220ms ease,
-      border-color 220ms ease,
-      box-shadow 220ms ease,
-      background 220ms ease;
-  }
-
-  .ornament {
-    position: absolute;
-    inset: auto 0.55rem 0.35rem auto;
-    width: 8.8rem;
-    height: 7.2rem;
-    color: color-mix(in oklab, var(--accent) 72%, #3b2b1a);
-    opacity: 0.28;
-    pointer-events: none;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    -webkit-mask-size: contain;
-    background: currentColor;
-    filter: drop-shadow(0 1px 0 rgba(255, 250, 238, 0.24));
-  }
-
-  .ornament-vine {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='none' stroke='black' stroke-width='10' stroke-linecap='round' d='M18 118C48 78 76 128 108 88s66-35 94-2'/%3E%3Cpath fill='none' stroke='black' stroke-width='7' stroke-linecap='round' d='M56 102c-8-28 12-44 32-46M128 76c-7-30 18-47 42-42'/%3E%3Ccircle cx='52' cy='92' r='9' fill='black'/%3E%3Ccircle cx='70' cy='110' r='8' fill='black'/%3E%3Ccircle cx='86' cy='92' r='7' fill='black'/%3E%3Cpath fill='black' d='M104 42c28 5 34 29 23 50-27-7-36-27-23-50Zm72 0c-27 5-36 28-24 49 27-7 37-27 24-49Z'/%3E%3C/svg%3E");
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='none' stroke='black' stroke-width='10' stroke-linecap='round' d='M18 118C48 78 76 128 108 88s66-35 94-2'/%3E%3Cpath fill='none' stroke='black' stroke-width='7' stroke-linecap='round' d='M56 102c-8-28 12-44 32-46M128 76c-7-30 18-47 42-42'/%3E%3Ccircle cx='52' cy='92' r='9' fill='black'/%3E%3Ccircle cx='70' cy='110' r='8' fill='black'/%3E%3Ccircle cx='86' cy='92' r='7' fill='black'/%3E%3Cpath fill='black' d='M104 42c28 5 34 29 23 50-27-7-36-27-23-50Zm72 0c-27 5-36 28-24 49 27-7 37-27 24-49Z'/%3E%3C/svg%3E");
-  }
-
-  .ornament-thunder {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='none' stroke='black' stroke-width='13' stroke-linejoin='round' stroke-linecap='square' d='M22 38h52v42H42v42h72V66h66v58h-38V94h58'/%3E%3Cpath fill='none' stroke='black' stroke-width='8' d='M38 26h144M38 136h144'/%3E%3Ccircle cx='110' cy='80' r='18' fill='none' stroke='black' stroke-width='8'/%3E%3C/svg%3E");
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='none' stroke='black' stroke-width='13' stroke-linejoin='round' stroke-linecap='square' d='M22 38h52v42H42v42h72V66h66v58h-38V94h58'/%3E%3Cpath fill='none' stroke='black' stroke-width='8' d='M38 26h144M38 136h144'/%3E%3Ccircle cx='110' cy='80' r='18' fill='none' stroke='black' stroke-width='8'/%3E%3C/svg%3E");
-  }
-
-  .ornament-lion {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='black' d='M49 92c7-37 44-60 79-47 21 8 34 27 39 51l28-14 8 14-33 27H84l-16 20H50l17-27-18-24Zm53-18c-11 0-20 9-20 20s9 20 20 20 20-9 20-20-9-20-20-20Z'/%3E%3Cpath fill='black' d='M146 45l26-22 6 31 25 12-28 10-12 27-12-27-28-9 24-13-1-9ZM34 77l-21-17 28-3 13-24 10 26 28 5-23 16 4 28-22-17-25 13 8-27Z'/%3E%3Ccircle cx='102' cy='94' r='9' fill='white'/%3E%3C/svg%3E");
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cpath fill='black' d='M49 92c7-37 44-60 79-47 21 8 34 27 39 51l28-14 8 14-33 27H84l-16 20H50l17-27-18-24Zm53-18c-11 0-20 9-20 20s9 20 20 20 20-9 20-20-9-20-20-20Z'/%3E%3Cpath fill='black' d='M146 45l26-22 6 31 25 12-28 10-12 27-12-27-28-9 24-13-1-9ZM34 77l-21-17 28-3 13-24 10 26 28 5-23 16 4 28-22-17-25 13 8-27Z'/%3E%3Ccircle cx='102' cy='94' r='9' fill='white'/%3E%3C/svg%3E");
-  }
-
-  .ornament-rosette {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cg fill='black'%3E%3Ccircle cx='110' cy='80' r='16'/%3E%3Cellipse cx='110' cy='36' rx='13' ry='34'/%3E%3Cellipse cx='110' cy='124' rx='13' ry='34'/%3E%3Cellipse cx='66' cy='80' rx='34' ry='13'/%3E%3Cellipse cx='154' cy='80' rx='34' ry='13'/%3E%3Cellipse cx='79' cy='49' rx='12' ry='28' transform='rotate(-45 79 49)'/%3E%3Cellipse cx='141' cy='111' rx='12' ry='28' transform='rotate(-45 141 111)'/%3E%3Cellipse cx='141' cy='49' rx='12' ry='28' transform='rotate(45 141 49)'/%3E%3Cellipse cx='79' cy='111' rx='12' ry='28' transform='rotate(45 79 111)'/%3E%3C/g%3E%3Ccircle cx='110' cy='80' r='62' fill='none' stroke='black' stroke-width='8'/%3E%3C/svg%3E");
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 160'%3E%3Cg fill='black'%3E%3Ccircle cx='110' cy='80' r='16'/%3E%3Cellipse cx='110' cy='36' rx='13' ry='34'/%3E%3Cellipse cx='110' cy='124' rx='13' ry='34'/%3E%3Cellipse cx='66' cy='80' rx='34' ry='13'/%3E%3Cellipse cx='154' cy='80' rx='34' ry='13'/%3E%3Cellipse cx='79' cy='49' rx='12' ry='28' transform='rotate(-45 79 49)'/%3E%3Cellipse cx='141' cy='111' rx='12' ry='28' transform='rotate(-45 141 111)'/%3E%3Cellipse cx='141' cy='49' rx='12' ry='28' transform='rotate(45 141 49)'/%3E%3Cellipse cx='79' cy='111' rx='12' ry='28' transform='rotate(45 79 111)'/%3E%3C/g%3E%3Ccircle cx='110' cy='80' r='62' fill='none' stroke='black' stroke-width='8'/%3E%3C/svg%3E");
-  }
-
-  .category-section-card:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in oklab, var(--accent) 82%, rgba(255, 246, 226, 0.75));
-    box-shadow:
-      0 28px 70px rgba(14, 9, 4, 0.3),
-      0 0 0 1px color-mix(in oklab, var(--accent) 36%, transparent);
-  }
-
-  .tone-green {
-    --accent: #98a78b;
-  }
-
-  .tone-blue {
-    --accent: #a2a984;
-  }
-
-  .tone-yellow {
-    --accent: #c3ae7f;
-  }
-
-  .card-glow {
-    position: absolute;
-    right: -3.5rem;
-    top: -3.5rem;
-    width: 9rem;
-    height: 9rem;
-    border-radius: 999px;
-    background: var(--accent);
-    opacity: 0.16;
-    filter: blur(26px);
-  }
-
-  .card-topline {
-    position: relative;
-    z-index: 1;
+  .newspaper-title-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 1.25rem;
+    padding: 1.5rem 0;
   }
-
-  .section-icon {
-    display: inline-flex;
-    width: 3rem;
-    height: 3rem;
+  .newspaper-greeting { min-width: 0; }
+  .newspaper-greeting h1 {
+    font-size: clamp(1.7rem, 3vw, 3rem);
+    line-height: 1.3;
+    font-weight: 900;
+    text-wrap: balance;
+  }
+  .newspaper-greeting p {
+    margin-top: 0.8rem;
+    color: var(--retro-muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    max-width: 29rem;
+  }
+  .newspaper-greeting h1 span { display: inline-block; }
+  .newspaper-briefs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--retro-outline);
+    padding-top: 1rem;
+  }
+  .newspaper-briefs a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+    padding: 0.25rem 1rem;
+    text-decoration: none;
+    color: var(--retro-ink);
+    transition: background-color 150ms ease;
+  }
+  .newspaper-briefs a:first-child { padding-left: 0; }
+  .newspaper-briefs a + a { border-left: 1px dashed var(--retro-muted); }
+  .newspaper-briefs a:hover { background: color-mix(in srgb, var(--retro-sage) 45%, transparent); }
+  .newspaper-column-label { color: var(--retro-green); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em; }
+  .newspaper-briefs strong { font-size: 0.95rem; line-height: 1.5; }
+  .newspaper-briefs a > span:last-child { color: var(--retro-muted); font-size: 0.7rem; }
+  .home-section-heading {
+    display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid color-mix(in oklab, var(--accent) 58%, rgba(62, 43, 24, 0.34));
-    border-radius: 1rem;
-    color: #3b2b1a;
-    background:
-      linear-gradient(145deg, rgba(255, 250, 238, 0.72), color-mix(in oklab, var(--accent) 22%, transparent));
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.64),
-      0 8px 20px rgba(14, 9, 4, 0.14);
-    font-size: 1.6rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0.5rem 0.25rem 1rem;
+    border-bottom: 2px solid var(--retro-outline);
   }
-
-  .section-count {
-    border: 1px solid rgba(91, 64, 34, 0.18);
-    border-radius: 999px;
-    padding: 0.32rem 0.66rem;
-    color: #4a321b;
-    background: rgba(255, 250, 238, 0.52);
-    font-size: 0.78rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  .category-section-card h2 {
-    position: relative;
-    z-index: 1;
-    margin: 0.9rem 0 0;
-    color: #352616;
-    font-size: 1.28rem;
-    line-height: 1.22;
+  .home-section-heading h2 {
+    color: var(--retro-ink);
+    font-size: clamp(1.6rem, 3vw, 2rem);
     font-weight: 900;
+    line-height: 1.2;
   }
-
-  .category-section-card p {
-    position: relative;
-    z-index: 1;
-    min-height: 2.8rem;
-    max-width: 88%;
-    color: #4b3823;
-    line-height: 1.65;
-    margin: 0.55rem 0 0.85rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
-  .section-action {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
+  .article-list-mascot {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.35rem;
-    color: #2d2013;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .article-list-mascot img {
+    width: clamp(5.5rem, 12vw, 9rem);
+    height: auto;
+    object-fit: contain;
+  }
+  .article-list-mascot figcaption {
+    color: var(--retro-ink);
+    font: 700 clamp(0.55rem, 1vw, 0.75rem)/1.4 "Courier New", monospace;
+    white-space: nowrap;
+  }
+  .home-all-posts {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.65rem 1rem;
+    border: 2px solid var(--retro-outline);
+    border-radius: var(--radius-large);
+    background: var(--retro-surface);
+    color: var(--retro-ink);
+    font-weight: 800;
+    box-shadow: 3px 3px 0 var(--retro-outline);
+    transition: background-color 150ms ease;
+  }
+  .home-all-posts:hover { background: var(--retro-sage); }
+  .home-all-posts :global(svg) { width: 1.1rem; height: 1.1rem; }
+  .home-category-board { margin-bottom: 1rem; }
+  .category-reading-heading {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    color: var(--retro-ink);
+  }
+  .category-reading-heading > span {
+    flex: 1;
+    height: 1px;
+    background: var(--retro-outline);
+    opacity: 0.5;
+  }
+  .category-reading-heading h2 {
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .category-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .home-category-board .category-section-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 2 / 1;
+    min-height: 11rem;
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+    text-decoration: none;
+    background-image:
+      radial-gradient(var(--retro-texture) 0.7px, transparent 0.9px),
+      linear-gradient(130deg, transparent 35%, color-mix(in srgb, var(--retro-surface) 35%, transparent));
+    background-size: 4px 4px, 100% 100%;
+  }
+  .category-section-card h3 {
+    color: var(--retro-ink);
+    font-size: clamp(1.3rem, 2.3vw, 2rem);
     font-weight: 900;
-    font-size: 0.92rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
   }
-
-  .section-action :global(svg) {
-    font-size: 1.15rem;
-    transition: transform 180ms ease;
+  .category-card-number, .category-card-count {
+    position: absolute;
+    font-size: 0.75rem;
+    color: var(--retro-muted);
   }
-
-  .category-section-card:hover .section-action :global(svg) {
-    transform: translateX(3px);
+  .category-card-number { top: 0.85rem; left: 1rem; font-family: monospace; }
+  .category-card-count { bottom: 0.85rem; right: 1rem; }
+  .category-section-card:focus-visible {
+    outline: 3px solid var(--retro-green);
+    outline-offset: 5px;
   }
-
-  @media (max-width: 1024px) {
-    .category-section-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
   @media (max-width: 640px) {
-    .home-category-hero,
-    .category-section-card {
-      border-radius: 1rem;
-    }
-
-    .category-section-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .category-section-card {
-      min-height: 13rem;
-      padding-right: 1.25rem;
-    }
-
-    .ornament {
-      width: 7.2rem;
-      height: 5.8rem;
-      opacity: 0.14;
-    }
+    .newspaper-title-row { gap: 0.75rem; }
+    .newspaper-greeting p { font-size: 0.8rem; }
+    .newspaper-briefs { grid-template-columns: 1fr; padding-top: 0; }
+    .newspaper-briefs a, .newspaper-briefs a:first-child { padding: 0.85rem 0; }
+    .newspaper-briefs a + a { border-left: 0; border-top: 1px dashed var(--retro-muted); }
+    .category-section-grid { grid-template-columns: 1fr; }
+    .home-category-board .category-section-card { min-height: 10rem; }
   }
 </style>
 

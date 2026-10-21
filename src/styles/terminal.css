@@ -19,8 +19,8 @@
     letter-spacing: .12em;
 }
 #command-navigation .terminal-companions { display: flex; align-items: center; gap: 3px; }
-#command-navigation .terminal-companions svg { width: 34px; height: 34px; transition: transform 160ms ease; }
-#command-navigation .terminal-companions svg:hover { transform: translateY(-2px) rotate(-5deg); }
+#command-navigation .navigation-mode-avatar { transition: transform 160ms ease; }
+#command-navigation .navigation-mode-tab:hover .navigation-mode-avatar { transform: translateY(-2px) rotate(-5deg); }
 #command-navigation .terminal-session {
     padding: 16px;
     background: repeating-linear-gradient(0deg, transparent 0 3px, #82ff9c03 3px 4px);
@@ -60,4 +60,4 @@
 #command-navigation .terminal-status-dot { background: #74ff9b; box-shadow: 0 0 8px #74ff9b55; width: 5px; height: 5px; }
 #command-navigation #terminal-current-path { max-width: 40%; }
 #command-navigation :is(button, .terminal-output):focus-visible { outline: 1px solid #74ff9b; outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { #command-navigation .terminal-companions svg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { #command-navigation .navigation-mode-tab .navigation-mode-avatar { transition: none; transform: none !important; } }
