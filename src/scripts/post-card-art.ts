@@ -1,4 +1,4 @@
-import { createVisitArtPicker } from "@/utils/post-card-art";
+import { createVisitArtPicker, resolvePostArt } from "@/utils/post-card-art";
 
 type ArtSheet = { src: string; width: number; height: number; count: number };
 const visits = new WeakMap<
@@ -14,7 +14,7 @@ class PostCardArt extends HTMLElement {
 		const container =
 			this.closest<HTMLElement>("#post-list-container") ?? this.parentElement;
 		const sheets = JSON.parse(this.dataset.artSheets ?? "[]") as ArtSheet[];
-		if (!viewport || !image || !container || sheets.length !== 2) return;
+		if (!viewport || !image || !container || !sheets.length) return;
 		let picker = visits.get(container);
 		if (!picker) {
 			let storage: Storage | null = null;
@@ -25,8 +25,8 @@ class PostCardArt extends HTMLElement {
 			visits.set(container, picker);
 		}
 		const index = picker.next();
-		const sheet = sheets[index < 4 ? 0 : 1];
-		const column = index < 4 ? index : index - 4;
+		const { sheetIndex, column } = resolvePostArt(index, sheets.map(sheet => sheet.count));
+		const sheet = sheets[sheetIndex];
 		const width = sheet.width / sheet.count;
 		image.setAttribute("href", sheet.src);
 		image.setAttribute("width", String(sheet.width));

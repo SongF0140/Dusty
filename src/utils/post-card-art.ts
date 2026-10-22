@@ -1,4 +1,13 @@
-export const POST_ART_COUNT = 7;
+export const POST_ART_COUNT = 13;
+export function resolvePostArt(index: number, counts: readonly number[]) {
+	if (!Number.isInteger(index) || index < 0) throw new RangeError("Invalid artwork index");
+	let column = index;
+	for (let sheetIndex = 0; sheetIndex < counts.length; sheetIndex++) {
+		if (column < counts[sheetIndex]) return { sheetIndex, column };
+		column -= counts[sheetIndex];
+	}
+	throw new RangeError("Artwork index exceeds atlas size");
+}
 export const POST_ART_VISIT_KEY = "dusty:post-art:first:v1";
 type ArtStorage = Pick<Storage, "getItem" | "setItem">;
 
