@@ -1,0 +1,11 @@
+{
+  "source": "SongF0140/StarryLin",
+  "entry": "packages/blog-agent/src/vercel-entry.ts",
+  "piVersion": "1.3.0",
+  "sha256": "a98aa15a3b1c726470fb08ffe3e087fa0e3e4ec7d0b3e63e91bafe512de23d59",
+  "tools": [
+    "search_posts",
+    "read_post",
+    "list_categories"
+  ]
+}

@@ -80,3 +80,53 @@ test("API failure is surfaced instead of becoming an assistant reply", async () 
 		/模型服务不可用/,
 	);
 });
+
+test("queued answers poll without resubmitting and accept only public source links", async () => {
+	let posts = 0;
+	let polls = 0;
+	let enqueued = 0;
+	const states = [];
+	const result = await askBlogAssistant("你好", corpus, {
+		pagePath: "/",
+		requestId: "r1",
+		conversationId: "c1",
+		search: async () => ({ results: [] }),
+		wait: async () => {},
+		onStatus: (status) => states.push(status),
+		onEnqueued: () => {
+			enqueued++;
+		},
+		fetch: async (url, init) => {
+			if (init?.method === "POST") {
+				posts++;
+				return Response.json(
+					{ requestId: "r1", status: "pending" },
+					{ status: 202 },
+				);
+			}
+			assert.equal(url, "/api/blog-chat?requestId=r1");
+			assert.equal(
+				enqueued,
+				1,
+				"release the next submission before awaiting an answer",
+			);
+			polls++;
+			return polls === 1
+				? Response.json({ status: "running" })
+				: Response.json({
+						status: "completed",
+						answer: "可以读读 Git。",
+						sources: [
+							{ title: "Git", url: "/posts/git/" },
+							{ title: "外部", url: "https://outside.test" },
+						],
+					});
+		},
+	});
+	assert.equal(posts, 1);
+	assert.equal(enqueued, 1);
+	assert.equal(polls, 2);
+	assert.deepEqual(states, ["running"]);
+	assert.match(result.content, /\/posts\/git\//);
+	assert.ok(!result.content.includes("outside.test"));
+});

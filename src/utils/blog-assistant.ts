@@ -58,8 +58,12 @@ export async function askBlogAssistant(
 		search: ArticleSearch;
 		fetch: typeof fetch;
 		signal?: AbortSignal;
+		requestId?: string;
+		conversationId?: string;
+		onStatus?(status: string): void;
+		onEnqueued?(): void;
+		wait?(): Promise<void>;
 	},
-	history: { role: "user" | "assistant"; content: string }[] = [],
 ): Promise<{ content: string }> {
 	const current = corpus.find((article) => {
 		try {
@@ -106,8 +110,9 @@ export async function askBlogAssistant(
 		signal: deps.signal,
 		body: JSON.stringify({
 			question,
+			requestId: deps.requestId || crypto.randomUUID(),
+			conversationId: deps.conversationId || crypto.randomUUID(),
 			articleIds: selected.map((article) => article.id),
-			history: history.slice(-6),
 		}),
 	});
 	const data = await response.json();
@@ -115,13 +120,63 @@ export async function askBlogAssistant(
 		throw new Error(
 			typeof data.error === "string" ? data.error : "助手服务暂时不可用",
 		);
+	deps.onEnqueued?.();
+	if (response.status === 202) {
+		return pollBlogAssistant(data.requestId, corpus, deps);
+	}
+	return formatBlogAnswer(data, corpus);
+}
+
+export async function pollBlogAssistant(
+	requestId: string,
+	corpus: BlogArticle[],
+	deps: {
+		fetch: typeof fetch;
+		signal?: AbortSignal;
+		onStatus?(status: string): void;
+		wait?(): Promise<void>;
+	},
+): Promise<{ content: string }> {
+	for (;;) {
+		deps.signal?.throwIfAborted();
+		const response = await deps.fetch(
+			`/api/blog-chat?requestId=${encodeURIComponent(requestId)}`,
+			{ signal: deps.signal },
+		);
+		const data = await response.json();
+		if (!response.ok || data.status === "failed")
+			throw new Error(
+				typeof data.error === "string" ? data.error : "队列任务暂不可用",
+			);
+		if (data.status === "completed") return formatBlogAnswer(data, corpus);
+		deps.onStatus?.(data.status);
+		if (deps.wait) await deps.wait();
+		else
+			await new Promise<void>((resolve, reject) => {
+				const abort = () => {
+					clearTimeout(timer);
+					reject(deps.signal?.reason || new Error("已停止等待"));
+				};
+				const timer = setTimeout(() => {
+					deps.signal?.removeEventListener("abort", abort);
+					resolve();
+				}, 1200);
+				deps.signal?.addEventListener("abort", abort, { once: true });
+			});
+	}
+}
+
+function formatBlogAnswer(
+	data: { answer?: unknown; sources?: unknown },
+	corpus: BlogArticle[],
+): { content: string } {
 	if (typeof data.answer !== "string" || !data.answer.trim())
 		throw new Error("助手未返回有效回答");
 	const sources: { title: string; url: string }[] = Array.isArray(data.sources)
 		? data.sources.filter(
 				(source: { title?: unknown; url?: unknown } | null) =>
 					source &&
-					selected.some(
+					corpus.some(
 						(article) =>
 							article.url === source.url && article.title === source.title,
 					),

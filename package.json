@@ -7,7 +7,7 @@
     "dev": "pnpm run sync-content && astro dev",
     "start": "pnpm run dev",
     "check": "pnpm run sync-content && astro check",
-    "build": "pnpm run sync-content && node scripts/generate-icons.js && npx tsx scripts/generate-lqips.ts && astro build && npx tsx scripts/subset-fonts.ts && pagefind --site dist",
+    "build": "pnpm run sync-content && node scripts/prepare-blog-agent.ts && node scripts/generate-icons.js && npx tsx scripts/generate-lqips.ts && astro build && npx tsx scripts/subset-fonts.ts && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "tsc --noEmit --isolatedDeclarations",
@@ -41,8 +41,10 @@
     "@iconify-json/simple-icons": "^1.2.86",
     "@iconify/utils": "^3.1.1",
     "@napi-rs/wasm-runtime": "^1.1.5",
+    "@neondatabase/serverless": "1.0.2",
     "@swup/astro": "^1.8.0",
     "@tailwindcss/typography": "^0.5.20",
+    "@vercel/functions": "3.0.0",
     "astro": "6.4.6",
     "astro-expressive-code": "^0.43.1",
     "astro-icon": "^1.1.5",
@@ -94,5 +96,8 @@
     "subset-font": "^2.5.0",
     "tailwindcss": "^4.3.0"
   },
-  "packageManager": "pnpm@9.14.4"
+  "packageManager": "pnpm@9.14.4",
+  "engines": {
+    "node": "24.x"
+  }
 }

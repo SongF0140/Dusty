@@ -22,6 +22,7 @@ import CoverImage from "@/components/common/CoverImage.astro";
 import PostMetadata from "@/components/layout/PostMeta.astro";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
+import ArticleSummary from "@/components/features/ArticleSummary.astro";
 import { coverImageConfig } from "@/config/coverImageConfig";
 import { licenseConfig } from "@/config/licenseConfig";
 import { profileConfig } from "@/config/profileConfig";
@@ -70,7 +71,7 @@ if (processedImage) {
 	);
 	if (isLocal) {
 		const basePath = getFileDirFromPath(entry.filePath || "");
-		const files = import.meta.glob<ImageMetadata>("../../**", {
+		const files = import.meta.glob<ImageMetadata>("../../**/*.{png,jpg,jpeg,webp,avif,gif,svg,tif,tiff}", {
 			import: "default",
 		});
 		let normalizedPath = path
@@ -94,7 +95,7 @@ if (posterAvatarUrl) {
 		posterAvatarUrl.startsWith("data:")
 	);
 	if (isLocalAvatar) {
-		const files = import.meta.glob<ImageMetadata>("../../**", {
+		const files = import.meta.glob<ImageMetadata>("../../**/*.{png,jpg,jpeg,webp,avif,gif,svg,tif,tiff}", {
 			import: "default",
 		});
 		const normalizedPath = path
@@ -223,6 +224,8 @@ const relatedPosts = await getRelatedPosts(entry, 5);
           {entry.data.title}
         </div>
       </div>
+
+      {!entry.data.password && !entry.data.draft && <ArticleSummary text={entry.data.description} generated={entry.data.summaryGenerated} />}
 
       <!-- metadata -->
       <div class="onload-animation">

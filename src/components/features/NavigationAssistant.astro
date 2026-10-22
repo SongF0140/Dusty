@@ -7,6 +7,8 @@ import { url } from "@/utils/url-utils";
         <div class="assistant-heading">
             <div><span class="assistant-eyebrow">guest@haiwenxiang</span><h2>HAIWENXIANG / AGENT</h2></div>
             <span class="assistant-connection">正在检查连接</span>
+            <a data-assistant-login href="/api/blog-auth?action=login" class="assistant-connection">GitHub 登录</a>
+            <button data-assistant-logout type="button" class="assistant-connection" hidden>退出登录</button>
         </div>
                 <animated-agent-avatar class="assistant-startup-avatar">
                     <button type="button" class="assistant-avatar-touch" aria-label="戳戳海问香" title="戳戳海问香">
@@ -34,7 +36,7 @@ import { url } from "@/utils/url-utils";
                     <button type="button" data-assistant-prompt="这篇文章的核心观点是什么？">梳理文章的观点<span aria-hidden="true">↗</span></button>
                     <button type="button" data-assistant-prompt="这个判断在什么条件下不成立？">想一想结论的边界<span aria-hidden="true">↗</span></button>
                 </div>
-                <p class="assistant-preview-note">可以聊聊，也可以一起读博文。扩展内容单独标注，仅提供站内博文链接。<br />对话和草稿仅保存在此浏览器。</p>
+                <p class="assistant-preview-note">可以聊聊，也可以一起读博文。扩展内容单独标注，仅提供站内博文链接。<br />草稿保存在此浏览器，问答由服务端处理并保存。</p>
             </div>
             <div data-assistant-messages></div>
         </div>
@@ -45,7 +47,7 @@ import { url } from "@/utils/url-utils";
         </form>
         <footer class="assistant-footer"><span data-assistant-save-status role="status" aria-live="polite">仅保存在此浏览器</span><button type="button" data-assistant-clear>清空对话</button></footer>
         <div class="assistant-clear-confirm" data-assistant-confirm hidden role="group" aria-labelledby="assistant-clear-title">
-            <p id="assistant-clear-title">清空此浏览器的对话和草稿？</p><span>清空后无法恢复。</span>
+            <p id="assistant-clear-title">清空此浏览器的对话和草稿？</p><span>本地记录清空后无法恢复；已提交的任务不会被取消。</span>
             <div><button type="button" data-assistant-cancel>保留</button><button type="button" data-assistant-confirm-clear>确认清空</button></div>
         </div>
     </haiwenxiang-assistant>

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { selectPublicPosts, retrieveBlogArticles } from "./blog-rag.ts";
+import { retrieveBlogArticles, selectPublicPosts } from "./blog-rag.ts";
 
 const articles = ["git", "中文", "sql", "docker"].map((id) => ({
 	id,
@@ -105,7 +105,7 @@ test("budget never silently truncates an article and includes source metadata in
 					}),
 				),
 		},
-		{ maxContextChars: 250 },
+		{ maxContextChars: 700 },
 	);
 	assert.deepEqual(
 		result.articles.map((a) => a.id),
@@ -115,6 +115,18 @@ test("budget never silently truncates an article and includes source metadata in
 		result.omitted.map((a) => a.id),
 		["git"],
 	);
-	assert.ok(result.context.length <= 250);
+	assert.ok(result.context.length <= 700);
 	assert.match(result.context, /短正文/);
+});
+
+test("retrieves a matching late section without sending an entire long article", async () => {
+	const body = `# 背景\n\n${"这是背景材料。".repeat(2000)}\n\n## 撤销暂存\n\ngit restore --staged 保留工作区。`;
+	const result = await retrieveBlogArticles("restore staged", articles, {
+		search: search("/posts/git/"),
+		fetch: async () => Response.json({ body }),
+	});
+	assert.equal(result.articles.length, 1);
+	assert.match(result.context, /restore --staged/);
+	assert.ok(result.context.length < 10000);
+	assert.ok(!result.context.includes("这是背景材料。".repeat(1000)));
 });

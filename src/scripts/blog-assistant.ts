@@ -1,4 +1,4 @@
-import { askBlogAssistant } from "../utils/blog-assistant";
+import { askBlogAssistant, pollBlogAssistant } from "../utils/blog-assistant";
 import type { BlogArticle } from "../utils/blog-rag";
 import {
 	clearAssistantState,
@@ -11,7 +11,6 @@ function required<T extends Element>(root: ParentNode, selector: string): T {
 	if (!element) throw new Error(`助手界面缺少元素：${selector}`);
 	return element;
 }
-
 function appendContent(target: HTMLElement, content: string) {
 	let offset = 0;
 	for (const match of content.matchAll(
@@ -22,39 +21,44 @@ function appendContent(target: HTMLElement, content: string) {
 		link.textContent = match[1];
 		link.href = match[2];
 		target.append(link);
-		offset = (match.index ?? 0) + match[0].length;
+		offset = (match.index || 0) + match[0].length;
 	}
 	target.append(document.createTextNode(content.slice(offset)));
 }
-
+interface Pending {
+	id: string;
+	question: string;
+	conversationId: string;
+}
 class BlogAssistant extends HTMLElement {
 	private dispose?: () => void;
 	connectedCallback() {
 		this.dispose?.();
+		let account = "";
 		const storage = () => {
 			try {
-				return window.localStorage;
+				const local = window.localStorage;
+				const suffix = account ? `:github:${account}` : "";
+				return {
+					getItem: (key: string) => local.getItem(key + suffix),
+					setItem: (key: string, value: string) =>
+						local.setItem(key + suffix, value),
+					removeItem: (key: string) => local.removeItem(key + suffix),
+				};
 			} catch {
 				return null;
 			}
 		};
 		let state = loadAssistantState(storage());
-		let dirty = false;
-		let busy = false;
 		let ready = false;
+		let dirty = false;
 		let timer: ReturnType<typeof setTimeout> | undefined;
-		let speakingTimer: ReturnType<typeof setTimeout> | undefined;
-		const stopSpeaking = () => {
-			clearTimeout(speakingTimer);
-			this.dataset.speaking = "false";
-		};
-		const speakAnswer = (text: string) => {
-			stopSpeaking();
-			this.dataset.speaking = "true";
-			speakingTimer = setTimeout(stopSpeaking, Math.min(6500, Math.max(1500, Array.from(text).length * 65)));
-		};
-		let request: AbortController | undefined;
+		let speaking: ReturnType<typeof setTimeout> | undefined;
+		const controllers = new Set<AbortController>();
+		const pending = new Map<string, Pending>();
+		const statuses = new Map<string, string>();
 		const lifetime = new AbortController();
+		let submissionTail: Promise<void> = Promise.resolve();
 		const options = { signal: lifetime.signal };
 		const input = required<HTMLTextAreaElement>(this, "textarea");
 		const send = required<HTMLButtonElement>(this, "button[type=submit]");
@@ -75,19 +79,22 @@ class BlogAssistant extends HTMLElement {
 			"[data-assistant-confirm-clear]",
 		);
 		const conversation = required<HTMLElement>(this, ".assistant-conversation");
-		const updateSend = () => {
-			send.disabled = !ready || busy || !input.value.trim();
-			input.disabled = busy;
-			send.setAttribute("aria-label", busy ? "正在回答" : "发送消息");
-			conversation.setAttribute("aria-busy", String(busy));
+		const login = required<HTMLAnchorElement>(this, "[data-assistant-login]");
+		const logout = required<HTMLButtonElement>(this, "[data-assistant-logout]");
+		const stopSpeaking = () => {
+			clearTimeout(speaking);
+			this.dataset.speaking = "false";
 		};
-		const render = (pending?: string) => {
-			empty.hidden = state.messages.length > 0 || !!pending;
+		const updateSend = () => {
+			send.disabled = !ready || !input.value.trim();
+			input.disabled = false;
+			send.setAttribute("aria-label", "发送消息");
+			conversation.setAttribute("aria-busy", String(pending.size > 0));
+		};
+		const render = () => {
+			empty.hidden = state.messages.length > 0;
 			messages.replaceChildren();
-			for (const message of [
-				...state.messages,
-				...(pending ? [{ role: "user", content: pending }] : []),
-			]) {
+			for (const message of state.messages) {
 				const article = document.createElement("article");
 				article.className = `assistant-message assistant-message-${message.role}`;
 				const label = document.createElement("span");
@@ -95,16 +102,19 @@ class BlogAssistant extends HTMLElement {
 				const content = document.createElement("p");
 				appendContent(content, message.content);
 				article.append(label, content);
+				if (pending.has(message.id)) {
+					const progress = document.createElement("small");
+					progress.textContent =
+						statuses.get(message.id) === "running"
+							? "正在回答…"
+							: "已进入队列，等待当前回答完成…";
+					article.append(progress);
+				}
 				messages.append(article);
 			}
 			conversation.scrollTop = conversation.scrollHeight;
+			updateSend();
 		};
-		input.value = state.draft;
-		if (state.draft || state.messages.length)
-			status.textContent = "已恢复此浏览器的记录";
-		if (!storage()) status.textContent = "浏览器存储不可用，暂未保存";
-		render();
-		updateSend();
 		const save = () => {
 			clearTimeout(timer);
 			if (!dirty) return;
@@ -115,13 +125,116 @@ class BlogAssistant extends HTMLElement {
 				: "浏览器存储不可用，暂未保存";
 			if (ok) dirty = false;
 		};
-		const onInput = () => {
-			dirty = true;
-			updateSend();
-			clearTimeout(timer);
-			timer = setTimeout(save, 250);
+		const savePending = () => {
+			try {
+				storage()?.setItem(
+					"dusty:assistant-pending",
+					JSON.stringify([...pending.values()]),
+				);
+			} catch {
+				/* Pending jobs remain in Neon. */
+			}
 		};
-		input.addEventListener("input", onInput, options);
+		const corpus = async (signal: AbortSignal): Promise<BlogArticle[]> => {
+			const response = await fetch("/api/rag/articles.json", { signal });
+			if (!response.ok) throw new Error("文章目录暂不可用");
+			return response.json();
+		};
+		const waitFor = async (item: Pending, resume = false) => {
+			let releaseSubmission = () => {};
+			const previousSubmission = submissionTail;
+			if (!resume)
+				submissionTail = new Promise<void>((resolve) => {
+					releaseSubmission = resolve;
+				});
+			const controller = new AbortController();
+			controllers.add(controller);
+			const signal = AbortSignal.any([controller.signal, lifetime.signal]);
+			try {
+				if (!resume) await previousSubmission;
+				signal.throwIfAborted();
+				const articles = await corpus(signal);
+				const deps = {
+					fetch: window.fetch.bind(window),
+					signal,
+					onStatus: (value: string) => {
+						statuses.set(item.id, value);
+						render();
+					},
+				};
+				const result = resume
+					? await pollBlogAssistant(item.id, articles, deps)
+					: await askBlogAssistant(item.question, articles, {
+							...deps,
+							requestId: item.id,
+							onEnqueued: releaseSubmission,
+							conversationId: item.conversationId,
+							pagePath: location.pathname,
+							search: async (query) => {
+								if (!window.pagefind) {
+									const path = "/pagefind/pagefind.js";
+									window.pagefind = await import(/* @vite-ignore */ path);
+								}
+								return window.pagefind.search(query);
+							},
+						});
+				if (signal.aborted) return;
+				const answer = {
+					id: `${item.id}-answer`,
+					role: "assistant" as const,
+					content: result.content,
+				};
+				if (!state.messages.some((message) => message.id === answer.id)) {
+					const index = state.messages.findIndex(
+						(message) => message.id === item.id,
+					);
+					state.messages.splice(
+						index < 0 ? state.messages.length : index + 1,
+						0,
+						answer,
+					);
+				}
+				this.dataset.speaking = "true";
+				clearTimeout(speaking);
+				speaking = setTimeout(
+					stopSpeaking,
+					Math.min(
+						6500,
+						Math.max(1500, Array.from(result.content).length * 65),
+					),
+				);
+				note.textContent = "仅提供站内博文链接";
+			} catch (error) {
+				if (signal.aborted) return;
+				note.textContent =
+					error instanceof Error ? error.message : "请求失败，请稍后重试";
+				if (!input.value) input.value = item.question;
+			} finally {
+				releaseSubmission();
+				controllers.delete(controller);
+				if (!signal.aborted) {
+					pending.delete(item.id);
+					statuses.delete(item.id);
+					savePending();
+					state.messages = state.messages.slice(-100);
+					dirty = true;
+					save();
+					render();
+				}
+			}
+		};
+		input.value = state.draft;
+		render();
+		input.addEventListener(
+			"input",
+			() => {
+				dirty = true;
+				updateSend();
+				clearTimeout(timer);
+				timer = setTimeout(save, 250);
+			},
+			options,
+		);
 		input.addEventListener("blur", save, options);
 		const hideConfirm = () => {
 			confirmation.hidden = true;
@@ -144,22 +257,19 @@ class BlogAssistant extends HTMLElement {
 					hideConfirm();
 					return;
 				}
-				request?.abort();
+				for (const controller of controllers) controller.abort();
+				controllers.clear();
+				pending.clear();
+				statuses.clear();
+				savePending();
 				stopSpeaking();
-				request = undefined;
-				busy = false;
 				clearTimeout(timer);
-				dirty = false;
 				state = { version: 1, draft: "", messages: [] };
 				input.value = "";
+				dirty = false;
 				render();
-				updateSend();
-				note.textContent = ready
-					? "博文优先 · 扩展内容标注"
-					: "尚未配置模型服务";
-				status.textContent = "对话和草稿已清空";
+				status.textContent = "本地记录已清空；已提交的任务会继续完成";
 				hideConfirm();
-				input.focus();
 			},
 			options,
 		);
@@ -169,11 +279,11 @@ class BlogAssistant extends HTMLElement {
 				const button = (event.target as Element).closest<HTMLButtonElement>(
 					"[data-assistant-prompt]",
 				);
-				if (!button || busy) return;
-				if (!input.value.trim()) {
+				if (!button) return;
+				if (!input.value.trim())
 					input.value = button.dataset.assistantPrompt || "";
-					onInput();
-				}
+				dirty = true;
+				updateSend();
 				input.focus();
 			},
 			options,
@@ -191,7 +301,7 @@ class BlogAssistant extends HTMLElement {
 		);
 		required<HTMLFormElement>(this, "form").addEventListener(
 			"submit",
-			async (event) => {
+			(event) => {
 				event.preventDefault();
 				if (send.disabled) return;
 				const question = input.value.trim();
@@ -199,87 +309,84 @@ class BlogAssistant extends HTMLElement {
 					note.textContent = "问题请控制在 4000 字以内";
 					return;
 				}
-				const active = new AbortController();
-				stopSpeaking();
-				request = active;
-				busy = true;
-				save();
-				updateSend();
-				render(question);
-				note.textContent = "正在检索博文并阅读原文…";
+				let conversationId: string = crypto.randomUUID();
 				try {
-					const response = await fetch("/api/rag/articles.json", {
-						signal: active.signal,
-					});
-					if (!response.ok) throw new Error("文章目录暂时不可用");
-					const corpus: BlogArticle[] = await response.json();
-					const result = await askBlogAssistant(
-						question,
-						corpus,
-						{
-							pagePath: location.pathname,
-							signal: active.signal,
-							fetch: window.fetch.bind(window),
-							search: async (query) => {
-								if (!window.pagefind) {
-									const path = "/pagefind/pagefind.js";
-									window.pagefind = await import(/* @vite-ignore */ path);
-								}
-								return window.pagefind.search(query);
-							},
-						},
-						state.messages,
-					);
-					if (active.signal.aborted) return;
-					state.messages.push(
-						{ id: crypto.randomUUID(), role: "user", content: question },
-						{
-							id: crypto.randomUUID(),
-							role: "assistant",
-							content: result.content,
-						},
-					);
-					state.messages = state.messages.slice(-100);
-					input.value = "";
-					dirty = true;
-					save();
-					render();
-					speakAnswer(result.content);
-					note.textContent = "仅提供站内博文链接";
-				} catch (error) {
-					if (active.signal.aborted) return;
-					render();
-					note.textContent =
-						error instanceof Error ? error.message : "请求失败，请稍后重试";
-				} finally {
-					if (request === active) {
-						busy = false;
-						request = undefined;
-						updateSend();
-					}
+					const saved = storage()?.getItem("dusty:assistant-conversation");
+					if (saved && /^[\w-]{1,128}$/.test(saved)) conversationId = saved;
+					storage()?.setItem("dusty:assistant-conversation", conversationId);
+				} catch {
+					/* Questions can still be sent when browser storage is blocked. */
 				}
+				const item = { id: crypto.randomUUID(), question, conversationId };
+				pending.set(item.id, item);
+				savePending();
+				state.messages.push({ id: item.id, role: "user", content: question });
+				input.value = "";
+				dirty = true;
+				save();
+				render();
+				note.textContent = "已提交；可以继续发送，新消息优先等待。";
+				void waitFor(item);
 			},
 			options,
 		);
-		connection.textContent = "正在检查连接";
+		login.href = `/api/blog-auth?action=login&returnTo=${encodeURIComponent(location.pathname + location.search)}`;
+		logout.addEventListener(
+			"click",
+			async () => {
+				await fetch("/api/blog-auth?action=logout", { method: "POST" });
+				location.reload();
+			},
+			options,
+		);
 		fetch("/api/blog-chat", { signal: lifetime.signal })
 			.then(async (response) => {
-				if (!response.ok) throw new Error();
+				if (!response.ok) throw Error();
 				const config = await response.json();
-				ready = config.configured === true;
-				connection.textContent = ready ? "博文问答" : "等待模型配置";
+				ready = config.configured === true && Boolean(config.user);
+				login.hidden = Boolean(config.user);
+				logout.hidden = !config.user;
+				if (config.user) {
+					const guestDraft = input.value;
+					account = String(config.user.id);
+					state = loadAssistantState(storage());
+					input.value = state.draft || guestDraft;
+					try {
+						const saved = JSON.parse(
+							storage()?.getItem("dusty:assistant-pending") || "[]",
+						);
+						if (Array.isArray(saved))
+							for (const item of saved.slice(-20))
+								if (
+									item &&
+									typeof item.id === "string" &&
+									typeof item.question === "string" &&
+									typeof item.conversationId === "string"
+								)
+									pending.set(item.id, item);
+					} catch {
+						/* Invalid local pending records are ignored. */
+					}
+					connection.textContent = `GitHub · ${config.user.login}`;
+					for (const item of pending.values()) void waitFor(item, true);
+				} else
+					connection.textContent = config.authConfigured
+						? "请使用 GitHub 登录"
+						: "等待 GitHub 登录配置";
 				note.textContent = ready
-					? "博文优先 · 扩展内容标注"
-					: "尚未配置模型服务";
-				preview.textContent = ready
-					? "可以聊聊，也可以一起读博文。知识回答优先依据博客，扩展内容单独标注，仅提供站内博文链接。对话仅保存在此浏览器。"
-					: "模型服务尚未配置。你可以先写下问题，草稿会保存在此浏览器。";
-				updateSend();
+					? "每人每天 20 次 · 新消息优先等待，不打断当前回答"
+					: config.authConfigured
+						? "请先使用 GitHub 登录"
+						: "博主尚未配置 GitHub 登录";
+				preview.textContent =
+					"StarryLin 博客陪读。知识回答优先依据博客，扩展内容单独标注。任务在服务端排队，离开页面不会取消正在回答的任务。";
+				render();
 			})
 			.catch(() => {
-				if (lifetime.signal.aborted) return;
-				connection.textContent = "服务暂不可用";
-				note.textContent = "请稍后重试；本地预览需使用 Vercel dev";
+				if (!lifetime.signal.aborted) {
+					connection.textContent = "服务暂不可用";
+					note.textContent = "请稍后重试；本地接口需使用 Vercel dev";
+				}
 			});
 		window.addEventListener("pagehide", save, options);
 		document.addEventListener(
@@ -290,10 +397,11 @@ class BlogAssistant extends HTMLElement {
 			options,
 		);
 		this.dispose = () => {
-			stopSpeaking();
 			save();
+			savePending();
 			clearTimeout(timer);
-			request?.abort();
+			stopSpeaking();
+			for (const controller of controllers) controller.abort();
 			lifetime.abort();
 		};
 	}
@@ -301,6 +409,5 @@ class BlogAssistant extends HTMLElement {
 		this.dispose?.();
 	}
 }
-
 if (!customElements.get("haiwenxiang-assistant"))
 	customElements.define("haiwenxiang-assistant", BlogAssistant);

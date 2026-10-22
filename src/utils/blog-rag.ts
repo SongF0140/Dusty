@@ -1,3 +1,5 @@
+import { type RagChunk, retrieveChunks, splitPost } from "./blog-rag-index.ts";
+
 export type BlogArticle = {
 	id: string;
 	title: string;
@@ -10,7 +12,7 @@ export type BlogArticle = {
 	updated: string | null;
 };
 
-export type BlogEvidence = BlogArticle & { body: string };
+export type BlogEvidence = BlogArticle & { body: string; chunks?: RagChunk[] };
 export type ArticleSearch = (query: string) => Promise<{
 	results: { data(): Promise<{ url: string }> }[];
 }>;
@@ -38,6 +40,15 @@ export function articleContext(article: BlogEvidence): string {
 		published: article.published,
 		updated: article.updated,
 		body: article.body,
+		description: article.description,
+		readingLevel: "相关正文片段，未保证覆盖全文",
+		chunks: article.chunks?.map(({ id, heading, path, start, end }) => ({
+			id,
+			heading,
+			path,
+			start,
+			end,
+		})),
 	});
 }
 
@@ -64,7 +75,7 @@ export async function findBlogArticles(
 	return selected;
 }
 
-/** Whole articles only: callers can distinguish no matches from oversized evidence. */
+/** Reveal relevant chunks after article discovery; whole-article loading is no longer required. */
 export async function retrieveBlogArticles(
 	question: string,
 	corpus: BlogArticle[],
@@ -94,7 +105,35 @@ export async function retrieveBlogArticles(
 		if (!response.ok) throw new Error(`读取博文失败（${response.status}）`);
 		const payload = await response.json();
 		if (typeof payload?.body !== "string") throw new Error("博文正文格式无效");
-		const evidence = { ...article, body: payload.body };
+		const chunks: RagChunk[] = Array.isArray(payload.chunks)
+			? payload.chunks
+			: splitPost({ ...article, body: payload.body });
+		const ranked = retrieveChunks(question, chunks, {
+			limit: 4,
+			maxChars: Math.min(budget, 10000),
+		});
+		// Explicit article selection can ask for an overview without a matching body term.
+		const candidates = ranked.length ? ranked : chunks.slice(0, 2);
+		const chosen: RagChunk[] = [];
+		let evidence: BlogEvidence = { ...article, body: "", chunks: chosen };
+		for (const chunk of candidates) {
+			const candidate = {
+				...article,
+				body: [...chosen, chunk].map((item) => item.text).join("\n\n"),
+				chunks: [...chosen, chunk],
+			};
+			if (
+				[result.context, articleContext(candidate)].filter(Boolean).join("\n")
+					.length <= budget
+			) {
+				chosen.push(chunk);
+				evidence = candidate;
+			}
+		}
+		if (!chosen.length) {
+			result.omitted.push(article);
+			continue;
+		}
 		const next = [result.context, articleContext(evidence)]
 			.filter(Boolean)
 			.join("\n");

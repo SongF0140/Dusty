@@ -7,6 +7,13 @@
     "api/blog-chat.ts": {
       "includeFiles": "dist/api/rag/*.json",
       "maxDuration": 60
+    },
+    "api/blog-worker.ts": {
+      "includeFiles": "dist/api/rag/*.json",
+      "maxDuration": 60
+    },
+    "api/blog-auth.ts": {
+      "maxDuration": 30
     }
   },
   "headers": [

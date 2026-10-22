@@ -1,0 +1,25 @@
+---
+interface Props { text:string; generated?:boolean }
+const {text,generated=false}=Astro.props;
+---
+{text && <article-summary class="article-summary" data-summary={text} data-pagefind-ignore>
+  <span class="summary-label">{generated ? "海问香 · 摘要" : "文章简介"}<span aria-hidden="true"> / </span></span>
+  <p class="summary-content">
+    <span class="summary-reserve" aria-hidden="true">{text}</span>
+    <span class="summary-visible" aria-hidden="true"><span data-summary-output>{text}</span><span class="summary-cursor" aria-hidden="true">▎</span></span>
+    <span class="sr-only">{text}</span>
+  </p>
+</article-summary>}
+<script>import "@/scripts/article-summary";</script>
+<style>
+  .article-summary { display:block; margin:0.25rem 0 1.25rem; padding:0.15rem 0 0.15rem 0.9rem; border-left:2px solid color-mix(in srgb,var(--primary) 45%,transparent); }
+  .summary-label { display:block; margin-bottom:0.35rem; font-family:var(--font-mono,monospace); font-size:0.65rem; letter-spacing:0.12em; color:var(--primary); }
+  .summary-content { position:relative; margin:0; font-family:"Songti SC","SimSun",serif; font-size:0.95rem; line-height:1.85; color:color-mix(in srgb,var(--primary) 20%,#53636c); overflow-wrap:anywhere; }
+  :global(.dark) .summary-content { color:color-mix(in srgb,var(--primary) 28%,#c3d0d8); }
+  .summary-reserve { visibility:hidden; }
+  .summary-visible { position:absolute; inset:0; }
+  .summary-cursor { color:var(--primary); animation:summary-blink 1s steps(1) infinite; }
+  article-summary:not([data-complete="false"]) .summary-cursor { display:none; }
+  @keyframes summary-blink { 50% { opacity:0; } }
+  @media (prefers-reduced-motion:reduce) { .summary-cursor { animation:none; } }
+</style>

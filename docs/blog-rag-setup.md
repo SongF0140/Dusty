@@ -1,41 +1,74 @@
 # 博文问答（Vercel）
 
-海问香复用 Pagefind 检索，选取最多三篇公开文章。浏览器只提交问题、文章 ID 和最近六条对话；Vercel Function 从本次构建的文章快照读取全文，调用 OpenAI 兼容的 Chat Completions 接口。凭据不会进入静态页面。
+博客保持 Astro 静态页面，海问香通过 Vercel Node.js Functions 调用 StarryLin 的 Pi Agent。运行包在 `vendor/starrylin`，部署不依赖旁边的 StarryLin 仓库。凭据只保存在服务端。
 
 ## 配置
 
-在 Vercel 项目 Settings → Environment Variables 中设置，并重新部署：
+在 Vercel Settings → Environment Variables 配置 Production，再重新部署：
 
-| 名称 | 内容 |
-| --- | --- |
-| `BLOG_LLM_BASE_URL` | 供应商 API 根地址，通常以 `/v1` 结尾；不要包含 `/chat/completions` |
-| `BLOG_LLM_MODEL` | 供应商支持的准确模型 ID |
-| `BLOG_LLM_API_KEY` | API Key，仅在服务端设置 |
+| 名称 | 类型 | 内容 |
+| --- | --- | --- |
+| `BLOG_LLM_BASE_URL` | Config | OpenAI 兼容 API 根地址，通常以 `/v1` 结尾，不含 `/chat/completions` |
+| `BLOG_LLM_MODEL` | Config | 供应商支持的模型 ID |
+| `BLOG_LLM_API_KEY` | Secret | 模型 API Key |
+| `DATABASE_URL` | Secret | Neon 完整连接串，也支持 `POSTGRES_URL` |
+| `BLOG_GITHUB_CLIENT_ID` | Config | 博客专用 GitHub OAuth App 的 Client ID |
+| `BLOG_GITHUB_CLIENT_SECRET` | Secret | 该 App 的 Client Secret |
+| `BLOG_SESSION_SECRET` | Secret | 至少 32 字符的随机会话密钥 |
+| `BLOG_SITE_URL` | Config | `https://mjzy.tech`，不带路径 |
+| `BLOG_SUMMARY_ENABLED` | Config | `true`（默认）；`false` 暂停正文变化后的模型摘要生成 |
 
-分别为需要的 Production / Preview 环境配置。不设置时，助手显示等待模型配置，保留草稿功能。无需修改 GitHub Pages 或 Cloudflare 配置。
+创建 GitHub OAuth App：
 
-## 本地验证
+1. 打开 [GitHub Developer settings](https://github.com/settings/developers)，选择 OAuth Apps → New OAuth App。
+2. Application name 可填 `海问香博客助手`，Homepage URL 填 `https://mjzy.tech`。
+3. Authorization callback URL 填 `https://mjzy.tech/api/blog-auth`。
+4. 将创建后的 Client ID 和生成的 Client Secret 分别保存为上表变量，不要提交到 Git。
+5. 本机运行 `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`，输出保存为 `BLOG_SESSION_SECRET`，不要发到聊天里。更换它会使现有登录失效。
+6. 保存后重新部署。登录只获取公开账号身份，不申请仓库权限，不保存 GitHub access token。会话 Cookie 为 HttpOnly、Secure、SameSite=Lax，有效七天。
 
-先执行 `pnpm build` 生成 `dist` 和 Pagefind 索引。`pnpm preview` 只提供静态站点，不能执行根目录 `api/blog-chat.ts`。完整本地验证需要 Vercel CLI 的 `vercel dev`，并配置本地服务端环境变量。不要将凭据写进代码、提交到 Git 或使用 `PUBLIC_` 前缀。
+Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`。受 Vercel Deployment Protection 保护的部署需要平台提供的 `VERCEL_AUTOMATION_BYPASS_SECRET`，让内部 worker 请求通过保护，否则任务无法执行。
 
-自动化测试不消耗模型额度：
+## Neon 与摘要
+
+通过 Vercel Storage / Marketplace 关联 Neon，确认连接串变量名。初次执行 `migrations/003-seed-existing-summaries.sql`，包含建表及 123 篇公开博文的现有简介和正文哈希；已成功导入无需再次导入。
+
+构建自动执行 `004-blog-agent.sql`、`005-blog-queue.sql`，创建会话、调用日志、配额和队列表。每个 SQL 命令分别传给 Neon，PL/pgSQL 函数体保持完整，避免“预处理语句中插入多个命令”。迁移可重复运行，不覆盖摘要；数据库账号需有建表及创建函数权限。
+
+现有简介原样入库，只有正文变化后才调用模型更新摘要。标题、模型、更换提示词或重新部署不会重写正文未变的文章；换行形式、首尾空白不算变化。模型失败或暂停生成不提前推进正文基准。
+
+模型摘要由 Astro loader 写入集合 `description`，文章卡片、标题下逐字动画和 RAG 目录共用，不修改 Markdown frontmatter。访客打开文章只播放动画，内容变化需重新构建部署。有 Neon 可跨部署复用；本地无数据库则使用 `cache/blog-summaries-v2.json`。
+
+可验证：`SELECT source,count(*) FROM blog_post_summaries GROUP BY source;`。重新导出初始 SQL 使用 `node scripts/export-summary-seed.ts`，只读取当前 dist，不调用模型。
+
+## RAG 与调用限制
+
+按 Markdown 标题和段落切分，每块最多 1600 字符，长段重叠 120 字符。关键词/BM25 检索，无向量数据库。目录先提供标题、摘要和 ID；`read_post` 按目录 → 相关/指定片段 → 必要时全文渐进披露。草稿和密码文章不进入公开快照。
+
+硬权限只有 `search_posts`、`read_post`、`list_categories`。每次问题最多四次模型请求、六次工具执行、48000 字符的已读取正文预算、50 秒 Agent 时间；单次模型最多输出 1600 token，不隐藏重试。正文预算不是 token 窗口，模型仍需支持足够上下文。
+
+知识回答优先博客，允许寒暄与阅读引导，扩展内容标记“【扩展说明】”。无正文证据时服务端明确标注。仅保留公开目录内的站内文章链接，前后端过滤外链，回答不执行 HTML。事实与扩展标记依赖模型遵守提示词，工具白名单和预算由代码强制执行。
+
+## 队列与会话
+
+GitHub 数字账号 ID 来自服务端签名 Cookie，忽略客户端伪造身份及历史。每人每天最多 20 次，按北京时间；排队先预留额度，开始执行后原子计入用量。模型调用开始后的失败同样计数；模型尚未开始的失败退回执行用量。
+
+每账号同时运行一个任务，全局最多四个。新消息进入待处理队列头，当前回答完成后处理最新等待消息，不打断当前事务。消息 ID 幂等，重复提交不重复调用模型；不同账号不能访问对方会话或结果。
+
+`/api/blog-chat` 入队/查询，签名内部请求唤醒 `/api/blog-worker`。每次 worker 使用 `waitUntil` 完成一个有界任务后唤醒下一个，浏览器轮询也会唤醒。队列持久化在 Neon，无常驻进程。离开页面仅停止轮询，已提交任务继续；同一浏览器登录同一账号可恢复待处理消息。清空按钮只删除本地记录。
+
+Neon 保存任务状态、工具/轮次日志和回答。它不是 Temporal：崩溃或超时后租约到期的任务标为失败，用户以新消息重试，不自动重复付费请求。历史日志目前不自动清理。
+
+## 验证与维护
+
+构建需 Node.js 24。`pnpm build` 生成静态页、Pagefind、公开 RAG 快照并准备数据库表。`pnpm preview` 只提供静态页，完整接口需 `vercel dev` 和本地环境变量。配置不齐时禁用付费提问，仍可阅读博客和保存草稿。
+
+`/api/blog-chat` 返回 `configured`、`authConfigured`、`user`、`engine`、`dailyLimit`，不返回密钥。登录后连续发送两个问题，确认前一条不中断，后一条等待，回答仅有站内链接。模拟测试通过不代表真实 OAuth 或模型供应商已验通。
+
+无付费调用的测试：
 
 ```sh
-node --test src/utils/blog-rag.test.mjs src/utils/blog-assistant.test.mjs src/utils/blog-assistant-policy.test.mjs src/server/blog-chat.test.mjs src/utils/navigation-assistant-state.test.mjs
+node --test --test-isolation=none src/server/*.test.mjs src/utils/blog-*.test.mjs src/utils/progressive-text.test.mjs src/loaders/*.test.mjs scripts/export-summary-seed.test.mjs
 ```
 
-## 行为与限制
-
-- 仅公开博文进入目录与全文快照；草稿、密码文章、关于页等不作为问答证据。
-- 提问“这篇文章”时优先读取当前博文。其他问题先搜索原问题，无匹配时去除常见提问用语，以关键词补查。
-- 允许寒暄和阅读引导。知识回答优先依据博文，无相关证据时明确说明未找到，再允许模型提供有把握的通用知识，服务端统一加上“【扩展说明】”。有博文证据时，提示词要求额外补充内容也使用该标记。
-- 阅读推荐从提供给模型的公开文章目录中选择；不会将目录摘要当作正文证据。
-- 不给外部链接。提示词禁止外链，前后端输出处理同时删除外部 Markdown 链接、HTML 链接、裸网址及不在公开目录中的站内文章链接。
-- 全文上下文暂设 48000 字符预算（不是 token 计数），超出则提示缩小范围，不静默截断。供应商模型的上下文窗口需要能容纳正文、历史和回答；较小窗口应调低预算。
-- 最多 1600 输出 token，45 秒模型请求超时。当前使用非流式回答。
-- 公开目录中的站内博文链接可点击；回答其余内容按文本呈现，不执行模型返回的 HTML。
-- 对话只保存在当前浏览器。失败保留问题草稿，清空对话会取消当前请求。
-- 当前仅做同源检查和输入限制，不提供用户认证或全局限流；如向公众开放，请在 Vercel 或模型供应商侧设置额度与调用限制。同源检查不能阻止脚本直接调用接口。
-- `vercel.json` 把 `dist/api/rag/*.json` 打包进函数，文章快照随网站重新构建而更新。
-
-配置完成并部署后，访问 `/api/blog-chat` 应返回 `{"configured":true}`。再通过海问香提问一篇已发表博文，检查回答及其来源。未配置真实供应商前，自动化测试只能确认协议与应用逻辑，不能证明真实供应商可用。
+从 StarryLin 更新运行包：在其仓库根目录运行 `node packages/blog-agent/scripts/export-vercel.mjs D:/GitHub_Blog/Dusty/vendor/starrylin`，复核声明和运行包测试。manifest 记录版本、工具白名单、bundle SHA256，并保留上游许可证。
