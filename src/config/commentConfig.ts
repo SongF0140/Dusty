@@ -66,7 +66,7 @@ export const commentConfig: CommentConfig = {
 		// 获取 Giscus 评论系统严格模式
 		strict: "1",
 		// 获取 Giscus 评论系统反应功能
-		reactionsEnabled: "1",
+		reactionsEnabled: "0",
 		// 获取 Giscus 评论系统元数据功能
 		emitMetadata: "0",
 		// 获取 Giscus 评论系统输入位置

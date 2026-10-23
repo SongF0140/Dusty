@@ -7,8 +7,7 @@ const configured = isGithubCommentsConfigured(giscus);
 ---
 
 {configured ? (
-    <github-comments data-repo={giscus.repo} data-repo-id={giscus.repoId} data-category={giscus.category} data-category-id={giscus.categoryId} data-term={githubCommentTerm(path)}>
-        <p class="comment-login-note">评论由 Giscus 提供，与海问香助手需分别登录 GitHub。</p>
+    <github-comments data-repo={giscus.repo} data-repo-id={giscus.repoId} data-category={giscus.category} data-category-id={giscus.categoryId} data-term={githubCommentTerm(path)} data-reactions-enabled={giscus.reactionsEnabled}>
         <p data-comment-status role="status">正在加载 GitHub 评论…</p>
         <div class="giscus"></div>
         <button type="button" data-retry-comments hidden>重新加载评论</button>
@@ -23,7 +22,6 @@ const configured = isGithubCommentsConfigured(giscus);
 <style is:global>
     github-comments { display: block; min-height: 120px; }
     github-comments [data-comment-status], .github-comments-pending p { font-size: .85rem; line-height: 1.8; color: var(--retro-muted); }
-    github-comments .comment-login-note { font-size: .8rem; line-height: 1.8; color: var(--retro-muted); margin-bottom: .75rem; }
     .github-comments-pending { padding: 1.2rem; border: 1px dashed var(--retro-green); border-radius: 8px; }
     .github-comments-pending strong { display: block; margin-bottom: .5rem; }
     github-comments [data-retry-comments] { margin-top: .75rem; color: var(--retro-green); text-decoration: underline; cursor: pointer; }
@@ -54,7 +52,7 @@ class GithubComments extends HTMLElement {
         const load = () => {
             clearTimeout(timer); container.replaceChildren(); status.hidden = false; retry.hidden = true; status.textContent = "正在加载 GitHub 评论…";
             const script = document.createElement("script"); script.src = "https://giscus.app/client.js"; script.async = true; script.crossOrigin = "anonymous";
-            const settings = { repo: this.dataset.repo!, repoId: this.dataset.repoId!, category: this.dataset.category!, categoryId: this.dataset.categoryId!, mapping: "specific", term: this.dataset.term!, strict: "1", reactionsEnabled: "1", emitMetadata: "0", inputPosition: "top", theme: theme(), lang: "zh-CN", loading: "eager" };
+            const settings = { repo: this.dataset.repo!, repoId: this.dataset.repoId!, category: this.dataset.category!, categoryId: this.dataset.categoryId!, mapping: "specific", term: this.dataset.term!, strict: "1", reactionsEnabled: this.dataset.reactionsEnabled || "0", emitMetadata: "0", inputPosition: "top", theme: theme(), lang: "zh-CN", loading: "eager" };
             Object.entries(settings).forEach(([key, value]) => { script.dataset[key] = value; });
             script.onerror = failed; container.append(script);
             timer = setTimeout(failed, 20000);
