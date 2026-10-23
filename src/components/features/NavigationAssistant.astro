@@ -1,11 +1,22 @@
 ---
 import { url } from "@/utils/url-utils";
+const horizontalWave = "M-100 9Q-75 1-50 9T0 9T50 9T100 9T150 9T200 9T250 9T300 9T350 9T400 9T450 9T500 9";
+const verticalWave = "M9-100Q1-75 9-50T9 0T9 50T9 100T9 150T9 200T9 250T9 300T9 350T9 400T9 450T9 500T9 550T9 600T9 650T9 700T9 750T9 800T9 850T9 900";
 ---
 
 <section id="navigation-assistant-panel" class="navigation-mode-panel assistant-panel" role="tabpanel" aria-labelledby="navigation-assistant-tab" hidden>
+    <div class="assistant-water-frame" aria-hidden="true">
+        { ["top", "bottom"].map(edge => <svg class="assistant-water-edge assistant-water-horizontal" data-edge={edge} viewBox="0 0 400 18" preserveAspectRatio="none" focusable="false"><path class="assistant-water-line" d={horizontalWave} /><path class="assistant-water-line assistant-water-echo" d={horizontalWave} /></svg>) }
+        { ["left", "right"].map(edge => <svg class="assistant-water-edge assistant-water-vertical" data-edge={edge} viewBox="0 0 18 800" preserveAspectRatio="none" focusable="false"><path class="assistant-water-line" d={verticalWave} /><path class="assistant-water-line assistant-water-echo" d={verticalWave} /></svg>) }
+    </div>
     <haiwenxiang-assistant>
         <div class="assistant-heading">
-            <div class="assistant-identity"><span class="assistant-eyebrow">博客阅读助手</span><h2>StarryLin/Geek</h2></div>
+            <div class="assistant-identity">
+                <terminal-verse class="assistant-startup-verse" role="group" aria-label="枕星河之倒影兮与星光同流，望群星之包覆兮随繁星同辉。">
+                    <span class="verse-line" data-verse-line="枕星河之倒影兮与星光同流，" aria-hidden="true"><span data-verse-text>枕星河之倒影兮与星光同流，</span><span class="verse-cursor" hidden>|</span></span>
+                    <span class="verse-line" data-verse-line="望群星之包覆兮随繁星同辉。" aria-hidden="true"><span data-verse-text>望群星之包覆兮随繁星同辉。</span><span class="verse-cursor" hidden>|</span></span>
+                </terminal-verse>
+            </div>
             <div class="assistant-account">
             <span class="assistant-connection">正在检查连接</span>
             <a data-assistant-login href="/api/blog-auth?action=login" class="assistant-connection">GitHub 登录</a>
@@ -27,10 +38,6 @@ import { url } from "@/utils/url-utils";
                     </button>
                 </animated-agent-avatar>
         </div>
-                <terminal-verse class="assistant-startup-verse" role="group" aria-label="枕星河之倒影兮与星光同流，望群星之包覆兮随繁星同辉。">
-                    <span class="verse-line" data-verse-line="枕星河之倒影兮与星光同流，" aria-hidden="true"><span data-verse-text>枕星河之倒影兮与星光同流，</span><span class="verse-cursor" hidden>|</span></span>
-                    <span class="verse-line" data-verse-line="望群星之包覆兮随繁星同辉。" aria-hidden="true"><span data-verse-text>望群星之包覆兮随繁星同辉。</span><span class="verse-cursor" hidden>|</span></span>
-                </terminal-verse>
         <div class="assistant-conversation" tabindex="0" aria-label="StarryLin/Geek 对话记录">
             <div class="assistant-empty" data-assistant-empty>
 

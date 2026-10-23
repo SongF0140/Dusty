@@ -32,6 +32,7 @@
     background: var(--sea-paper); color: var(--sea-ink);
     border: 1px solid var(--sea-line); border-radius: 28px 28px 25px 25px;
     box-shadow: 0 22px 70px #103c5550, 0 0 0 1px #d5eff630;
+    animation: assistant-border-tide 8s ease-in-out infinite;
     font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 html.dark #command-navigation[data-mode="assistant"] {
@@ -56,22 +57,25 @@ html.dark #command-navigation[data-mode="assistant"] {
 }
 #command-navigation[data-mode="assistant"] .terminal-titlebar button:hover { background: var(--sea-hover); color: var(--sea-ink); }
 #command-navigation[data-mode="assistant"] #command-navigation-close { color: var(--sea-ink); border-radius: 50%; }
-#command-navigation .assistant-panel { overflow: hidden; }
+#command-navigation .assistant-panel { position: static; overflow: hidden; animation: none; }
+#command-navigation .assistant-water-frame { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; border-radius: 27px 27px 24px 24px; }
+#command-navigation .assistant-water-edge { position: absolute; overflow: hidden; fill: none; stroke: var(--sea-accent); stroke-width: 1; opacity: .32; }
+#command-navigation .assistant-water-horizontal { left: 0; width: 100%; height: 14px; }
+#command-navigation .assistant-water-horizontal[data-edge="top"] { top: 0; }
+#command-navigation .assistant-water-horizontal[data-edge="bottom"] { bottom: 0; transform: rotate(180deg); }
+#command-navigation .assistant-water-vertical { top: 0; height: 100%; width: 13px; }
+#command-navigation .assistant-water-vertical[data-edge="left"] { left: 0; }
+#command-navigation .assistant-water-vertical[data-edge="right"] { right: 0; transform: scaleX(-1); }
+#command-navigation .assistant-water-line { vector-effect: non-scaling-stroke; animation: assistant-wave-across 7s ease-in-out infinite; }
+#command-navigation .assistant-water-vertical .assistant-water-line { animation-name: assistant-wave-down; animation-duration: 9s; }
+#command-navigation .assistant-water-echo { opacity: .45; animation-delay: -3.5s; }
 #command-navigation haiwenxiang-assistant { position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
 #command-navigation .assistant-heading {
     position: relative; padding: 12px 20px; display: grid; grid-template-columns: 44px minmax(0,1fr) auto;
-    align-items: center; gap: 12px; flex-shrink: 0;
-}
-#command-navigation .assistant-heading::after {
-    content: ""; position: absolute; right: 35%; top: 10px; width: 5px; height: 5px;
-    border: 1px solid var(--sea-line); border-radius: 50%; pointer-events: none;
-    box-shadow: 12px 6px 0 -1px var(--sea-tide), -8px 12px 0 -1px var(--sea-tide);
-    animation: assistant-water-drift 6s ease-in-out infinite;
+    align-items: center; gap: 7px 12px; flex-shrink: 0;
 }
 #command-navigation .assistant-identity { grid-column: 2; grid-row: 1; min-width: 0; }
-#command-navigation .assistant-account { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 118px; }
-#command-navigation .assistant-eyebrow { color: var(--sea-muted); font-size: 10px; letter-spacing: .1em; }
-#command-navigation .assistant-heading h2 { color: var(--sea-ink); font: 800 19px/1.35 Georgia, "Songti SC", serif; letter-spacing: -.04em; margin: 3px 0 0; }
+#command-navigation .assistant-account { grid-column: 1 / -1; grid-row: 2; display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
 #command-navigation .assistant-connection { color: var(--sea-muted); font-size: 10px; overflow-wrap: anywhere; }
 #command-navigation a.assistant-connection { text-decoration: underline; text-underline-offset: 3px; }
 #command-navigation .assistant-conversation {
@@ -83,10 +87,10 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-startup-avatar { display: block; grid-column: 1; grid-row: 1; width: 44px; height: 44px; margin: 0; }
 #command-navigation .assistant-startup-avatar :is(img,canvas) { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
 #command-navigation .assistant-avatar-touch { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; touch-action: manipulation; overflow: visible; }
+#command-navigation .assistant-avatar-touch:is(:hover,:active,:focus-visible) { background: transparent; box-shadow: none; filter: none; }
 #command-navigation .assistant-puff-burst { position: absolute; width: 30px; height: 25px; right: -8px; top: 2px; opacity: 0; pointer-events: none; transform-origin: 20% 90%; overflow: visible; }
-#command-navigation .assistant-startup-verse { display: block; flex-shrink: 0; font: 12px/1.9 "Songti SC", "SimSun", serif; color: var(--sea-muted); margin: 8px 20px 12px; }
-#command-navigation haiwenxiang-assistant[data-has-messages="true"] .assistant-startup-verse { display: none; }
-#command-navigation .assistant-startup-verse .verse-line { display: block; position: relative; width: max-content; margin-inline: auto; min-height: 2em; }
+#command-navigation .assistant-startup-verse { display: block; min-width: 0; font: 12px/1.9 "Songti SC", "SimSun", serif; color: var(--sea-accent); margin: 0; }
+#command-navigation .assistant-startup-verse .verse-line { display: block; position: relative; width: 100%; min-height: 1.6em; }
 #command-navigation .verse-pixel-canvas { display: block; image-rendering: pixelated; }
 #command-navigation .verse-line:has(.verse-pixel-canvas:not([hidden])) .verse-cursor { position: absolute; top: 0; }
 #command-navigation .verse-cursor { color: var(--sea-accent); margin-left: 2px; animation: verse-cursor-blink 1s steps(1,end) infinite; }
@@ -109,11 +113,6 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-message-user {
     align-self: flex-end; max-width: 86%; background: var(--sea-soft);
     border-radius: 26px 24px 10px 25px; transform: rotate(-.35deg);
-}
-#command-navigation .assistant-message-assistant::before {
-    content: ""; position: absolute; top: 16px; left: -6px; width: 12px; height: 13px;
-    border-left: 1px solid var(--sea-line); border-bottom: 1px solid var(--sea-line);
-    border-radius: 0 0 0 8px; background: var(--sea-input); transform: rotate(30deg);
 }
 #command-navigation .assistant-message > span { display: block; font: 700 10px/1.4 "Courier New", monospace; color: var(--sea-muted); letter-spacing: .03em; margin-bottom: 9px; }
 #command-navigation .assistant-message-body { font: 14px/1.85 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; overflow-wrap: anywhere; }
@@ -166,7 +165,9 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation[data-mode="assistant"] :is(button,a,.assistant-conversation):focus-visible { outline: 2px solid var(--sea-accent); outline-offset: 4px; }
 @keyframes navigation-panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes verse-cursor-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
-@keyframes assistant-water-drift { 0%,100% { opacity: .45; transform: translate(0,2px); } 50% { opacity: .9; transform: translate(2px,-3px); } }
+@keyframes assistant-wave-across { 0%,100% { transform: translate(-12px,0); } 50% { transform: translate(12px,-2px); } }
+@keyframes assistant-wave-down { 0%,100% { transform: translate(0,-15px); } 50% { transform: translate(-2px,15px); } }
+@keyframes assistant-border-tide { 0%,100% { border-color: var(--sea-line); } 50% { border-color: var(--sea-accent); } }
 @media (max-height: 650px) {
     #command-navigation .assistant-heading { padding-block: 7px; }
     #command-navigation .assistant-composer textarea { height: 42px; min-height: 40px; }
@@ -175,7 +176,6 @@ html.dark #command-navigation[data-mode="assistant"] {
 @media (max-width: 640px) {
     #command-navigation[data-mode="assistant"] { border-radius: 25px; }
     #command-navigation .assistant-heading { padding-inline: 17px; gap: 8px; }
-    #command-navigation .assistant-heading h2 { font-size: 17px; }
     #command-navigation .assistant-conversation { padding: 18px 17px 26px; }
     #command-navigation .assistant-message { padding: 14px 16px 16px; max-width: 96%; }
     #command-navigation .assistant-message-user { max-width: 86%; }
@@ -184,7 +184,7 @@ html.dark #command-navigation[data-mode="assistant"] {
     #command-navigation .assistant-footer { padding-inline: 19px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor, #command-navigation .assistant-heading::after,
+    #command-navigation[data-mode="assistant"], #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor, #command-navigation .assistant-water-line,
     #command-navigation .assistant-message[data-streaming="true"] .assistant-message-body::after { animation: none; }
     #command-navigation :is(.navigation-mode-tab,.assistant-draft-prompts button,.assistant-composer-actions button) { transition: none; }
 }

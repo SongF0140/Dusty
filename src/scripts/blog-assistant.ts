@@ -82,6 +82,7 @@ class BlogAssistant extends HTMLElement {
 		let submissionTail: Promise<void> = Promise.resolve();
 		const options = { signal: lifetime.signal };
 		const input = required<HTMLTextAreaElement>(this, "textarea");
+		const form = required<HTMLFormElement>(this, "form");
 		const send = required<HTMLButtonElement>(this, "button[type=submit]");
 		const note = required<HTMLElement>(this, "#assistant-send-note");
 		const status = required<HTMLElement>(this, "[data-assistant-save-status]");
@@ -264,6 +265,37 @@ class BlogAssistant extends HTMLElement {
 		};
 		input.value = state.draft;
 		render();
+		let composing = false;
+		input.addEventListener(
+			"compositionstart",
+			() => {
+				composing = true;
+			},
+			options,
+		);
+		input.addEventListener(
+			"compositionend",
+			() => {
+				composing = false;
+			},
+			options,
+		);
+		input.addEventListener(
+			"keydown",
+			(event) => {
+				if (
+					event.key !== "Enter" ||
+					event.shiftKey ||
+					composing ||
+					event.isComposing ||
+					event.keyCode === 229
+				)
+					return;
+				event.preventDefault();
+				if (!send.disabled) form.requestSubmit();
+			},
+			options,
+		);
 		input.addEventListener(
 			"input",
 			() => {
@@ -337,7 +369,7 @@ class BlogAssistant extends HTMLElement {
 			},
 			options,
 		);
-		required<HTMLFormElement>(this, "form").addEventListener(
+		form.addEventListener(
 			"submit",
 			(event) => {
 				event.preventDefault();

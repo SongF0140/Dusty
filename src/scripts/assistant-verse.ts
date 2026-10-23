@@ -7,7 +7,6 @@ class TerminalVerse extends HTMLElement {
 	connectedCallback() {
 		this.dispose?.();
 		const drawer = this.closest<HTMLElement>("#command-navigation");
-		const empty = this.closest<HTMLElement>("[data-assistant-empty]");
 		const lines = Array.from(
 			this.querySelectorAll<HTMLElement>("[data-verse-line]"),
 		).map((line) => {
@@ -18,11 +17,14 @@ class TerminalVerse extends HTMLElement {
 			canvas.setAttribute("aria-hidden", "true");
 			canvas.width = text.length * 13;
 			canvas.height = 20;
-			canvas.style.width = `${canvas.width * 1.25}px`;
-			canvas.style.height = "25px";
+			line.style.maxWidth = `${canvas.width * 1.15}px`;
+			canvas.style.width = "100%";
+			canvas.style.height = "auto";
 			line.prepend(canvas);
 			const context = canvas.getContext("2d");
-			const output = line.querySelector<HTMLElement>("[data-verse-text]")!;
+			const output = line.querySelector<HTMLElement>("[data-verse-text]");
+			const cursor = line.querySelector<HTMLElement>(".verse-cursor");
+			if (!output || !cursor) throw new Error("像素诗句缺少显示元素");
 			output.hidden = !!context;
 			canvas.hidden = !context;
 			return {
@@ -30,7 +32,7 @@ class TerminalVerse extends HTMLElement {
 				output,
 				canvas,
 				context,
-				cursor: line.querySelector<HTMLElement>(".verse-cursor")!,
+				cursor,
 			};
 		});
 		if (!drawer || !lines.length) return;
@@ -42,18 +44,14 @@ class TerminalVerse extends HTMLElement {
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.font = '12px "SimSun", "Songti SC", monospace';
 			context.textBaseline = "top";
-			context.fillStyle = "white";
+			context.fillStyle = getComputedStyle(this).color;
 			for (let i = 0; i < count; i++) context.fillText(line.text[i], i * 13, 2);
 			const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
 			for (let i = 0; i < pixels.data.length; i += 4) {
-				const position = ((i / 4) % canvas.width) / canvas.width;
-				pixels.data[i] = Math.round(243 - 95 * position);
-				pixels.data[i + 1] = Math.round(246 - 50 * position);
-				pixels.data[i + 2] = 255;
 				pixels.data[i + 3] = pixels.data[i + 3] >= 96 ? 255 : 0;
 			}
 			context.putImageData(pixels, 0, 0);
-			line.cursor.style.left = `${count * 13 * 1.25}px`;
+			line.cursor.style.left = `${(count / line.text.length) * 100}%`;
 		};
 		const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 		let lineIndex = 0;
@@ -65,8 +63,7 @@ class TerminalVerse extends HTMLElement {
 			renderLine(line, 0);
 			line.cursor.hidden = true;
 		}
-		const shown = () =>
-			!drawer.inert && drawer.dataset.mode === "assistant" && !empty?.hidden;
+		const shown = () => !drawer.inert && drawer.dataset.mode === "assistant";
 		const visible = () => shown() && !document.hidden;
 		const finish = () => {
 			clearTimeout(timer);
@@ -124,6 +121,7 @@ class TerminalVerse extends HTMLElement {
 				timer = undefined;
 				return;
 			}
+			if (done) for (const line of lines) renderLine(line, line.text.length);
 			if (!done && timer === undefined)
 				timer = setTimeout(tick, TYPEWRITER_TIMING.initial);
 		};
@@ -132,11 +130,10 @@ class TerminalVerse extends HTMLElement {
 			attributes: true,
 			attributeFilter: ["inert", "data-mode", "class"],
 		});
-		if (empty)
-			observer.observe(empty, {
-				attributes: true,
-				attributeFilter: ["hidden"],
-			});
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
 		document.addEventListener("visibilitychange", sync);
 		reduced.addEventListener("change", sync);
 		sync();
