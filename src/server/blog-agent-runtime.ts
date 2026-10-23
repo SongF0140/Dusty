@@ -8,6 +8,8 @@ import {
 	compatibleModel,
 	PostgresRunStore,
 } from "../../vendor/starrylin/agent.mjs";
+import { sanitizeAssistantAnswer } from "../utils/blog-assistant-policy.ts";
+import { streamingBlogModel } from "./blog-agent-stream.ts";
 import {
 	authConfigured,
 	type BlogAuthEnv,
@@ -65,7 +67,7 @@ export function createBlogRuntime(
 	return {
 		queue,
 		catalog,
-		async ask(input: QueueInput) {
+		async ask(input: QueueInput, onText: (text: string) => void = () => {}) {
 			let modelFailure: string | undefined;
 			const posts = await catalog();
 			const selected = posts
@@ -77,21 +79,30 @@ export function createBlogRuntime(
 			const question =
 				input.question +
 				selectedContext.slice(0, Math.max(0, 4000 - input.question.length));
+			const configured = compatibleModel({
+				baseUrl: env.BLOG_LLM_BASE_URL || "",
+				model: env.BLOG_LLM_MODEL || "",
+				apiKey: env.BLOG_LLM_API_KEY || "",
+				fetch: observeModelFetch(blogModelFetch(fetcher), (code, status) => {
+					modelFailure = code;
+					console.warn(
+						"Blog model rejection",
+						JSON.stringify({ code, status }),
+					);
+				}),
+			});
 			const agent = new BlogAgent({
 				catalog: posts,
 				store: new PostgresRunStore(query),
-				...compatibleModel({
-					baseUrl: env.BLOG_LLM_BASE_URL || "",
-					model: env.BLOG_LLM_MODEL || "",
-					apiKey: env.BLOG_LLM_API_KEY || "",
-					fetch: observeModelFetch(blogModelFetch(fetcher), (code, status) => {
-						modelFailure = code;
-						console.warn(
-							"Blog model rejection",
-							JSON.stringify({ code, status }),
-						);
-					}),
-				}),
+				...configured,
+				streamFn: streamingBlogModel(configured.streamFn, (text) =>
+					onText(
+						sanitizeAssistantAnswer(
+							text,
+							posts.list().map((post) => post.url),
+						),
+					),
+				),
 			});
 			try {
 				return await agent.ask({ ...input, question });

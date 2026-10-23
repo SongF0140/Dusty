@@ -8,6 +8,7 @@ import {
 	readBlogSession,
 	siteOrigin,
 } from "./blog-auth.ts";
+import { queueEventStream } from "./blog-event-stream.ts";
 
 type Runtime = ReturnType<typeof createBlogRuntime>;
 const json = (value: unknown, status = 200) =>
@@ -43,6 +44,14 @@ export async function handleBlogChat(
 			const row = await runtime.queue.status(user.id, requestId);
 			if (!row) return json({ error: "消息不存在或无权访问" }, 404);
 			if (row.status === "pending" || row.status === "running") wake();
+			if (new URL(request.url).searchParams.get("stream") === "1") {
+				const urls = (await runtime.catalog()).list().map((post) => post.url);
+				return queueEventStream(
+					row,
+					() => runtime.queue.status(user.id, requestId),
+					urls,
+				);
+			}
 			return json({
 				requestId,
 				status: row.status,

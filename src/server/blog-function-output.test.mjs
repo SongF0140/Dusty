@@ -31,6 +31,7 @@ test("compiled Vercel functions load and serve status without TypeScript sources
 			"api/blog-auth.ts",
 			"api/blog-chat.ts",
 			"api/blog-worker.ts",
+			"src/utils/blog-assistant-policy.ts",
 			...[
 				"blog-auth",
 				"blog-chat",
@@ -39,6 +40,8 @@ test("compiled Vercel functions load and serve status without TypeScript sources
 				"blog-queue",
 				"blog-diagnostics",
 				"blog-model-fetch",
+				"blog-agent-stream",
+				"blog-event-stream",
 			].map((name) => `src/server/${name}.ts`),
 		];
 		for (const file of files) {

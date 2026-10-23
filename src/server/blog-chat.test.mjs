@@ -96,3 +96,52 @@ test("polling is account-scoped and quota errors are 429", async () => {
 	assert.equal((await polled.json()).answer, "回答");
 	assert.equal((await handleBlogChat(request(body), env, deps)).status, 429);
 });
+
+test("stream subscriptions require a session and only read that account's queued answer", async () => {
+	const deps = {
+		runtime: () => assert.fail("anonymous cannot open a stream"),
+		defer: () => {},
+	};
+	assert.equal(
+		(
+			await handleBlogChat(
+				new Request("https://blog.test/api/blog-chat?requestId=r1&stream=1"),
+				env,
+				deps,
+			)
+		).status,
+		401,
+	);
+	let reads = 0;
+	const response = await handleBlogChat(
+		new Request("https://blog.test/api/blog-chat?requestId=r1&stream=1", {
+			headers: { cookie },
+		}),
+		env,
+		{
+			runtime: () => ({
+				queue: {
+					status: async (user, id) => {
+						assert.equal(user, "12");
+						assert.equal(id, "r1");
+						return ++reads === 1
+							? { status: "running", partial_answer: "第一句" }
+							: {
+									status: "completed",
+									result: { answer: "完成", sources: [] },
+								};
+					},
+				},
+				catalog: async () => ({ list: () => [] }),
+				wake: async () => {},
+			}),
+			defer: () => {},
+		},
+	);
+	assert.match(response.headers.get("content-type"), /text\/event-stream/);
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	assert.match(decoder.decode((await reader.read()).value), /第一句/);
+	assert.match(decoder.decode((await reader.read()).value), /event: done/);
+	await reader.cancel();
+});

@@ -39,7 +39,19 @@ export function compatibleModel(config: {
 	model: string;
 	apiKey: string;
 	fetch?: typeof fetch;
-}): { model: unknown; streamFn: unknown };
+}): {
+	model: unknown;
+	streamFn: (
+		model: unknown,
+		context: {
+			systemPrompt?: string;
+			messages?: { role: string; content?: unknown; [key: string]: unknown }[];
+		},
+		options: unknown,
+	) =>
+		| AsyncIterable<{ type: string; delta?: string }>
+		| Promise<AsyncIterable<{ type: string; delta?: string }>>;
+};
 export class BlogAgent {
 	constructor(options: {
 		catalog: BlogCatalog;

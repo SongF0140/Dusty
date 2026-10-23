@@ -12,15 +12,37 @@ function required<T extends Element>(root: ParentNode, selector: string): T {
 	return element;
 }
 function appendContent(target: HTMLElement, content: string) {
+	for (const block of content.split(/\n\s*\n/)) {
+		const lines = block.split("\n");
+		if (lines.every((line) => /^\s*(?:[-*]|\d+\.)\s+/.test(line))) {
+			const list = document.createElement(
+				/^\s*\d+\./.test(lines[0]) ? "ol" : "ul",
+			);
+			for (const line of lines) {
+				const item = document.createElement("li");
+				appendInline(item, line.replace(/^\s*(?:[-*]|\d+\.)\s+/, ""));
+				list.append(item);
+			}
+			target.append(list);
+		} else {
+			const paragraph = document.createElement("p");
+			appendInline(paragraph, block.replace(/^#{1,4}\s+/gm, ""));
+			target.append(paragraph);
+		}
+	}
+}
+function appendInline(target: HTMLElement, content: string) {
 	let offset = 0;
 	for (const match of content.matchAll(
-		/\[([^\]\n]+)\]\((\/posts\/[^\s)]+)\)/g,
+		/\[([^\]\n]+)\]\((\/posts\/[^\s)]+)\)|\*\*([^*\n]+)\*\*|`([^`\n]+)`/g,
 	)) {
 		target.append(document.createTextNode(content.slice(offset, match.index)));
-		const link = document.createElement("a");
-		link.textContent = match[1];
-		link.href = match[2];
-		target.append(link);
+		const element = document.createElement(
+			match[2] ? "a" : match[3] ? "strong" : "code",
+		);
+		element.textContent = match[1] || match[3] || match[4];
+		if (element instanceof HTMLAnchorElement) element.href = match[2];
+		target.append(element);
 		offset = (match.index || 0) + match[0].length;
 	}
 	target.append(document.createTextNode(content.slice(offset)));
@@ -56,7 +78,6 @@ class BlogAssistant extends HTMLElement {
 		let speaking: ReturnType<typeof setTimeout> | undefined;
 		const controllers = new Set<AbortController>();
 		const pending = new Map<string, Pending>();
-		const statuses = new Map<string, string>();
 		const lifetime = new AbortController();
 		let submissionTail: Promise<void> = Promise.resolve();
 		const options = { signal: lifetime.signal };
@@ -92,6 +113,11 @@ class BlogAssistant extends HTMLElement {
 			conversation.setAttribute("aria-busy", String(pending.size > 0));
 		};
 		const render = () => {
+			const follow =
+				conversation.scrollHeight -
+					conversation.scrollTop -
+					conversation.clientHeight <
+				90;
 			this.dataset.hasMessages = String(state.messages.length > 0);
 			empty.hidden = state.messages.length > 0;
 			messages.replaceChildren();
@@ -100,20 +126,17 @@ class BlogAssistant extends HTMLElement {
 				article.className = `assistant-message assistant-message-${message.role}`;
 				const label = document.createElement("span");
 				label.textContent = message.role === "user" ? "你" : "StarryLin/Geek";
-				const content = document.createElement("p");
+				const content = document.createElement("div");
+				content.className = "assistant-message-body";
 				appendContent(content, message.content);
 				article.append(label, content);
-				if (pending.has(message.id)) {
-					const progress = document.createElement("small");
-					progress.textContent =
-						statuses.get(message.id) === "running"
-							? "正在回答…"
-							: "已进入队列，等待当前回答完成…";
-					article.append(progress);
-				}
+				article.dataset.streaming = String(
+					message.role === "assistant" &&
+						pending.has(message.id.replace(/-answer$/, "")),
+				);
 				messages.append(article);
 			}
-			conversation.scrollTop = conversation.scrollHeight;
+			if (follow) conversation.scrollTop = conversation.scrollHeight;
 			updateSend();
 		};
 		const save = () => {
@@ -151,6 +174,21 @@ class BlogAssistant extends HTMLElement {
 			const controller = new AbortController();
 			controllers.add(controller);
 			const signal = AbortSignal.any([controller.signal, lifetime.signal]);
+			const showAnswer = (content: string) => {
+				const id = `${item.id}-answer`;
+				const existing = state.messages.find((message) => message.id === id);
+				if (existing) existing.content = content;
+				else if (content) {
+					const index = state.messages.findIndex(
+						(message) => message.id === item.id,
+					);
+					state.messages.splice(
+						index < 0 ? state.messages.length : index + 1,
+						0,
+						{ id, role: "assistant", content },
+					);
+				}
+			};
 			try {
 				if (!resume) await previousSubmission;
 				signal.throwIfAborted();
@@ -158,8 +196,10 @@ class BlogAssistant extends HTMLElement {
 				const deps = {
 					fetch: window.fetch.bind(window),
 					signal,
-					onStatus: (value: string) => {
-						statuses.set(item.id, value);
+					onPartial: (text: string) => {
+						if (signal.aborted) return;
+						showAnswer(text);
+						this.dataset.speaking = "true";
 						render();
 					},
 				};
@@ -171,30 +211,9 @@ class BlogAssistant extends HTMLElement {
 							onEnqueued: releaseSubmission,
 							conversationId: item.conversationId,
 							pagePath: location.pathname,
-							search: async (query) => {
-								if (!window.pagefind) {
-									const path = "/pagefind/pagefind.js";
-									window.pagefind = await import(/* @vite-ignore */ path);
-								}
-								return window.pagefind.search(query);
-							},
 						});
 				if (signal.aborted) return;
-				const answer = {
-					id: `${item.id}-answer`,
-					role: "assistant" as const,
-					content: result.content,
-				};
-				if (!state.messages.some((message) => message.id === answer.id)) {
-					const index = state.messages.findIndex(
-						(message) => message.id === item.id,
-					);
-					state.messages.splice(
-						index < 0 ? state.messages.length : index + 1,
-						0,
-						answer,
-					);
-				}
+				showAnswer(result.content);
 				this.dataset.speaking = "true";
 				clearTimeout(speaking);
 				speaking = setTimeout(
@@ -228,7 +247,6 @@ class BlogAssistant extends HTMLElement {
 				controllers.delete(controller);
 				if (!signal.aborted) {
 					pending.delete(item.id);
-					statuses.delete(item.id);
 					savePending();
 					state.messages = state.messages.slice(-100);
 					dirty = true;
@@ -274,7 +292,6 @@ class BlogAssistant extends HTMLElement {
 				for (const controller of controllers) controller.abort();
 				controllers.clear();
 				pending.clear();
-				statuses.clear();
 				savePending();
 				stopSpeaking();
 				clearTimeout(timer);
@@ -339,7 +356,8 @@ class BlogAssistant extends HTMLElement {
 				dirty = true;
 				save();
 				render();
-				note.textContent = "已提交；可以继续发送，新消息优先等待。";
+				note.textContent = "每天 20 次 · 可以继续聊";
+				conversation.scrollTop = conversation.scrollHeight;
 				void waitFor(item);
 			},
 			options,
@@ -388,12 +406,12 @@ class BlogAssistant extends HTMLElement {
 						? "请使用 GitHub 登录"
 						: "等待 GitHub 登录配置";
 				note.textContent = ready
-					? "每人每天 20 次 · 新消息优先等待，不打断当前回答"
+					? "每天 20 次 · 可以继续聊"
 					: config.authConfigured
 						? "请先使用 GitHub 登录"
 						: "博主尚未配置 GitHub 登录";
 				preview.textContent =
-					"StarryLin 博客陪读。知识回答优先依据博客，扩展内容单独标注。任务在服务端排队，离开页面不会取消正在回答的任务。";
+					"从一篇博文聊起。知识回答优先依据博客，补充内容单独标注。";
 				render();
 			})
 			.catch(() => {

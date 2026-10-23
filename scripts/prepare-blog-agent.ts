@@ -19,6 +19,7 @@ else {
 				"006-align-initial-summary-baselines.sql",
 				"007-ai-summary-version.sql",
 				"008-seed-ai-summaries.sql",
+				"009-streamed-answers.sql",
 			].map(async (name) =>
 				splitSqlCommands(
 					await readFile(

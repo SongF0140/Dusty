@@ -2,11 +2,7 @@ import {
 	assistantQuestionKind,
 	sanitizeAssistantAnswer,
 } from "./blog-assistant-policy.ts";
-import {
-	type ArticleSearch,
-	type BlogArticle,
-	findBlogArticles,
-} from "./blog-rag.ts";
+import type { ArticleSearch, BlogArticle } from "./blog-rag.ts";
 
 const filler = new Set([
 	"请",
@@ -55,12 +51,13 @@ export async function askBlogAssistant(
 	corpus: BlogArticle[],
 	deps: {
 		pagePath: string;
-		search: ArticleSearch;
+		search?: ArticleSearch;
 		fetch: typeof fetch;
 		signal?: AbortSignal;
 		requestId?: string;
 		conversationId?: string;
 		onStatus?(status: string): void;
+		onPartial?(text: string): void;
 		onEnqueued?(): void;
 		wait?(): Promise<void>;
 	},
@@ -83,26 +80,7 @@ export async function askBlogAssistant(
 			? []
 			: current && referringToPage
 				? [current]
-				: await findBlogArticles(question, corpus, async (query) => {
-						const direct = await deps.search(query);
-						if (direct.results.length) return direct;
-						const terms = blogQueryTerms(query);
-						const groups = await Promise.all(
-							terms.map((term) => deps.search(term)),
-						);
-						// Interleave keyword rankings, so one broad keyword cannot occupy every slot.
-						const results: Awaited<ReturnType<ArticleSearch>>["results"] = [];
-						for (
-							let rank = 0;
-							rank <
-							Math.max(0, ...groups.map((group) => group.results.length));
-							rank++
-						) {
-							for (const group of groups)
-								if (group.results[rank]) results.push(group.results[rank]);
-						}
-						return { results };
-					});
+				: [];
 	deps.signal?.throwIfAborted();
 	const response = await deps.fetch("/api/blog-chat", {
 		method: "POST",
@@ -134,15 +112,63 @@ export async function pollBlogAssistant(
 		fetch: typeof fetch;
 		signal?: AbortSignal;
 		onStatus?(status: string): void;
+		onPartial?(text: string): void;
 		wait?(): Promise<void>;
 	},
 ): Promise<{ content: string }> {
 	for (;;) {
 		deps.signal?.throwIfAborted();
 		const response = await deps.fetch(
-			`/api/blog-chat?requestId=${encodeURIComponent(requestId)}`,
-			{ signal: deps.signal },
+			`/api/blog-chat?requestId=${encodeURIComponent(requestId)}${deps.onPartial ? "&stream=1" : ""}`,
+			{
+				signal: deps.signal,
+				...(deps.onPartial ? { headers: { Accept: "text/event-stream" } } : {}),
+			},
 		);
+		if (
+			response.ok &&
+			response.headers.get("content-type")?.startsWith("text/event-stream") &&
+			response.body
+		) {
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder();
+			let buffer = "";
+			try {
+				for (;;) {
+					const { value, done } = await reader.read();
+					if (done) break;
+					buffer += decoder
+						.decode(value, { stream: true })
+						.replace(/\r\n/g, "\n");
+					if (buffer.length > 100000) throw new Error("流式响应过长");
+					for (;;) {
+						const end = buffer.indexOf("\n\n");
+						if (end < 0) break;
+						const frame = buffer.slice(0, end);
+						buffer = buffer.slice(end + 2);
+						const event = /^event: (.+)$/m.exec(frame)?.[1];
+						const raw = /^data: (.+)$/m.exec(frame)?.[1];
+						if (!raw) continue;
+						const data = JSON.parse(raw);
+						if (event === "failure")
+							throw new Error(
+								typeof data.error === "string" ? data.error : "本次回答失败",
+							);
+						if (event === "done") return formatBlogAnswer(data, corpus);
+						if (event === "update" && typeof data.answer === "string")
+							deps.onPartial?.(
+								sanitizeAssistantAnswer(
+									data.answer,
+									corpus.map((post) => post.url),
+								),
+							);
+					}
+				}
+			} finally {
+				await reader.cancel().catch(() => undefined);
+			}
+			continue;
+		}
 		const data = await response.json();
 		if (!response.ok || data.status === "failed")
 			throw new Error(

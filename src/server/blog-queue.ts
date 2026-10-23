@@ -3,6 +3,13 @@ import type {
 	BlogAnswer,
 	BlogQuestion,
 } from "../../vendor/starrylin/agent.mjs";
+import { progressPublisher } from "./blog-agent-stream.ts";
+export interface QueueSnapshot {
+	status: string;
+	result?: BlogAnswer;
+	error?: string;
+	partial_answer?: string;
+}
 export type QueueQuery = (
 	sql: string,
 	values: unknown[],
@@ -52,12 +59,21 @@ export class BlogQueue {
 	}
 	async status(userId: string, requestId: string) {
 		const rows = await this.query(
-			"SELECT status,result,error FROM blog_queue WHERE user_id=$1 AND request_id=$2",
+			"SELECT status,result,error,partial_answer FROM blog_queue WHERE user_id=$1 AND request_id=$2",
 			[userId, requestId],
 		);
-		return rows[0] as
-			| { status: string; result?: BlogAnswer; error?: string }
-			| undefined;
+		const row = rows[0];
+		if (!row || typeof row.status !== "string") return undefined;
+		return { ...row, status: row.status } as QueueSnapshot;
+	}
+	async progress(
+		job: Pick<QueueJob, "userId" | "requestId" | "leaseId">,
+		text: string,
+	) {
+		await this.query(
+			"UPDATE blog_queue SET partial_answer=$4 WHERE user_id=$1 AND request_id=$2 AND lease_id=$3 AND status='running'",
+			[job.userId, job.requestId, job.leaseId, text.slice(0, 16000)],
+		);
 	}
 	async claim(): Promise<QueueJob | null> {
 		const rows = await this.query("SELECT blog_claim($1,$2) AS value", [
@@ -80,14 +96,21 @@ export class BlogQueue {
 /** One bounded job per function invocation. Claiming never preempts an existing lease. */
 export async function runQueueJob(
 	queue: BlogQueue,
-	ask: (input: QueueInput) => Promise<BlogAnswer>,
+	ask: (
+		input: QueueInput,
+		onText?: (text: string) => void,
+	) => Promise<BlogAnswer>,
 	wake: () => Promise<void>,
 ) {
 	const job = await queue.claim();
 	if (!job) return;
+	const progress = progressPublisher((text) => queue.progress(job, text));
 	try {
-		await queue.finish(job, await ask(job.payload), null);
+		const answer = await ask(job.payload, progress.update);
+		await progress.flush();
+		await queue.finish(job, answer, null);
 	} catch (error) {
+		await progress.flush();
 		const message =
 			error instanceof Error &&
 			/20 次|会话|重复|中断|预算|^模型服务/.test(error.message)

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { askBlogAssistant, blogQueryTerms } from "./blog-assistant.ts";
+import {
+	askBlogAssistant,
+	blogQueryTerms,
+	pollBlogAssistant,
+} from "./blog-assistant.ts";
 
 const corpus = [
 	{
@@ -18,6 +22,53 @@ test("retrieval strips conversational filler but preserves technical terms", () 
 	assert.ok(terms.includes("git"));
 	assert.ok(!terms.includes("请"));
 	assert.ok(!terms.includes("如何"));
+});
+
+test("live text is rendered before the final SSE event, across split UTF-8 chunks", async () => {
+	let finish;
+	const gate = new Promise((resolve) => {
+		finish = resolve;
+	});
+	const partials = [];
+	const encoder = new TextEncoder();
+	const result = pollBlogAssistant("r1", corpus, {
+		onPartial(text) {
+			partials.push(text);
+			finish();
+		},
+		fetch: async (url) => {
+			assert.match(url, /stream=1/);
+			return new Response(
+				new ReadableStream({
+					async start(controller) {
+						const bytes = encoder.encode(
+							'event: update\ndata: {"answer":"你好"}\n\n',
+						);
+						controller.enqueue(bytes.slice(0, 35));
+						controller.enqueue(bytes.slice(35));
+						await gate;
+						controller.enqueue(
+							encoder.encode(
+								'event: done\ndata: {"answer":"你好，完成了","sources":[]}\n\n',
+							),
+						);
+						controller.close();
+					},
+				}),
+				{ headers: { "content-type": "text/event-stream" } },
+			);
+		},
+	});
+	assert.equal((await result).content, "你好，完成了");
+	assert.deepEqual(partials, ["你好"]);
+});
+
+test("server RAG questions do not wait for Pagefind to submit", async () => {
+	await askBlogAssistant("Git 如何撤销？", corpus, {
+		pagePath: "/",
+		search: () => assert.fail("server owns retrieval"),
+		fetch: async () => Response.json({ answer: "回答", sources: [] }),
+	});
 });
 
 test("current article questions select that article and send only trusted IDs, no browser supplied body", async () => {
