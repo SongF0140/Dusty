@@ -24,3 +24,19 @@ test("bundled agent and queue migrations split into executable standalone comman
 	);
 	assert.ok(commands.every((sql) => sql.startsWith("CREATE")));
 });
+
+test("AI summary seed is one prepared command and only replaces legacy summaries for the same body", async () => {
+	const commands = splitSqlCommands(
+		await readFile("migrations/008-seed-ai-summaries.sql", "utf8"),
+	);
+	assert.equal(commands.length, 1);
+	assert.match(commands[0], /INSERT INTO blog_post_summaries/);
+	assert.match(
+		commands[0],
+		/WHERE blog_post_summaries.content_hash=excluded.content_hash/,
+	);
+	assert.match(
+		commands[0],
+		/summary_version IS DISTINCT FROM excluded.summary_version/,
+	);
+});

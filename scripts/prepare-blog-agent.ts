@@ -18,6 +18,7 @@ else {
 				"005-blog-queue.sql",
 				"006-align-initial-summary-baselines.sql",
 				"007-ai-summary-version.sql",
+				"008-seed-ai-summaries.sql",
 			].map(async (name) =>
 				splitSqlCommands(
 					await readFile(
@@ -30,7 +31,7 @@ else {
 	).flat();
 	try {
 		await sql.transaction(commands.map((command) => sql.query(command)));
-		console.log("Agent and queue schema ready; existing summaries unchanged.");
+		console.log("Agent and queue schema ready; validated summary seeds applied.");
 	} catch {
 		throw new Error(
 			"Agent schema setup failed. Check the server database connection and schema permissions.",

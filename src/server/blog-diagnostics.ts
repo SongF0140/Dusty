@@ -1,5 +1,7 @@
 /** Safe, finite diagnostic codes; never expose provider response text. */
 export function modelFailureCode(message: string): string {
+	if (/channel.{0,20}rate.limit|模型通道.{0,12}限流/i.test(message))
+		return "model_channel_limit";
 	const status = /^(?:Error:\s*)?(?:HTTP\s*)?([45]\d\d)\b/i.exec(
 		message.trim(),
 	)?.[1];
@@ -47,6 +49,8 @@ export function modelFailureCode(message: string): string {
 }
 
 export function modelFailureMessage(code: string): string {
+	if (code === "model_channel_limit")
+		return "模型服务的当前模型通道触发限流，请稍后重试或由博主更换可用模型通道。供应商没有返回余额不足信息。";
 	if (code === "quota_expired")
 		return "模型服务账户配额已过期或失效，请在供应商控制台检查额度有效期并重新开通或领取；博客每天20次的配额仍然独立计算。";
 	if (code === "insufficient_balance")

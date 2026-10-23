@@ -15,6 +15,7 @@ import {
 	siteOrigin,
 } from "./blog-auth.ts";
 import { modelFailureMessage, observeModelFetch } from "./blog-diagnostics.ts";
+import { blogModelFetch } from "./blog-model-fetch.ts";
 import { BlogQueue, type QueueInput } from "./blog-queue.ts";
 
 export function runtimeConfigured(env: BlogAuthEnv) {
@@ -83,7 +84,7 @@ export function createBlogRuntime(
 					baseUrl: env.BLOG_LLM_BASE_URL || "",
 					model: env.BLOG_LLM_MODEL || "",
 					apiKey: env.BLOG_LLM_API_KEY || "",
-					fetch: observeModelFetch(fetcher, (code, status) => {
+					fetch: observeModelFetch(blogModelFetch(fetcher), (code, status) => {
 						modelFailure = code;
 						console.warn(
 							"Blog model rejection",

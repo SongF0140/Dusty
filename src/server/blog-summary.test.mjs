@@ -138,7 +138,26 @@ test("failed or invalid generation cannot become a cached summary", async () => 
 	);
 });
 
-test("rejects summaries above 100 characters without truncating or replacing a valid stored introduction", async () => {
+test("rewrites an oversized AI summary once instead of truncating it", async () => {
+	let calls = 0;
+	const store = cache();
+	const service = createSummaryService({
+		store,
+		model: "chosen",
+		generate: async (text, final, compact) => {
+			assert.equal(final, true);
+			if (++calls === 1) return "技术名词".repeat(30);
+			assert.equal(compact, true);
+			assert.match(text, /技术名词/);
+			return "文章介绍核心技术及其应用边界。";
+		},
+	});
+	assert.equal(await service.summarize(post), "文章介绍核心技术及其应用边界。");
+	assert.equal(calls, 2);
+});
+
+test("rejects repeated oversized summaries without truncating or replacing a valid stored introduction", async () => {
+	let calls = 0;
 	const store = cache();
 	await store.put(post.id, {
 		contentHash: summaryFingerprint(post),
@@ -148,10 +167,14 @@ test("rejects summaries above 100 characters without truncating or replacing a v
 	const service = createSummaryService({
 		store,
 		model: "chosen",
-		generate: async () => "字".repeat(101),
+		generate: async () => {
+			calls++;
+			return "字".repeat(101);
+		},
 	});
 	await assert.rejects(service.summarize(post), /摘要/);
 	assert.equal((await store.get(post.id)).summary, "原简介");
+	assert.equal(calls, 2);
 });
 
 test("one provider failure stops the remaining regeneration queue without replacing old summaries", async () => {
@@ -191,6 +214,27 @@ test("initial seeding needs no model and accepts empty or long existing descript
 		summaryFingerprint(post),
 	);
 });
+test("compact rewrite is a system instruction and the candidate stays quoted data", async () => {
+	const generate = compatibleSummaryGenerator(
+		{
+			BLOG_LLM_BASE_URL: "https://model.invalid/v1",
+			BLOG_LLM_MODEL: "test-model",
+			BLOG_LLM_API_KEY: "test-only",
+		},
+		async (_input, init) => {
+			const body = JSON.parse(init.body);
+			assert.match(body.messages[0].content, /30至50/);
+			assert.deepEqual(JSON.parse(body.messages[1].content), {
+				articleData: "候选摘要",
+			});
+			return Response.json({
+				choices: [{ message: { content: "压缩摘要。" } }],
+			});
+		},
+	);
+	assert.equal(await generate("候选摘要", true, true), "压缩摘要。");
+});
+
 test("compatible generator uses the configured model, makes one attempt and hides upstream errors", async () => {
 	let calls = 0;
 	const generate = compatibleSummaryGenerator(

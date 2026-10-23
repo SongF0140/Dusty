@@ -18,6 +18,8 @@
 | `BLOG_SITE_URL` | Config | `https://mjzy.tech`，不带路径 |
 | `BLOG_SUMMARY_ENABLED` | Config | `true`（默认）重建100字内 AI 摘要；`false` 暂停生成 |
 
+当前生产模型使用 DeepSeek 官方接口：`BLOG_LLM_BASE_URL=https://api.deepseek.com`、`BLOG_LLM_MODEL=deepseek-flash`。官方地址的问答和摘要请求明确设置 `thinking.type=disabled`，保留现有输出预算，避免短摘要或工具回合依赖思考内容；其他兼容接口保持原协议。API Key 仅配置在服务端环境变量中。
+
 创建 GitHub OAuth App：
 
 1. 打开 [GitHub Developer settings](https://github.com/settings/developers)，选择 OAuth Apps → New OAuth App。
@@ -39,9 +41,11 @@ Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`�
 
 构建也会确保摘要表存在，并执行 `006-align-initial-summary-baselines.sql`：初始 SQL 来自本地旧文章版本，有 13 篇在首次发布前已更新。该迁移仅对匹配旧种子哈希的 `manual` 行对齐正文基准，保留简介文字；不覆盖模型摘要、其他正文版本或后续编辑。之后正文再变化仍会触发模型更新。
 
-当前使用 `blog-summary-v3-ai-100`：公开文章的旧简介、旧模型摘要会在启用模型的下一次构建中重新生成。模型阅读全部正文，长文先分段概括，再重写为50至90字、严格不超过100字符（含标点）的摘要；不截取文章开头，不截断超长生成结果。文章简介、标题下动画和 RAG 目录共用这段摘要。
+当前使用 `blog-summary-v3-ai-100`：公开文章的旧简介、旧模型摘要会在启用模型的下一次构建中重新生成。模型阅读全部正文，长文先分段概括，再重写为40至70字符、严格不超过100字符（含标点）的摘要；不截取文章开头，不截断超长生成结果；首次超过100字符时最多再压缩一次，仍超限则不写入缓存。文章简介、标题下动画和 RAG 目录共用这段摘要。
 
 `007-ai-summary-version.sql` 增加缓存版本字段；只有有效的新摘要生成后才替换原记录。完成一次重建后，同一正文和摘要版本复用缓存；标题、模型变化或重复部署不重复生成。正文变化会更新摘要。调用串行执行，供应商或摘要格式第一次失败后停止本次构建的剩余生成，避免持续打满配额。失败构建不会替换线上网站，已完成的合法摘要保留以供下次续建。
+
+`008-seed-ai-summaries.sql` 提供本地 DeepSeek 真实构建验证过的123篇公开摘要，均不超过100字符。构建自动导入：只替换正文哈希相同的旧版摘要，保留已有新版模型摘要；正文已变化的记录由 loader 正常重建，避免首次上线再重复生成整批摘要。
 
 模型摘要由 Astro loader 写入集合 `description`，文章卡片、标题下逐字动画和 RAG 目录共用，不修改 Markdown frontmatter。访客打开文章只播放动画，内容变化需重新构建部署。有 Neon 可跨部署复用；本地无数据库则使用 `cache/blog-summaries-v2.json`。
 

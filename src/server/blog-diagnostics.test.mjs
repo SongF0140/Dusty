@@ -51,6 +51,16 @@ test("separates expired quota, exhausted credit and rate limiting instead of cal
 	for (const [status, body, expected] of [
 		[
 			429,
+			{
+				error: {
+					message: "Channel rate limit reached for model",
+					type: "rate_limit_exceeded",
+				},
+			},
+			"model_channel_limit",
+		],
+		[
+			429,
 			{ error: { code: "quota_expired", message: "quota expired" } },
 			"quota_expired",
 		],
