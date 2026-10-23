@@ -30,9 +30,10 @@ const entries = await Promise.all(
   }),
 );
 const assets = Object.fromEntries(entries);
+// Concealed image placeholder only; the browser selects the first actual scene.
 const initial = assets.bubbles;
 ---
-<garden-companion data-scene="bubbles" data-action="bubbles" data-posture="standing" data-reaction="none" data-frame="0" data-active="false" data-ready="false" role="img" aria-label="海问香在花园里吹泡泡">
+<garden-companion data-scene="" data-action="" data-posture="standing" data-reaction="none" data-frame="0" data-active="false" data-ready="false" role="img" aria-label="海问香的花园">
   <script is:inline type="application/json" data-garden-assets set:html={JSON.stringify(assets)} />
   <img class="garden-scene" data-garden-scene src={initial.background} width={day.attributes.width} height={day.attributes.height} alt="" decoding="async" loading="eager" aria-hidden="true" />
   <span class="garden-shadow" aria-hidden="true"></span>

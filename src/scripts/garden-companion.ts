@@ -74,7 +74,8 @@ class GardenCompanion extends HTMLElement {
 		document.addEventListener("visibilitychange", update, options);
 		this.reducedMotion.addEventListener("change", update, options);
 		portrait.addEventListener("portrait:interact", () => this.greet(), options);
-		void this.loadScene(this.motion.scene);
+		// Choose in the visitor's browser, including the very first reveal.
+		void this.loadScene(chooseGardenScene());
 	}
 
 	private async loadScene(id: GardenSceneId) {

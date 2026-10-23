@@ -12,6 +12,13 @@ const ids = [
 	"flute",
 ];
 
+test("the first reveal samples all seven scenes equally without excluding bubbles", () => {
+	const selected = ids.map((_, index) =>
+		garden.chooseGardenScene(undefined, () => (index + 0.5) / ids.length),
+	);
+	assert.deepEqual(selected, ids);
+});
+
 test("a new flip chooses a different scene, including random endpoint values", () => {
 	assert.equal(typeof garden.chooseGardenScene, "function");
 	for (const previous of ids) {
