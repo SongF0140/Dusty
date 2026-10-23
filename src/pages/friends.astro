@@ -2,7 +2,8 @@
 import { getEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import Comment from "@components/comment/index.astro";
-import { commentConfig, friendsPageConfig, getEnabledFriends, siteConfig } from "@/config";
+import ImageWrapper from "@components/common/ImageWrapper.astro";
+import { commentConfig, friendsPageConfig, getEnabledFriends, profileConfig, siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { url } from "@/utils/url-utils";
 import { isGithubCommentsConfigured } from "@/utils/github-comments";
@@ -11,11 +12,11 @@ import "../styles/friends.css";
 if (!siteConfig.pages.friends) return Astro.redirect("/404/");
 const friendsPost = await getEntry("spec", "friends");
 const items = getEnabledFriends();
-const groups = [
-    { name: "熟人", description: "生活里认识，也在网上相遇的朋友。", icon: "material-symbols:group-outline-rounded" },
-    { name: "友链小伙伴", description: "通过博客结识、交换友链的小伙伴。", icon: "material-symbols:link-rounded" },
-    { name: "单向关注", description: "单向关注、常去阅读的独立站点。", icon: "material-symbols:bookmark-outline-rounded" },
-];
+const nodes = items.map((friend, index) => {
+    const angle = (-110 + index * 360 / items.length) * Math.PI / 180;
+    return { ...friend, x: 50 + Math.cos(angle) * 38, y: 50 + Math.sin(angle) * 36 };
+});
+const siteHost = Astro.site?.hostname || "mjzy.tech";
 const isCommentEnabled = commentConfig.type !== "none" && friendsPageConfig.showComment !== false;
 const canUseComments = isCommentEnabled && (commentConfig.type !== "giscus" || isGithubCommentsConfigured(commentConfig.giscus));
 const initialPreview = [
@@ -24,42 +25,34 @@ const initialPreview = [
 ].join("\n");
 ---
 
-<MainGridLayout title="友情链接" description="通过博客相识，在文字与代码之间串门。">
+<MainGridLayout title="友情链接" description="一步一个脚印，让我们一起成长🌟">
     <friends-directory class="friends-page card-base">
         <header class="friends-heading">
-            <p class="friends-eyebrow">FRIENDS & NEIGHBORS</p>
-            <h1>友情链接<span class="friends-heading-mark" aria-hidden="true"><Icon name="material-symbols:link-rounded" /></span></h1>
-            <p class="friends-summary"><strong>{items.length}</strong> 位朋友<span>通过博客相识，在文字与代码之间串门。</span></p>
+            <h1>Friend Links</h1>
+            <p class="friends-summary">一步一个脚印，让我们一起成长🌟</p>
         </header>
-        <nav class="friends-tabs" aria-label="友链分类">
-            {[{ name: "全部" }, ...groups].map(group => (
-                <button type="button" data-friend-filter={group.name} aria-pressed={group.name === "全部"}>
-                    {group.name}<sup>{group.name === "全部" ? items.length : items.filter(item => (item.category || "友链小伙伴") === group.name).length}</sup>
-                </button>
+        <div class="friends-constellation" role="group" aria-label="朋友与我的连接">
+            <svg class="friend-connections" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true">
+                {nodes.map(node => <line x1="500" y1="325" x2={node.x * 10} y2={node.y * 6.5} />)}
+            </svg>
+            <a class="friend-center" href={url("/about/")} aria-label={`关于 ${profileConfig.name}`}>
+                <div class="friend-center-portrait"><ImageWrapper src={profileConfig.avatar || "assets/images/profile/author-portrait.png"} alt={profileConfig.name} loading="eager" widths={[160, 320]} sizes="144px" /></div>
+                <span>{siteHost}</span>
+            </a>
+            {nodes.map((node, index) => (
+                <a class:list={["friend-node", { "friend-node-right": node.x > 65, "friend-node-left": node.x < 35, "friend-node-top": node.y < 30 }]} style={`--node-x:${node.x}%;--node-y:${node.y}%;`} href={node.siteurl} target="_blank" rel="noopener noreferrer" aria-label={`访问 ${node.title}`} aria-describedby={`friend-info-${index}`} data-swup-ignore>
+                    <span class="friend-node-portrait"><span aria-hidden="true">{node.title.slice(0, 1)}</span><img src={node.imgurl} alt="" loading="lazy" referrerpolicy="no-referrer" /></span>
+                    <span class="friend-node-info" id={`friend-info-${index}`} role="tooltip">
+                        <strong>{node.title}</strong>
+                        {node.owner && <span class="friend-node-owner">{node.owner}</span>}
+                        <span class="friend-node-description">{node.desc}</span>
+                        <span class="friend-node-category">{node.category || "友链小伙伴"}</span>
+                        <span class="friend-node-domain">{new URL(node.siteurl).hostname}<span aria-hidden="true">↗</span></span>
+                    </span>
+                </a>
             ))}
-        </nav>
-        {groups.map(group => {
-            const members = items.filter(item => (item.category || "友链小伙伴") === group.name);
-            return members.length > 0 && (
-                <section class="friends-group" data-friend-group={group.name}>
-                    <h2><Icon name={group.icon} />{group.name}<span class="friends-rule"></span><small>{members.length}</small></h2>
-                    <p>{group.description}</p>
-                    <div class="friends-grid">
-                        {members.map(item => (
-                            <a class="friend-card" href={item.siteurl} target="_blank" rel="noopener noreferrer">
-                                <img src={item.imgurl} alt={`${item.title}的头像`} loading="lazy" style={`--friend-color: ${/^#[0-9a-f]{3,8}$/i.test(item.color || "") ? item.color : "var(--retro-green)"}`} />
-                                <div><h3>{item.title}{item.owner && <span>{item.owner}</span>}</h3><p>{item.desc}</p></div>
-                                <Icon name="material-symbols:arrow-outward-rounded" class="friend-arrow" />
-                            </a>
-                        ))}
-                    </div>
-                </section>
-            );
-        })}
-        <div class="friends-empty" data-friends-empty hidden={items.length > 0}>
-            <span class="friends-empty-symbol" aria-hidden="true"><Icon name="material-symbols:link-rounded" /></span>
-            <div><h2>这里的位置，留给未来的朋友</h2><p>暂时还没有添加友链。欢迎带着你的网站来串门。</p></div>
         </div>
+        <p class="friends-count">{items.length} 位朋友</p>
 
         {friendsPageConfig.showCustomContent !== false && (
             <section class="friend-application" aria-labelledby="friend-application-heading">
@@ -111,14 +104,11 @@ class FriendsDirectory extends HTMLElement {
         form?.addEventListener("submit", event => event.preventDefault(), { signal });
         this.addEventListener("click", async event => {
             const target = event.target instanceof Element ? event.target : null;
-            const filter = target?.closest<HTMLButtonElement>("[data-friend-filter]");
-            if (filter) {
-                const selected = filter.dataset.friendFilter;
-                this.querySelectorAll<HTMLButtonElement>("[data-friend-filter]").forEach(button => button.setAttribute("aria-pressed", String(button === filter)));
-                let count = 0;
-                this.querySelectorAll<HTMLElement>("[data-friend-group]").forEach(group => { group.hidden = selected !== "全部" && group.dataset.friendGroup !== selected; if (!group.hidden) count++; });
-                const empty = this.querySelector<HTMLElement>("[data-friends-empty]");
-                if (empty) empty.hidden = count > 0;
+            const node = target?.closest<HTMLAnchorElement>(".friend-node");
+            if (node && matchMedia("(hover: none)").matches && !node.classList.contains("friend-node-open")) {
+                event.preventDefault();
+                this.querySelectorAll(".friend-node-open").forEach(item => item.classList.remove("friend-node-open"));
+                node.classList.add("friend-node-open");
             }
             const copy = target?.closest<HTMLButtonElement>("[data-copy-friend]");
             if (copy && preview && status) {
@@ -130,6 +120,15 @@ class FriendsDirectory extends HTMLElement {
                 }
             }
         }, { signal });
+        document.addEventListener("pointerdown", event => {
+            if (!(event.target instanceof Element) || !event.target.closest(".friend-node"))
+                this.querySelectorAll(".friend-node-open").forEach(item => item.classList.remove("friend-node-open"));
+        }, { signal });
+        this.querySelectorAll<HTMLImageElement>(".friend-node img").forEach(image => {
+            const failed = () => { image.hidden = true; };
+            image.addEventListener("error", failed, { signal });
+            if (image.complete && !image.naturalWidth) failed();
+        });
     }
     disconnectedCallback() { this.controller?.abort(); }
 }
