@@ -58,6 +58,15 @@ export const friendsConfig: FriendLink[] = [
 		weight: 8,
 		enabled: true,
 	},
+	{
+		title: "Zaixi Personal Blog",
+		imgurl: "https://lizaixi01.github.io/assets/avatar.webp",
+		desc: "AI Agent & Full-Stack Developer",
+		siteurl: "https://lizaixi01.github.io/",
+		category: "友链小伙伴",
+		weight: 7,
+		enabled: true,
+	},
 ];
 
 // 获取启用的友链并进行排序
