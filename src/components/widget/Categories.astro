@@ -6,6 +6,7 @@ import type { WidgetComponentConfig } from "@/types/config";
 import { getCategoryList } from "@/utils/content-utils";
 
 const categories = await getCategoryList();
+const categoryTones = new Map(categories.map((category, index) => [category.name.trim(), index % 4]));
 
 interface GroupedCategory {
 	name: string;
@@ -112,6 +113,7 @@ const showTitle = widgetConfig?.showTitle !== false;
 							<a
 								href={c.url}
 								class="shadow-btn"
+								data-category-tone={categoryTones.get(c.name) ?? 0}
 								aria-label={`View all posts in the ${c.name} category`}
 							>
 								<span class="shadow-btn-label">{c.name}</span>

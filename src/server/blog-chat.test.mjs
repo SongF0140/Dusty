@@ -27,10 +27,12 @@ const body = {
 	articleIds: ["git"],
 	identity: { id: "forged" },
 };
+const quota = async () => ({ limit: 20, used: 1, remaining: 19, day: "2026-10-23", resetsAt: "2026-10-23T16:00:00.000Z" });
 test("enqueues only the signed GitHub identity and returns before executing the agent", async () => {
 	let input;
 	const runtime = {
 		queue: {
+			quota,
 			enqueue: async (value) => {
 				input = value;
 				return "pending";
@@ -75,6 +77,7 @@ test("rejects anonymous, cross-origin, unknown articles and missing configuratio
 test("polling is account-scoped and quota errors are 429", async () => {
 	const runtime = {
 		queue: {
+			quota,
 			status: async (user, id) => {
 				assert.equal(user, "12");
 				assert.equal(id, "r1");
@@ -95,6 +98,48 @@ test("polling is account-scoped and quota errors are 429", async () => {
 	);
 	assert.equal((await polled.json()).answer, "回答");
 	assert.equal((await handleBlogChat(request(body), env, deps)).status, 429);
+});
+
+test("remaining quota is private to the signed visitor, never a browser-supplied identity", async () => {
+	const seen = [];
+	const deps = { runtime: () => ({ queue: { quota: async id => { seen.push(id); return { ...(await quota()), remaining: id === "12" ? 13 : 20 }; } } }), defer() {} };
+	for (const id of ["12", "99"]) {
+		const token = signBlogToken({ purpose: "session", id, login: "reader", exp: Date.now() + 60000 }, env);
+		const response = await handleBlogChat(new Request("https://blog.test/api/blog-chat?identity=forged", { headers: { cookie: `blog_session=${token}` } }), env, deps);
+		assert.equal((await response.json()).quota.remaining, id === "12" ? 13 : 20);
+	}
+	assert.deepEqual(seen, ["12", "99"]);
+});
+
+test("ambiguous homepage reading asks for a title without queuing a random post", async () => {
+	const deps = { runtime: () => ({ queue: { quota, enqueue: () => assert.fail("must not queue ambiguous reading") }, catalog: async () => ({ list: () => [{ id: "git", title: "Git", url: "/posts/git/" }] }) }), defer() {} };
+	const response = await handleBlogChat(request({ ...body, question: "陪我梳理一下这篇文章的主要内容吧。", articleIds: [], pagePath: "/" }), env, deps);
+	assert.equal(response.status, 200);
+	const data = await response.json();
+	assert.match(data.answer, /标题|博文/);
+	assert.equal(data.modelCalls, 0);
+	assert.deepEqual(data.sources, []);
+});
+
+test('explicit titles and a real article page still enqueue, but homepage stale selection is ignored',async()=>{
+    const queued=[];
+    const deps={runtime:()=>({queue:{quota,enqueue:async item=>{queued.push(item);return 'pending';}},catalog:async()=>({list:()=>[{id:'git',title:'Git 撤销与回退',url:'/posts/git/'}]}),wake:async()=>{}}),defer(){}};
+    const named=await handleBlogChat(request({...body,question:'这篇《Git 撤销与回退》讲什么？',articleIds:[],pagePath:'/'}),env,deps);
+    assert.equal(named.status,202);
+    const current=await handleBlogChat(request({...body,question:'这篇文章讲什么？',articleIds:['git'],pagePath:'/posts/git/'}),env,deps);
+    assert.equal(current.status,202);
+    assert.deepEqual(queued[1].articleIds,['git']);
+    const stale=await handleBlogChat(request({...body,question:'这篇文章讲什么？',articleIds:['git'],pagePath:'/'}),env,deps);
+    assert.equal(stale.status,200);
+    assert.equal(queued.length,2);
+});
+
+test('a failed quota display lookup does not lose an accepted job or skip waking it',async()=>{
+    let woke=false;
+    const response=await handleBlogChat(request(body),env,{runtime:()=>({queue:{quota:async()=>{throw Error('offline');},enqueue:async()=> 'pending'},catalog:async()=>({list:()=>[{id:'git'}]}),wake:async()=>{woke=true;}}),defer(){}});
+    assert.equal(response.status,202);
+    assert.equal((await response.json()).quota,null);
+    assert.equal(woke,true);
 });
 
 test("stream subscriptions require a session and only read that account's queued answer", async () => {

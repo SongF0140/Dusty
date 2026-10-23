@@ -9,6 +9,10 @@ import {
 	PostgresRunStore,
 } from "../../vendor/starrylin/agent.mjs";
 import { sanitizeAssistantAnswer } from "../utils/blog-assistant-policy.ts";
+import {
+	ARTICLE_READING_INVITATION,
+	needsArticleClarification,
+} from "../utils/blog-reading-context.ts";
 import { streamingBlogModel } from "./blog-agent-stream.ts";
 import {
 	authConfigured,
@@ -70,12 +74,27 @@ export function createBlogRuntime(
 		async ask(input: QueueInput, onText: (text: string) => void = () => {}) {
 			let modelFailure: string | undefined;
 			const posts = await catalog();
+			if (
+				needsArticleClarification(
+					input.question,
+					input.articleIds || [],
+					posts.list(),
+				)
+			) {
+				onText(ARTICLE_READING_INVITATION);
+				return {
+					answer: ARTICLE_READING_INVITATION,
+					sources: [],
+					modelCalls: 0,
+					toolCalls: 0,
+				};
+			}
 			const selected = posts
 				.list()
 				.filter((post) => input.articleIds?.includes(post.id));
 			const selectedContext = selected.length
 				? `\n\n用户当前选中的公开博文：${selected.map((post) => `${post.title}（${post.id}）`).join("、")}`
-				: "";
+				: "\n\n当前未选中博文。若问‘这篇文章’等指代不明的问题，应先邀请用户进入博文或提供标题。有明确主题的知识问题可正常检索，但不能把检索到的第一篇擅自当作当前文章。";
 			const question =
 				input.question +
 				selectedContext.slice(0, Math.max(0, 4000 - input.question.length));

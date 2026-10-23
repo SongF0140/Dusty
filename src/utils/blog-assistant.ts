@@ -3,6 +3,7 @@ import {
 	sanitizeAssistantAnswer,
 } from "./blog-assistant-policy.ts";
 import type { ArticleSearch, BlogArticle } from "./blog-rag.ts";
+import { refersToArticle } from "./blog-reading-context.ts";
 
 const filler = new Set([
 	"请",
@@ -59,6 +60,7 @@ export async function askBlogAssistant(
 		onStatus?(status: string): void;
 		onPartial?(text: string): void;
 		onEnqueued?(): void;
+		onQuota?(quota: unknown): void;
 		wait?(): Promise<void>;
 	},
 ): Promise<{ content: string }> {
@@ -72,9 +74,7 @@ export async function askBlogAssistant(
 			return false;
 		}
 	});
-	const referringToPage = /这篇|本文|本篇|这个判断|核心观点|结论的边界/.test(
-		question,
-	);
+	const referringToPage = refersToArticle(question);
 	const selected =
 		assistantQuestionKind(question) === "greeting"
 			? []
@@ -91,9 +91,11 @@ export async function askBlogAssistant(
 			requestId: deps.requestId || crypto.randomUUID(),
 			conversationId: deps.conversationId || crypto.randomUUID(),
 			articleIds: selected.map((article) => article.id),
+			pagePath: deps.pagePath,
 		}),
 	});
 	const data = await response.json();
+	if ("quota" in data) deps.onQuota?.(data.quota);
 	if (!response.ok)
 		throw new Error(
 			typeof data.error === "string" ? data.error : "助手服务暂时不可用",

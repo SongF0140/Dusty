@@ -1,4 +1,5 @@
 import { askBlogAssistant, pollBlogAssistant } from "../utils/blog-assistant";
+import { readBlogQuota } from "../utils/blog-quota.ts";
 import type { BlogArticle } from "../utils/blog-rag";
 import {
 	clearAssistantState,
@@ -47,10 +48,12 @@ function appendInline(target: HTMLElement, content: string) {
 	}
 	target.append(document.createTextNode(content.slice(offset)));
 }
+
 interface Pending {
 	id: string;
 	question: string;
 	conversationId: string;
+	pagePath?: string;
 }
 class BlogAssistant extends HTMLElement {
 	private dispose?: () => void;
@@ -85,6 +88,41 @@ class BlogAssistant extends HTMLElement {
 		const form = required<HTMLFormElement>(this, "form");
 		const send = required<HTMLButtonElement>(this, "button[type=submit]");
 		const note = required<HTMLElement>(this, "#assistant-send-note");
+		const quotaLabel = required<HTMLElement>(this, "[data-assistant-quota]");
+		let quotaVersion = 0;
+		const updateQuota = (value: unknown) => {
+			quotaVersion++;
+			const quota = readBlogQuota(value);
+			quotaLabel.hidden = !account;
+			quotaLabel.textContent = quota
+				? `今日剩余 ${quota.remaining} / ${quota.limit} 次`
+				: "次数暂不可用";
+		};
+		let refreshingQuota = false;
+		const refreshQuota = async () => {
+			if (!account || refreshingQuota || lifetime.signal.aborted) return;
+			refreshingQuota = true;
+			const version = quotaVersion;
+			try {
+				const response = await fetch("/api/blog-chat", {
+					signal: lifetime.signal,
+					cache: "no-store",
+				});
+				if (!response.ok) throw Error();
+				const config = await response.json();
+				if (String(config.user?.id) === account) {
+					if (version === quotaVersion) updateQuota(config.quota);
+				} else {
+					ready = false;
+					updateQuota(null);
+				}
+			} catch {
+				if (!lifetime.signal.aborted && version === quotaVersion)
+					updateQuota(null);
+			} finally {
+				refreshingQuota = false;
+			}
+		};
 		const status = required<HTMLElement>(this, "[data-assistant-save-status]");
 		const messages = required<HTMLElement>(this, "[data-assistant-messages]");
 		const empty = required<HTMLElement>(this, "[data-assistant-empty]");
@@ -203,6 +241,7 @@ class BlogAssistant extends HTMLElement {
 				const deps = {
 					fetch: window.fetch.bind(window),
 					signal,
+					onQuota: updateQuota,
 					onPartial: (text: string) => {
 						if (signal.aborted) return;
 						showAnswer(text);
@@ -217,7 +256,7 @@ class BlogAssistant extends HTMLElement {
 							requestId: item.id,
 							onEnqueued: releaseSubmission,
 							conversationId: item.conversationId,
-							pagePath: location.pathname,
+							pagePath: item.pagePath || "/",
 						});
 				if (signal.aborted) return;
 				showAnswer(result.content);
@@ -230,7 +269,7 @@ class BlogAssistant extends HTMLElement {
 						Math.max(1500, Array.from(result.content).length * 65),
 					),
 				);
-				note.textContent = "每天可聊 20 次";
+				note.textContent = "";
 			} catch (error) {
 				if (signal.aborted) return;
 				const reason =
@@ -259,6 +298,7 @@ class BlogAssistant extends HTMLElement {
 					dirty = true;
 					save();
 					render();
+					void refreshQuota();
 				}
 			}
 		};
@@ -386,7 +426,12 @@ class BlogAssistant extends HTMLElement {
 				} catch {
 					/* Questions can still be sent when browser storage is blocked. */
 				}
-				const item = { id: crypto.randomUUID(), question, conversationId };
+				const item = {
+					id: crypto.randomUUID(),
+					question,
+					conversationId,
+					pagePath: location.pathname,
+				};
 				pending.set(item.id, item);
 				savePending();
 				state.messages.push({ id: item.id, role: "user", content: question });
@@ -394,7 +439,7 @@ class BlogAssistant extends HTMLElement {
 				dirty = true;
 				save();
 				render();
-				note.textContent = "每天可聊 20 次";
+				note.textContent = "";
 				conversation.scrollTop = conversation.scrollHeight;
 				void waitFor(item);
 			},
@@ -419,6 +464,7 @@ class BlogAssistant extends HTMLElement {
 				if (config.user) {
 					const guestDraft = input.value;
 					account = String(config.user.id);
+					updateQuota(config.quota);
 					state = loadAssistantState(storage());
 					input.value = state.draft || guestDraft;
 					try {
@@ -444,7 +490,7 @@ class BlogAssistant extends HTMLElement {
 						? "请使用 GitHub 登录"
 						: "等待 GitHub 登录配置";
 				note.textContent = ready
-					? "每天可聊 20 次"
+					? ""
 					: config.authConfigured
 						? "请先使用 GitHub 登录"
 						: "博主尚未配置 GitHub 登录";
@@ -457,10 +503,38 @@ class BlogAssistant extends HTMLElement {
 				}
 			});
 		window.addEventListener("pagehide", save, options);
+		window.addEventListener(
+			"focus",
+			() => {
+				void refreshQuota();
+			},
+			options,
+		);
+		const quotaTimer = setInterval(() => {
+			const drawer = this.closest<HTMLElement>("#command-navigation");
+			if (
+				!document.hidden &&
+				drawer &&
+				!drawer.inert &&
+				drawer.dataset.mode === "assistant"
+			)
+				void refreshQuota();
+		}, 60000);
+		const drawer = this.closest<HTMLElement>("#command-navigation");
+		const quotaVisibility = new MutationObserver(() => {
+			if (drawer && !drawer.inert && drawer.dataset.mode === "assistant")
+				void refreshQuota();
+		});
+		if (drawer)
+			quotaVisibility.observe(drawer, {
+				attributes: true,
+				attributeFilter: ["inert", "data-mode"],
+			});
 		document.addEventListener(
 			"visibilitychange",
 			() => {
 				if (document.hidden) save();
+				else void refreshQuota();
 			},
 			options,
 		);
@@ -468,6 +542,8 @@ class BlogAssistant extends HTMLElement {
 			save();
 			savePending();
 			clearTimeout(timer);
+			clearInterval(quotaTimer);
+			quotaVisibility.disconnect();
 			stopSpeaking();
 			for (const controller of controllers) controller.abort();
 			lifetime.abort();

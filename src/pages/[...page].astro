@@ -3,6 +3,7 @@ import type { GetStaticPaths } from "astro";
 import { Icon } from "astro-icon/components";
 import Pagination from "@/components/common/Pagination.astro";
 import PostPage from "@/components/layout/PostPage.astro";
+import NewspaperPlayground from "@/components/features/NewspaperPlayground.astro";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getCategoryList, getSortedPosts } from "@/utils/content-utils";
@@ -36,6 +37,7 @@ const recentPosts = isHome
   {
     isHome ? (
       <>
+      <NewspaperPlayground />
       <section class="newspaper-welcome" aria-labelledby="newspaper-welcome-title">
         <div class="newspaper-dateline"><span>私人发行 · 不定期更新</span><span>已刊 {totalPosts} 篇</span></div>
         <header class="newspaper-title-row">

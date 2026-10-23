@@ -114,6 +114,10 @@
 :root.dark :is(.category-section-card, .shadow-btn, .category-pill):nth-child(4n + 2) { --night-accent: var(--night-blue); }
 :root.dark :is(.category-section-card, .shadow-btn, .category-pill):nth-child(4n + 3) { --night-accent: var(--night-yellow); }
 :root.dark :is(.category-section-card, .shadow-btn, .category-pill):nth-child(4n + 4) { --night-accent: var(--night-pink); }
+:root.dark .category-group-body .shadow-btn[data-category-tone="0"] { --night-accent: var(--night-mint); }
+:root.dark .category-group-body .shadow-btn[data-category-tone="1"] { --night-accent: var(--night-blue); }
+:root.dark .category-group-body .shadow-btn[data-category-tone="2"] { --night-accent: var(--night-yellow); }
+:root.dark .category-group-body .shadow-btn[data-category-tone="3"] { --night-accent: var(--night-pink); }
 
 :root.dark .home-category-board .category-section-card {
   border-color: color-mix(in srgb, var(--night-accent) 60%, var(--retro-surface));
@@ -373,6 +377,13 @@ body #navbar.retro-navbar > div {
 .home-category-board .category-section-card:nth-child(4n + 2) { background: color-mix(in srgb, var(--retro-blue) 82%, var(--retro-surface)); }
 .home-category-board .category-section-card:nth-child(4n + 3) { background: color-mix(in srgb, var(--retro-yellow) 78%, var(--retro-surface)); }
 .home-category-board .category-section-card:nth-child(4n + 4) { background: color-mix(in srgb, var(--retro-red) 72%, var(--retro-surface)); }
+
+/* Give the sidebar the same color as each category's main reading card. */
+.category-group-body .shadow-btn { color: var(--retro-ink); background: color-mix(in srgb, var(--retro-sage) 84%, var(--retro-surface)); }
+.category-group-body .shadow-btn[data-category-tone="1"] { background: color-mix(in srgb, var(--retro-blue) 82%, var(--retro-surface)); }
+.category-group-body .shadow-btn[data-category-tone="2"] { background: color-mix(in srgb, var(--retro-yellow) 78%, var(--retro-surface)); }
+.category-group-body .shadow-btn[data-category-tone="3"] { background: color-mix(in srgb, var(--retro-red) 72%, var(--retro-surface)); }
+.category-group-body .shadow-btn:hover { filter: brightness(1.03); }
 
 .home-category-board .category-section-card:hover {
   border-color: var(--retro-outline);

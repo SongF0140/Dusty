@@ -132,6 +132,18 @@ test("API failure is surfaced instead of becoming an assistant reply", async () 
 	);
 });
 
+test('quota updates arrive on enqueue and rejection, and the submitted page is explicit', async()=>{
+    for(const status of [200,429]) {
+        let received;
+        const result=askBlogAssistant('Git 怎么用？',corpus,{
+            pagePath:'/',onQuota:q=>{received=q.remaining;},
+            fetch:async(_url,init)=>{assert.equal(JSON.parse(init.body).pagePath,'/');return Response.json({answer:'回答',sources:[],quota:{remaining:status===200?19:0},error:'今天的次数用完了'},{status});}
+        });
+        if(status===429)await assert.rejects(result,/次数/);else await result;
+        assert.equal(received,status===200?19:0);
+    }
+});
+
 test("queued answers poll without resubmitting and accept only public source links", async () => {
 	let posts = 0;
 	let polls = 0;

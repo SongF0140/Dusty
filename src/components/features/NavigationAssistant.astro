@@ -46,7 +46,7 @@ import AssistantWaterFrame from "./AssistantWaterFrame.astro";
             <div data-assistant-messages role="log" aria-live="polite" aria-relevant="additions text"></div>
         </div>
         <form class="assistant-composer" aria-label="给 StarryLin/Geek 写下问题">
-            <div class="assistant-composer-meta"><span id="assistant-send-note" role="status" aria-live="polite"></span></div>
+            <div class="assistant-composer-meta"><span id="assistant-send-note" role="status" aria-live="polite"></span><span data-assistant-quota role="status" aria-live="polite" hidden></span></div>
             <label class="assistant-accessible" for="haiwenxiang-draft">和 StarryLin 聊聊</label>
             <textarea id="haiwenxiang-draft" name="draft" maxlength="4000" rows="2" placeholder="和 StarryLin 聊聊…" aria-describedby="assistant-send-note" spellcheck="false"></textarea>
             <div class="assistant-composer-actions"><button type="button" data-assistant-clear>清空对话</button><button type="submit" disabled aria-label="发送消息">发送</button></div>

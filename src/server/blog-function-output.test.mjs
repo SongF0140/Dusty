@@ -32,6 +32,7 @@ test("compiled Vercel functions load and serve status without TypeScript sources
 			"api/blog-chat.ts",
 			"api/blog-worker.ts",
 			"src/utils/blog-assistant-policy.ts",
+			"src/utils/blog-reading-context.ts",
 			...[
 				"blog-auth",
 				"blog-chat",

@@ -1,4 +1,9 @@
 import {
+	ARTICLE_READING_INVITATION,
+	needsArticleClarification,
+	refersToArticle,
+} from "../utils/blog-reading-context.ts";
+import {
 	type createBlogRuntime,
 	runtimeConfigured,
 } from "./blog-agent-runtime.ts";
@@ -21,14 +26,24 @@ export async function handleBlogChat(
 	const user = readBlogSession(request, env);
 	const configured = runtimeConfigured(env);
 	const requestId = new URL(request.url).searchParams.get("requestId");
-	if (request.method === "GET" && !requestId)
+	if (request.method === "GET" && !requestId) {
+		let quota: Awaited<ReturnType<Runtime["queue"]["quota"]>> | null = null;
+		if (user && configured) {
+			try {
+				quota = await deps.runtime().queue.quota(user.id);
+			} catch {
+				/* Missing quota must stay unknown, rather than claiming 20 available. */
+			}
+		}
 		return json({
 			configured,
 			authConfigured: authConfigured(env),
 			user,
 			engine: "StarryLin",
 			dailyLimit: 20,
+			quota,
 		});
+	}
 	if (!["GET", "POST"].includes(request.method))
 		return json({ error: "仅支持 GET 或 POST" }, 405);
 	if (!configured)
@@ -37,6 +52,7 @@ export async function handleBlogChat(
 		return json({ error: "请先使用 GitHub 登录。", loginRequired: true }, 401);
 	try {
 		const runtime = deps.runtime();
+		const readQuota = () => runtime.queue.quota(user.id).catch(() => null);
 		const wake = () => deps.defer(runtime.wake().catch(() => undefined));
 		if (request.method === "GET") {
 			if (!requestId || !/^[\w-]{1,128}$/.test(requestId))
@@ -68,6 +84,7 @@ export async function handleBlogChat(
 			conversationId?: unknown;
 			question?: unknown;
 			articleIds?: unknown;
+			pagePath?: unknown;
 		};
 		try {
 			body = JSON.parse(raw);
@@ -83,6 +100,10 @@ export async function handleBlogChat(
 				(id) => typeof id === "string" && /^[\w-]{1,128}$/.test(id),
 			) ||
 			!Array.isArray(body.articleIds) ||
+			(body.pagePath !== undefined &&
+				(typeof body.pagePath !== "string" ||
+					!body.pagePath.startsWith("/") ||
+					body.pagePath.length > 2000)) ||
 			body.articleIds.length > 3 ||
 			body.articleIds.some((id) => typeof id !== "string" || id.length > 1000)
 		)
@@ -90,16 +111,40 @@ export async function handleBlogChat(
 		const known = (await runtime.catalog()).list();
 		if (body.articleIds.some((id) => !known.some((post) => post.id === id)))
 			return json({ error: "文章不在公开目录中" }, 400);
+		let articleIds = body.articleIds as string[];
+		if (typeof body.pagePath === "string" && refersToArticle(body.question)) {
+			const current = known.find((post) => {
+				try {
+					return (
+						decodeURIComponent(post.url).replace(/\/$/, "") ===
+						decodeURIComponent(body.pagePath as string).replace(/\/$/, "")
+					);
+				} catch {
+					return false;
+				}
+			});
+			articleIds = current ? [current.id] : [];
+		}
+		if (needsArticleClarification(body.question, articleIds, known))
+			return json({
+				answer: ARTICLE_READING_INVITATION,
+				sources: [],
+				modelCalls: 0,
+				toolCalls: 0,
+				quota: await readQuota(),
+			});
 		const state = await runtime.queue.enqueue({
 			identity: { provider: "github", id: user.id },
 			requestId: body.requestId as string,
 			conversationId: body.conversationId as string,
 			question: body.question.trim(),
-			articleIds: body.articleIds as string[],
+			articleIds,
 		});
+		const quota = await readQuota();
 		if (["conflict", "forbidden", "quota"].includes(state))
 			return json(
 				{
+					quota,
 					error:
 						state === "quota"
 							? "今天的 20 次提问已用完"
@@ -110,7 +155,7 @@ export async function handleBlogChat(
 				state === "quota" ? 429 : 409,
 			);
 		wake();
-		return json({ requestId: body.requestId, status: state }, 202);
+		return json({ requestId: body.requestId, status: state, quota }, 202);
 	} catch {
 		return json({ error: "助手服务暂不可用，请稍后重试。" }, 503);
 	}

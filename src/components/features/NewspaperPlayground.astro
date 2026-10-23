@@ -1,0 +1,375 @@
+<newspaper-playground>
+    <template>
+        <div class="newspaper-playground" aria-hidden="true" inert>
+            <svg class="paper-doodle-definitions" width="0" height="0" focusable="false">
+                <defs>
+                    <filter id="paper-oil-edge" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency=".12" numOctaves="2" seed="8" result="grain" />
+                        <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.3" />
+                    </filter>
+                    <g id="paper-happy-face">
+                        <ellipse class="doodle-ink" cx="-6" cy="-8" rx="4" ry="6.5" />
+                        <ellipse class="doodle-ink" cx="6" cy="-8" rx="4" ry="6.5" />
+                        <path class="doodle-paper" stroke="none" d="M-8-13L-5-13L-8-9ZM4-13L7-13L4-9Z" />
+                        <path d="M-8 4Q0 16 9 3M-10 3L-7 2M8 2L11 3" />
+                    </g>
+                    <g id="paper-child-face">
+                        <path class="doodle-paper" d="M-17-23Q-18-28-12-28L13-28Q18-28 18-22L18 20Q18 26 12 26L-12 26Q-18 26-18 20Z" />
+                        <path d="M-12-22H4M-12-18H-5M-23-19H-18M-23-9H-18M-23 1H-18M-23 11H-18M-23 21H-18M18-19H23M18-9H23M18 1H23M18 11H23M18 21H23" />
+                        <use href="#paper-happy-face" />
+                        <path d="M-8 21H7" />
+                    </g>
+                    <g id="paper-network-face">
+                        <path class="doodle-paper" d="M-18-22Q-18-27-13-27H13Q18-27 18-22V22Q18 26 13 26H-13Q-18 26-18 21Z" />
+                        <path d="M13-27V-41Q10-46 8-41V-27M-11 17H10V23H-11ZM-7 19V22M-2 19V22M3 19V22M-13-21H-8M-4-21H1" />
+                        <use href="#paper-happy-face" />
+                    </g>
+                    <g id="paper-bottle-face">
+                        <path class="doodle-paper" d="M-7-24H7V-13Q18-9 18 1V19Q18 27 10 27H-10Q-18 27-18 19V1Q-18-9-7-13Z" />
+                        <path class="doodle-paper" d="M-9-32L9-31L8-23H-8ZM-9-21H9" />
+                        <path d="M-4-29L-3-26M3-29L4-27M-13 7V16Q-13 20-10 21M-9 23H-5" />
+                        <use href="#paper-happy-face" transform="translate(0 4) scale(.9)" />
+                    </g>
+                    <g id="paper-scope-face">
+                        <path class="doodle-paper" d="M-22-23Q-22-28-17-28H17Q22-28 22-23V21Q22 26 17 26H-17Q-22 26-22 21Z" />
+                        <rect class="doodle-paper" x="-18" y="-22" width="29" height="34" rx="6" />
+                        <use href="#paper-happy-face" transform="translate(-3 -2) scale(.8)" />
+                        <circle cx="16" cy="-16" r="2.3" /><circle cx="16" cy="-7" r="2.3" />
+                        <path d="M-17 19H-12L-9 14L-5 22L-1 15L2 19H8M12 18H19M-12-28V-33H11V-28" />
+                    </g>
+                    <g id="paper-child-body">
+                        <path d="M-8 27Q-13 35-15 44M8 27Q13 34 15 44" />
+                        <path class="doodle-paper" d="M-15 43Q-28 38-27 47Q-25 52-11 48ZM14 43Q27 38 28 46Q27 52 12 49Z" />
+                    </g>
+                    <g id="paper-boots">
+                        <path d="M-8 27Q-12 34-13 38M8 27Q12 34 13 38" />
+                        <path class="doodle-paper" d="M-18 36L-9 37L-10 48Q-24 53-29 48Q-31 40-19 42ZM9 37L18 36L19 42Q30 39 30 47Q25 53 11 49Z" />
+                        <path d="M-19 39L-10 40M10 40L19 39M-28 47L-12 47M12 48H29" />
+                    </g>
+                    <g id="paper-sneakers">
+                        <path d="M-8 27L-13 40M8 27L13 40" />
+                        <path class="doodle-paper" d="M-17 37L-8 40L-10 48H-29V44L-19 42ZM8 40L17 37L20 42L29 44V48H10Z" />
+                        <path d="M-28 45H-11M11 45H28M-17 40L-14 42M-21 42L-18 44M14 41L17 40M18 44L21 42" />
+                    </g>
+                    <g id="paper-glove">
+                        <path class="doodle-white" d="M-4 3Q-12-1-7-5L-3-3Q-8-11-3-11L0-5Q-1-14 3-12L4-5Q8-10 9-5Q12 3 5 6Z" /><path d="M-3 2L-2-1M1 3L2 0M5 2L6 0M-3 5L5 7" stroke-width="1" />
+                    </g>
+                </defs>
+            </svg>
+
+            <svg data-paper-scene="heading-left" class="paper-play-scene" viewBox="0 0 300 95" focusable="false">
+                <path d="M8 84Q147 88 291 83M30 21Q142 57 269 23M35 18L32 29M264 19L268 29" />
+                <g class="doodle-cloth">
+                    <path class="doodle-paper" d="M104 36L111 40L118 38L127 44L122 53L116 48L114 68L97 66L100 46L94 49L90 40Z" />
+                    <path d="M101 34L102 41M118 38L118 44" />
+                </g>
+                <g class="doodle-cloth doodle-delay">
+                    <path class="doodle-paper" d="M154 45L167 45L165 63Q178 64 175 72Q161 78 153 70Z" />
+                    <path d="M154 41L154 48M166 42L166 49" />
+                </g>
+                <g transform="translate(48 39) scale(.7)">
+                    <g data-paper-actor="" data-paper-role="wave">
+                        <g data-actor-motion="" class="doodle-bob">
+                            <use href="#paper-child-face" />
+                            <use href="#paper-boots" />
+                            <path d="M-10 10Q-28 4-24-17M9 11Q24 3 28-18" />
+                            <use href="#paper-glove" transform="translate(-24 -18) scale(.55)" />
+                            <use href="#paper-glove" transform="translate(29 -19) scale(.55)" />
+                            <path class="doodle-paint" fill="#b87768" d="M-17-22Q-9-39 9-31L17-24Q2-18-17-22Z" />
+                        </g>
+                    </g>
+                </g>
+                <g transform="translate(247 43) scale(.65)">
+                    <g data-paper-actor="" data-paper-role="hop">
+                        <g data-actor-motion="" class="doodle-bob doodle-delay">
+                            <use href="#paper-bottle-face" />
+                            <use href="#paper-child-body" />
+                            <path d="M-11 11Q-25 4-27-22M10 12Q24 17 22 31" />
+                            <use href="#paper-glove" transform="translate(-27 -23) scale(.6)" />
+                            <path class="doodle-paint" fill="#809cae" d="M17 29L38 29L34 47Q24 52 19 44ZM34 32Q48 22 48 34Q45 42 36 40" />
+                        </g>
+                    </g>
+                </g>
+                <g transform="translate(200 40) scale(.48)">
+                    <g data-paper-actor="" data-paper-role="wave">
+                        <g data-actor-motion="" class="doodle-dangle">
+                            <use href="#paper-network-face" />
+                            <use href="#paper-sneakers" />
+                            <path d="M-17 5Q-34-10-27-32M17 7Q31 18 35 4" />
+                            <use href="#paper-glove" transform="translate(-27 -33) scale(.65)" />
+                            <use href="#paper-glove" transform="translate(36 3) scale(.6)" />
+                            <path class="doodle-paint" fill="#b5a05d" d="M-20 15L-31 18L-29 32L-16 34L-13 23Z" />
+                        </g>
+                    </g>
+                </g>
+            </svg>
+
+            <svg data-paper-scene="heading-right" class="paper-play-scene" viewBox="0 0 300 95" focusable="false">
+                <path d="M8 84Q147 88 292 84M100 7Q172 3 252 8" />
+                <g transform="translate(188 8)">
+                    <g class="doodle-swing">
+                        <path d="M-22 0L-22 56M24 0L24 56" />
+                        <path class="doodle-paper" d="M-29 56L30 55L31 61L-29 62Z" />
+                        <g transform="translate(0 30) scale(.68)" data-paper-actor="" data-paper-role="wave">
+                            <g data-actor-motion="">
+                                <use href="#paper-network-face" transform="translate(0 5) scale(.8)" />
+                                <path d="M-11 10L-31 11M10 11L33 11M-8 32Q-17 40-7 49M9 33Q22 36 24 47" />
+                                <use href="#paper-glove" transform="translate(-32 10) scale(.5)" />
+                                <use href="#paper-glove" transform="translate(33 10) scale(.5)" />
+                                <path class="doodle-paper" d="M-8 48Q-17 44-20 50Q-18 56-5 53ZM22 47Q31 42 35 49Q35 54 23 54Z" />
+                                <path class="doodle-paint" fill="#889c72" d="M-10 5Q0 11 9 4L12 10L4 14L13 24L5 28L-1 14L-12 11Z" />
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g transform="translate(67 43) scale(.65)">
+                    <g data-paper-actor="" data-paper-role="hop">
+                        <g data-actor-motion="" class="doodle-bob">
+                            <use href="#paper-scope-face" />
+                            <use href="#paper-boots" />
+                            <path d="M10 11Q30 5 31-6M-11 10Q-24 15-21 24" />
+                            <use href="#paper-glove" transform="translate(32 -8) scale(.6)" />
+                            <path class="doodle-paint" fill="#b5a05d" d="M-17-20L-10-32Q1-39 10-30L15-22L22-22L22-17L-23-17L-23-21Z" />
+                        </g>
+                    </g>
+                </g>
+            </svg>
+
+            <svg data-paper-scene="gutter-left" class="paper-play-scene" viewBox="0 0 72 1200" focusable="false">
+                <path data-gutter-rope="" d="M40 0V1200" />
+                <g data-gutter-actor="" transform="translate(0 65)">
+                    <g transform="translate(30 0) scale(.85)">
+                        <g data-paper-actor="" data-paper-role="chef">
+                            <g data-actor-motion="" class="doodle-climb">
+                                <use href="#paper-child-face" />
+                                <use href="#paper-child-body" />
+                                <path d="M17 7Q27-9 13-39M-17 8Q-30 25 13 22" />
+                                <use href="#paper-glove" transform="translate(13 -40) scale(.65)" />
+                                <use href="#paper-glove" transform="translate(14 22) scale(.6)" />
+                                <path class="doodle-white" d="M-16-27L-17-40Q-29-44-21-52Q-14-59-7-50Q0-65 9-52Q23-57 25-45Q26-38 15-38L14-27Z" />
+                                <path d="M-15-33H14M-7-42V-35M5-45V-35" />
+                                <g data-role-prop="stir">
+                                    <path class="doodle-paint" fill="#b87768" d="M-32 15H-10L-12 29Q-22 34-30 28ZM-32 18Q-41 15-38 23L-31 25" />
+                                    <path d="M-19 19L-28 0M-27 1Q-35-8-29-11Q-22-11-24-3M-18 7Q-22 1-17-4M-10 11Q-13 5-9 1" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 230)">
+                    <path d="M41-52L12-42L12 29M41-52L59-42L59 29M8 30H63V35H8Z" />
+                    <g transform="translate(35 -5) scale(.8)">
+                        <g data-paper-actor="" data-paper-role="electrician">
+                            <g data-actor-motion="" class="doodle-bob doodle-delay">
+                                <use href="#paper-bottle-face" />
+                                <use href="#paper-sneakers" />
+                                <path d="M-10 13L-29-9M10 13L29-9" />
+                                <use href="#paper-glove" transform="translate(-29 -10) scale(.6)" />
+                                <use href="#paper-glove" transform="translate(29 -10) scale(.6)" />
+                                <path class="doodle-white" d="M-19-25Q-18-44 0-44Q18-44 20-25ZM-24-25H24V-21H-24ZM-3-43V-28H3V-43" />
+                                <path class="doodle-paint" fill="#b5a05d" d="M-18 13H18V23H-18ZM-14 21H-3V31H-14ZM4 21H15V31H4Z" />
+                                <g data-role-prop="tools">
+                                    <path d="M-10 17V4L-15-1L-11-6L-7 0L-2-6L1-2L-5 5V17M10 17L12 4M9 4H15" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 395)">
+                    <g transform="translate(32 0) scale(.82)">
+                        <g data-paper-actor="" data-paper-role="painter">
+                            <g data-actor-motion="" class="doodle-dangle">
+                                <use href="#paper-network-face" />
+                                <use href="#paper-boots" />
+                                <path d="M17 5Q34-27 11-47M-17 8Q-26 2-29-12" />
+                                <use href="#paper-glove" transform="translate(11 -48) scale(.65)" />
+                                <use href="#paper-glove" transform="translate(-29 -13) scale(.6)" />
+                                <path class="doodle-white" d="M-20-27Q-21-40-3-42Q13-43 19-31L13-26ZM-2-42L1-47" />
+                                <g data-role-prop="brush">
+                                    <path d="M-29-11L-34-30M-37-31Q-39-41-32-43L-30-33Z" />
+                                    <path class="doodle-paint" fill="#889c72" d="M-31-8Q-43-15-43-3Q-43 8-28 9Q-16 8-20 2Q-27-1-23-4Q-20-10-31-8Z" />
+                                    <circle cx="-35" cy="-3" r="2" />
+                                    <path d="M-32 4L-29 5M-26-5L-25-4" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 560)">
+                    <path d="M40-47Q16-39 9-44M40-47Q53-35 65-42M11-44L11-34M61-42V-32" />
+                    <path class="doodle-paper" d="M9-38L22-35L24-16L13-17Z" />
+                    <g transform="translate(35 7) scale(.83)">
+                        <g data-paper-actor="" data-paper-role="navigator">
+                            <g data-actor-motion="" class="doodle-bob">
+                                <use href="#paper-child-face" />
+                                <use href="#paper-child-body" />
+                                <path d="M-17 5Q-30-1-23-26M17 6Q29 5 27-9" />
+                                <use href="#paper-glove" transform="translate(-23 -27) scale(.6)" />
+                                <use href="#paper-glove" transform="translate(27 -8) scale(.6)" />
+                                <path class="doodle-white" d="M-19-29L-10-40L8-40L19-29ZM-23-29H23V-25H-23Z" />
+                                <path d="M-4-36H4M0-39V-33" />
+                                <g data-role-prop="telescope">
+                                    <path class="doodle-paint" fill="#b7a15b" d="M9-14L30-21L34-9L12-5ZM27-23L35-26L41-9L33-6Z" />
+                                    <path d="M19-17L22-8M30-20L33-10M37-25L42-10" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 725)">
+                    <g transform="translate(30 0) scale(.82)">
+                        <g data-paper-actor="" data-paper-role="architect">
+                            <g data-actor-motion="" class="doodle-climb doodle-delay">
+                                <use href="#paper-scope-face" />
+                                <use href="#paper-sneakers" />
+                                <path d="M11 13Q29 2 17-35M-10 13Q-29 6-23-11" />
+                                <use href="#paper-glove" transform="translate(17 -36) scale(.65)" />
+                                <use href="#paper-glove" transform="translate(-23 -12) scale(.6)" />
+                                <path class="doodle-white" d="M-20-27Q-20-43 0-43Q20-43 20-27ZM-24-27H24V-23H-24ZM-3-42V-28H3V-42" />
+                                <g data-role-prop="blueprint">
+                                    <path class="doodle-paint" fill="#829ca8" d="M-36-9H-16V17H-36ZM-36-9Q-42-13-42-7V14Q-42 20-36 17Z" />
+                                    <path d="M-32 12V-1L-26-5L-20-1V12ZM-29 12V6H-24V12M-33 2H-19M-31-2V-5M-27 1V3" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 890)">
+                    <path d="M40-47Q10-36 9-19M40-47Q64-35 62-19" />
+                    <g transform="translate(36 0) scale(.82)">
+                        <g data-paper-actor="" data-paper-role="gardener">
+                            <g data-actor-motion="" class="doodle-dangle doodle-delay">
+                                <use href="#paper-network-face" />
+                                <use href="#paper-boots" />
+                                <path d="M-17 7Q-36-6-32-25M17 7Q37-5 32-25" />
+                                <use href="#paper-glove" transform="translate(-32 -26) scale(.6)" />
+                                <use href="#paper-glove" transform="translate(32 -26) scale(.6)" />
+                                <g data-role-prop="seedling">
+                                    <path d="M-7 16Q-13 0-4-9M-8 6Q-23 5-23-5Q-10-8-8 6M-6-1Q-4-15 8-14Q10-3-6-1" />
+                                    <path class="doodle-paint" fill="#889c72" d="M-20 14H5L1 29H-16ZM-22 11H7V16H-22Z" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-gutter-actor="" transform="translate(0 1055)">
+                    <path d="M5 49Q35 45 67 49M40-48Q30-37 40-31" />
+                    <g transform="translate(31 0) scale(.84)">
+                        <g data-paper-actor="" data-paper-role="mechanic">
+                            <g data-actor-motion="" class="doodle-bob">
+                                <use href="#paper-child-face" />
+                                <use href="#paper-child-body" />
+                                <path d="M17 4Q34-8 18-35M-17 6Q-32 18-25 29" />
+                                <use href="#paper-glove" transform="translate(18 -36) scale(.65)" />
+                                <path class="doodle-white" d="M-18-27Q-18-38 0-39Q18-38 18-27L25-25L23-21H-21Z" />
+                                <g data-role-prop="wrench">
+                                    <path class="doodle-paint" fill="#7b99ae" d="M-28 29L-20 8Q-25 0-19-5L-17 3L-12 4L-8-2Q-4 8-15 11L-21 32Q-25 36-28 29Z" />
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+
+            <svg data-paper-scene="gutter-right" class="paper-play-scene" viewBox="0 0 90 190" focusable="false">
+                <path class="doodle-paper" d="M5 165Q45 161 85 165L83 172H7ZM13 173V182M76 173V182" />
+                <path class="doodle-tap-rays" d="M13 34L8 26M22 33L24 24M5 44L0 42" />
+                <text class="doodle-tap-label" x="43" y="19" text-anchor="middle">Tap tap</text>
+                <g transform="translate(40 117) scale(.9)" data-paper-actor="" data-paper-role="guide">
+                    <g data-actor-motion="" class="doodle-guide-hop">
+                        <use href="#paper-child-face" />
+                        <use href="#paper-sneakers" />
+                        <g class="doodle-pointing-arm">
+                            <path d="M-17 7Q-35-18-25-65" />
+                            <use href="#paper-glove" transform="translate(-25 -66) scale(.8)" />
+                        </g>
+                        <path d="M17 6Q32 12 27 26" />
+                        <use href="#paper-glove" transform="translate(27 26) scale(.65)" />
+                        <path class="doodle-paint" fill="#829ca8" d="M-16 17H15V24H-16ZM-4 23L-15 35L-20 29L-11 21Z" />
+                    </g>
+                </g>
+            </svg>
+
+            <svg data-paper-scene="sidebar-bottom" class="paper-play-scene" viewBox="0 0 290 180" focusable="false">
+                <path d="M17 155Q136 149 275 154M39 154L34 146M42 154L46 142M250 155L254 145" />
+                <path class="doodle-paper" d="M130 151L145 113L160 151Z" />
+                <g transform="translate(145 113)">
+                    <g class="doodle-seesaw">
+                        <path class="doodle-paper" d="M-109-3Q-2-7 109-4L109 2L-109 4Z" />
+                        <g transform="translate(-78 -40) scale(.7)" data-paper-actor="" data-paper-role="wave">
+                            <g data-actor-motion="">
+                                <use href="#paper-child-face" />
+                                <use href="#paper-boots" />
+                                <path d="M-10 10Q-25 26-12 35M10 11Q24 25 13 35" />
+                                <use href="#paper-glove" transform="translate(-12 35) scale(.55)" />
+                                <use href="#paper-glove" transform="translate(13 35) scale(.55)" />
+                                <path class="doodle-paint" fill="#bd816b" d="M-10 5L9 5L10 12L1 14L15 23L11 29L-4 15L-11 12Z" />
+                            </g>
+                        </g>
+                        <g transform="translate(77 -40) scale(.7)" data-paper-actor="" data-paper-role="hop">
+                            <g data-actor-motion="">
+                                <use href="#paper-scope-face" />
+                                <use href="#paper-child-body" />
+                                <path d="M-10 10Q-23 26-11 35M10 10Q29 5 28-7" />
+                                <use href="#paper-glove" transform="translate(29 -8) scale(.6)" />
+                                <path class="doodle-paint" fill="#b7a15b" d="M-19-20L-11-34L7-33L15-23L23-21L21-17L-23-17Z" />
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+        </div>
+    </template>
+</newspaper-playground>
+
+<script>import "@/scripts/newspaper-playground";</script>
+<style is:global>
+    newspaper-playground { display: none; }
+    body:has(newspaper-playground) .home-section-heading { min-height: 94px; }
+    .newspaper-playground { --doodle-opacity: .4; --doodle-paper: var(--retro-surface); position: fixed; inset: 0; z-index: 31; pointer-events: none; overflow: hidden; color: var(--retro-ink); }
+    .newspaper-playground * { pointer-events: none; }
+    .paper-doodle-definitions { position: absolute; }
+    .paper-play-scene { position: absolute; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: var(--doodle-opacity); transition: opacity 350ms ease; }
+    .paper-play-scene[hidden] { display: none !important; }
+    .paper-play-scene[data-paper-scene="gutter-right"] { opacity: .56; }
+    .paper-play-scene.is-near { opacity: .62; }
+    .doodle-paper { fill: var(--doodle-paper); }
+    .doodle-white { fill: #fbf7eb; }
+    .doodle-ink { fill: currentColor; stroke-width: 1.5; }
+    .doodle-paint { filter: url(#paper-oil-edge); stroke-width: 1.4; }
+    .doodle-swing { transform-origin: 0 0; animation: paper-swing 4.4s ease-in-out infinite alternate; }
+    .doodle-cloth { transform-box: fill-box; transform-origin: 50% 0; animation: paper-cloth 4s ease-in-out infinite alternate; }
+    .doodle-bob { animation: paper-bob 4.8s ease-in-out infinite; }
+    .doodle-dangle { transform-origin: 10px -40px; animation: paper-swing 5.2s ease-in-out infinite alternate; }
+    .doodle-climb { animation: paper-climb 6s ease-in-out infinite; }
+    .doodle-kite { transform-origin: 43px 78px; animation: paper-cloth 4.8s ease-in-out infinite alternate; }
+    .doodle-seesaw { animation: paper-seesaw 5s ease-in-out infinite alternate; }
+    .doodle-delay { animation-delay: -2.1s; }
+    [data-paper-actor] { --actor-reaction: paper-greet; }
+    [data-paper-role="hop"], [data-paper-role="guide"] { --actor-reaction: paper-greet-hop; }
+    [data-paper-role="chef"], [data-paper-role="electrician"], [data-paper-role="mechanic"] { --actor-reaction: paper-busy; }
+    [data-paper-role="painter"], [data-paper-role="navigator"], [data-paper-role="architect"] { --actor-reaction: paper-peer; }
+    [data-paper-actor].is-awake > [data-actor-motion] { animation: var(--actor-reaction) 1s ease-in-out infinite; }
+    [data-paper-actor].is-awake [data-role-prop] { transform-box: fill-box; transform-origin: center; animation: paper-prop 900ms ease-in-out infinite alternate; }
+    [data-paper-role="navigator"].is-awake [data-role-prop] { transform-origin: left center; animation-duration: 1.6s; }
+    .doodle-guide-hop { animation: paper-guide-hop 5s ease-in-out infinite; }
+    .doodle-pointing-arm { transform-origin: -17px 7px; animation: paper-point 2.5s ease-in-out infinite; }
+    .doodle-tap-label { fill: currentColor; stroke: none; font: 700 18px "Courier New", monospace; letter-spacing: -.7px; }
+    .doodle-tap-rays { animation: paper-tap 2.5s ease-in-out infinite; }
+    @keyframes paper-greet { 0%,100% { transform: rotate(0); } 30% { transform: translateY(-3px) rotate(-6deg); } 65% { transform: translateY(-2px) rotate(5deg); } }
+    @keyframes paper-greet-hop { 0%,100% { transform: translateY(0) scale(1); } 25% { transform: translateY(2px) scale(1.04,.96); } 55% { transform: translateY(-13px) rotate(-4deg); } 80% { transform: translateY(0) scale(1.05,.95); } }
+    @keyframes paper-busy { 0%,100% { transform: rotate(0); } 25% { transform: translateY(-2px) rotate(-3deg); } 75% { transform: translateY(-2px) rotate(4deg); } }
+    @keyframes paper-peer { 0%,100% { transform: rotate(0); } 40%,65% { transform: translateX(3px) rotate(7deg); } }
+    @keyframes paper-prop { from { transform: rotate(-7deg); } to { transform: rotate(9deg) translateY(-2px); } }
+    @keyframes paper-guide-hop { 0%,65%,100% { transform: translateY(0); } 73% { transform: translateY(2px) scale(1.03,.97); } 80% { transform: translateY(-10px); } 88% { transform: translateY(0); } }
+    @keyframes paper-point { 0%,55%,100% { transform: rotate(0); } 65%,85% { transform: rotate(-10deg); } 75% { transform: rotate(5deg); } }
+    @keyframes paper-tap { 0%,55%,100% { opacity: .25; } 65%,85% { opacity: 1; } }
+    .newspaper-playground[data-paused="true"] * { animation-play-state: paused; }
+    @keyframes paper-swing { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+    @keyframes paper-cloth { from { transform: rotate(-3deg); } to { transform: rotate(4deg); } }
+    @keyframes paper-bob { 0%,70%,100% { transform: translateY(0) rotate(0); } 80% { transform: translateY(-2px) rotate(-2deg); } 90% { transform: translateY(-3px) rotate(2deg); } }
+    @keyframes paper-climb { 0%,65%,100% { transform: translateY(0); } 30%,45% { transform: translateY(-9px) rotate(3deg); } }
+    @keyframes paper-seesaw { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+    @media (max-width: 767px) { .newspaper-playground { display: none; } body:has(newspaper-playground) .home-section-heading { min-height: 0; } }
+    @media (prefers-reduced-motion: reduce) { .newspaper-playground * { animation: none !important; transition: none; } }
+</style>

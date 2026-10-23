@@ -14,6 +14,14 @@ export type QueueQuery = (
 	sql: string,
 	values: unknown[],
 ) => Promise<Record<string, unknown>[]>;
+export function blogQuotaDay(now = new Date()) {
+	return new Intl.DateTimeFormat("en-CA", {
+		timeZone: "Asia/Shanghai",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).format(now);
+}
 export interface QueueInput extends BlogQuestion {
 	articleIds?: string[];
 }
@@ -28,13 +36,25 @@ export class BlogQueue {
 	constructor(query: QueueQuery) {
 		this.query = query;
 	}
+	async quota(userId: string, now = new Date()) {
+		const day = blogQuotaDay(now);
+		// One snapshot counts charged runs plus reservations, never both for a running job.
+		const rows = await this.query(
+			`SELECT
+		 coalesce((SELECT used FROM blog_usage WHERE user_id=$1 AND day=$2),0) +
+		 (SELECT count(*) FROM blog_queue q WHERE q.user_id=$1 AND q.day=$2 AND
+		 (q.status='pending' OR (q.status='running' AND NOT EXISTS
+		 (SELECT 1 FROM blog_runs r WHERE r.user_id=q.user_id AND r.request_id=q.request_id)))) AS used`,
+			[userId, day],
+		);
+		const used = Math.max(0, Math.min(20, Number(rows[0]?.used || 0)));
+		const resetsAt = new Date(
+			new Date(`${day}T00:00:00+08:00`).getTime() + 86400000,
+		).toISOString();
+		return { limit: 20, used, remaining: 20 - used, day, resetsAt };
+	}
 	async enqueue(input: QueueInput) {
-		const day = new Intl.DateTimeFormat("en-CA", {
-			timeZone: "Asia/Shanghai",
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-		}).format(new Date());
+		const day = blogQuotaDay();
 		const fingerprint = createHash("sha256")
 			.update(
 				JSON.stringify([
