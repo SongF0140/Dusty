@@ -30,10 +30,12 @@ export function createNavigationWorkspace(drawer: HTMLElement) {
 		drawer.dataset.mode = mode;
 		if (title)
 			title.textContent =
-				mode === "assistant" ? "海问香 / 阅读助手" : "DUSTY / SHELL";
+				mode === "assistant" ? "StarryLin/Geek" : "DUSTY / SHELL";
 		drawer.setAttribute(
 			"aria-label",
-			mode === "assistant" ? "海问香助手与命令行导航" : "Command navigation",
+			mode === "assistant"
+				? "StarryLin/Geek 与命令行导航"
+				: "Command navigation",
 		);
 		for (const tab of tabs) {
 			const selected = tab.dataset.navigationMode === mode;

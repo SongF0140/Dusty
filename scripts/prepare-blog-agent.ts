@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { neon } from "@neondatabase/serverless";
 import { splitSqlCommands } from "../src/server/blog-migrations.ts";
+import "./diagnose-blog-agent.ts";
 
 const database = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 if (!database)

@@ -99,7 +99,7 @@ class BlogAssistant extends HTMLElement {
 				const article = document.createElement("article");
 				article.className = `assistant-message assistant-message-${message.role}`;
 				const label = document.createElement("span");
-				label.textContent = message.role === "user" ? "你" : "海问香";
+				label.textContent = message.role === "user" ? "你" : "StarryLin/Geek";
 				const content = document.createElement("p");
 				appendContent(content, message.content);
 				article.append(label, content);
@@ -207,8 +207,21 @@ class BlogAssistant extends HTMLElement {
 				note.textContent = "仅提供站内博文链接";
 			} catch (error) {
 				if (signal.aborted) return;
-				note.textContent =
+				const reason =
 					error instanceof Error ? error.message : "请求失败，请稍后重试";
+				note.textContent = reason;
+				const index = state.messages.findIndex(
+					(message) => message.id === item.id,
+				);
+				state.messages.splice(
+					index < 0 ? state.messages.length : index + 1,
+					0,
+					{
+						id: `${item.id}-error`,
+						role: "assistant",
+						content: `本次未能完成：${reason}\n请重新发送问题。`,
+					},
+				);
 				if (!input.value) input.value = item.question;
 			} finally {
 				releaseSubmission();
