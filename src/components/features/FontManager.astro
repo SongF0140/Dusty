@@ -1,5 +1,6 @@
 ---
 import { fontConfig } from "@/config";
+import { serializeFontFamily } from "@/utils/font-family";
 
 // 统一解析 selected 为数组
 const selectedIds: string[] =
@@ -14,7 +15,7 @@ const resolveFontFamily = (fontId: string): string => {
 	const font = fontConfig.fonts[fontId];
 	if (!font) return "";
 	const fallbacks = fontConfig.fallback || [];
-	return [`"${font.family}"`, ...fallbacks].join(", ");
+	return [font.family, ...fallbacks].map(serializeFontFamily).join(", ");
 };
 
 // 全局 selected 中有 src 的字体（排除系统字体）
@@ -40,9 +41,9 @@ const allFontsToLoad = Array.from(allFontIds)
 const selectedFontFamilies = selectedIds
 	.map((id) => fontConfig.fonts[id])
 	.filter((font) => font)
-	.map((font) => `"${font?.family ?? ""}"`);
+	.map((font) => serializeFontFamily(font.family));
 
-const fallbacks = fontConfig.fallback || [];
+const fallbacks = (fontConfig.fallback || []).map(serializeFontFamily);
 const fontFamilyStyle =
 	selectedFontFamilies.length > 0
 		? `font-family: ${[...selectedFontFamilies, ...fallbacks].join(", ")};`
@@ -145,6 +146,11 @@ const tagFontFamily = fontConfig.enable
     /* 应用自定义字体到body */
     body {
       ${fontFamilyStyle}
+    }
+
+    /* Newspaper headings keep their lettering; reading paragraphs use body fonts. */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: ${resolveFontFamily("zcool-kuaile")};
     }
     
     /* 为每个选中的字体生成对应的CSS类 */

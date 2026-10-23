@@ -1,0 +1,10 @@
+/* Body-mounted drawings must follow the same loading state as page content. */
+html:is(.is-changing, .theme-page-pending) :is(.newspaper-playground, .portrait-companions, .portrait-motion-marks),
+html:has(#page-content-shell.is-content-loading) :is(.newspaper-playground, .portrait-companions, .portrait-motion-marks) {
+	visibility: hidden !important;
+	opacity: 0 !important;
+}
+html:is(.is-changing, .theme-page-pending) :is(.newspaper-playground, profile-portrait) *,
+html:has(#page-content-shell.is-content-loading) :is(.newspaper-playground, profile-portrait) * {
+	animation-play-state: paused !important;
+}

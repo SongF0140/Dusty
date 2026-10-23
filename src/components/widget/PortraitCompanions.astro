@@ -1,0 +1,60 @@
+<!-- The top rail is their bench. Both reactions share the portrait's clock. -->
+<svg class="portrait-companions" viewBox="0 0 200 104" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="portrait-chat-glove">
+      <path class="glove" d="M-4 3Q-12-1-7-5L-3-3Q-8-11-3-11L0-5Q-1-14 3-12L4-5Q8-10 9-5Q12 3 5 6Z" />
+      <path d="M-3 2L-2-1M1 3L2 0M5 2L6 0" stroke-width="1" />
+    </g>
+  </defs>
+  <path class="bench" d="M28 82Q101 80 174 82M34 86H169" />
+  <g transform="translate(64 0)">
+    <g class="seated-friend chip-friend">
+      <path class="paper" d="M-19 36Q-20 30-13 30H13Q19 30 19 36V72Q19 79 13 79H-13Q-19 79-19 72Z" />
+      <path d="M-24 37H-19M-24 47H-19M-24 57H-19M-24 67H-19M19 37H24M19 47H24M19 57H24M19 67H24M-12 36H1M-12 40H-5" />
+      <ellipse class="ink" cx="-6" cy="50" rx="3" ry="5" /><ellipse class="ink" cx="6" cy="50" rx="3" ry="5" />
+      <path class="chat-mouth" d="M-7 60Q0 70 8 59" />
+      <g class="surprised-face"><ellipse class="paper" cx="1" cy="63" rx="4" ry="6" /><path d="M-11 41L-4 39M4 39L11 41" /></g>
+      <path d="M-8 79Q-17 85-13 93M8 79Q18 85 15 93" />
+      <path class="boots" d="M-17 90L-9 90L-9 99Q-28 103-28 96Q-26 92-18 94ZM11 90H18L19 95Q29 92 30 98Q25 103 11 100Z" />
+      <path d="M-19 61Q-31 70-23 78" /><use href="#portrait-chat-glove" transform="translate(-22 77) scale(.55)" />
+      <g class="talking-hand"><path d="M19 61Q31 60 31 49" /><use href="#portrait-chat-glove" transform="translate(32 47) scale(.55)" /></g>
+      <path class="scarf chip-scarf" d="M-17 70Q0 75 17 70L16 76L4 78L12 86L6 89L-2 78L-17 76Z" />
+    </g>
+  </g>
+  <g transform="translate(139 0)">
+    <g class="seated-friend bottle-friend">
+      <path class="paper" d="M-7 36H7V45Q18 49 18 59V71Q18 80 10 80H-10Q-18 80-18 71V59Q-18 49-7 45Z" />
+      <path class="paper" d="M-9 29L9 30L8 37H-8Z" /><path d="M-4 31L-3 35M3 32L4 35M-14 65V71" />
+      <ellipse class="ink" cx="-6" cy="55" rx="3" ry="5" /><ellipse class="ink" cx="6" cy="55" rx="3" ry="5" />
+      <path class="chat-mouth" d="M-7 65Q0 74 7 64" />
+      <g class="surprised-face"><ellipse class="paper" cx="0" cy="68" rx="4" ry="5" /><path d="M-11 46L-4 44M4 44L11 46" /></g>
+      <path d="M-8 80Q-17 88-13 94M8 80Q17 86 14 94" />
+      <path class="paper" d="M-17 92L-10 93L-10 100H-28Q-28 94-18 96ZM10 93L17 92L20 96Q29 93 29 100H11Z" /><path d="M-26 98H-12M12 98H27" />
+      <path d="M18 62Q29 69 22 78" /><use href="#portrait-chat-glove" transform="translate(21 77) scale(.55)" />
+      <g class="talking-hand"><path d="M-18 60Q-31 58-31 48" /><use href="#portrait-chat-glove" transform="translate(-32 47) scale(.55)" /></g>
+      <path class="scarf bottle-scarf" d="M-8 39H8V44H-8ZM4 43L14 48L11 53L1 44Z" />
+    </g>
+  </g>
+  <g class="chat-ticks"><path d="M91 38L96 41M99 31L100 36M108 38L112 35" /></g>
+  <g class="startle-ticks"><path d="M33 24L29 17M40 19L39 12M161 22L165 15M171 29L179 26" /></g>
+</svg>
+<style>
+  .portrait-companions { position: absolute; z-index: 2; width: min(160px, 78%); height: auto; left: 50%; top: 0; transform: translate(-50%, -79%); overflow: visible; pointer-events: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .paper, .bench { fill: var(--retro-surface); }
+  .glove { fill: #fbf7eb; }
+  .ink, .boots { fill: currentColor; }
+  .chip-scarf { fill: #b87768; }
+  .bottle-scarf { fill: #809cae; }
+  .seated-friend { animation: bench-startle var(--portrait-cycle, 4s) linear infinite; }
+  .talking-hand { transform-origin: 0 65px; animation: bench-conversation var(--portrait-cycle, 4s) ease-in-out infinite; }
+  .bottle-friend .talking-hand { animation-direction: reverse; }
+  .surprised-face, .startle-ticks { opacity: 0; animation: bench-surprised var(--portrait-cycle, 4s) steps(1) infinite; }
+  .chat-mouth, .chat-ticks { animation: bench-smile var(--portrait-cycle, 4s) steps(1) infinite; }
+  @keyframes bench-startle { 0%,89%,100% { transform: translateY(0); } 90% { transform: translateY(1px); } 93% { transform: translateY(-14px) rotate(-3deg); } 96% { transform: translateY(-8px) rotate(2deg); } 98% { transform: translateY(1px); } }
+  @keyframes bench-conversation { 0%,36%,72%,89%,100% { transform: rotate(0); } 18%,54%,81% { transform: rotate(7deg); } 90%,98% { transform: rotate(-9deg); } }
+  @keyframes bench-surprised { 0%,98%,100% { opacity: 0; } 90% { opacity: 1; } }
+  @keyframes bench-smile { 0%,98%,100% { opacity: 1; } 90% { opacity: 0; } }
+  :global(profile-portrait[data-flipped="true"]) .portrait-companions { visibility: hidden; }
+  :global(profile-portrait[data-flipped="true"]) .portrait-companions * { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .portrait-companions * { animation: none; } }
+</style>

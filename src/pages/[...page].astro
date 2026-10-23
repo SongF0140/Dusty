@@ -271,8 +271,24 @@ const recentPosts = isHome
     .newspaper-briefs { grid-template-columns: 1fr; padding-top: 0; }
     .newspaper-briefs a, .newspaper-briefs a:first-child { padding: 0.85rem 0; }
     .newspaper-briefs a + a { border-left: 0; border-top: 1px dashed var(--retro-muted); }
-    .category-section-grid { grid-template-columns: 1fr; }
-    .home-category-board .category-section-card { min-height: 10rem; }
+    .home-category-board .category-section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+    .home-category-board .category-section-card {
+      aspect-ratio: auto;
+      min-height: 4.5rem;
+      padding: .75rem .65rem;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: .25rem;
+      text-align: left;
+      border-width: 1px;
+      box-shadow: 2px 2px 0 var(--retro-outline);
+    }
+    .category-section-card h3 { font-size: .95rem; }
+    .category-card-number { display: none; }
+    .category-card-count { position: static; font-size: .7rem; }
+    .category-reading-heading { margin-bottom: .85rem; }
+    :global(body:has(.home-category-board) #mobile-bottom-sidebar widget-layout:has(.category-groups)) { display: none; }
   }
 </style>
 

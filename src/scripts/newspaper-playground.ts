@@ -22,6 +22,11 @@ class NewspaperPlayground extends HTMLElement {
 			layer.querySelectorAll<SVGElement>("[data-paper-actor]"),
 		);
 		let frame = 0;
+		let lastScrollY = window.scrollY;
+		const leanRopes = (delta: number) => {
+			if (Math.abs(delta) < 1) return;
+			layer.style.setProperty("--rope-lean", delta > 0 ? "-2.4deg" : "2.4deg");
+		};
 		let pointer: { x: number; y: number } | undefined;
 		const rect = (selector: string) => {
 			const element = document.querySelector<HTMLElement>(selector);
@@ -180,7 +185,16 @@ class NewspaperPlayground extends HTMLElement {
 			if (this.isConnected && !frame) frame = requestAnimationFrame(layout);
 		};
 		window.addEventListener("resize", schedule, options);
-		window.addEventListener("scroll", schedule, { ...options, passive: true });
+		window.addEventListener("scroll", () => {
+			leanRopes(window.scrollY - lastScrollY);
+			lastScrollY = window.scrollY;
+			schedule();
+		}, { ...options, passive: true });
+		window.addEventListener("wheel", (event) => {
+			// Follow the page, not scrolling inside the assistant or another panel.
+			if (event.target instanceof Element && event.target.closest("blog-assistant, textarea, [role='dialog']")) return;
+			leanRopes(event.deltaY);
+		}, { ...options, passive: true });
 		document.addEventListener("visibilitychange", schedule, options);
 		document.addEventListener(
 			"pointermove",

@@ -107,6 +107,7 @@
             <svg data-paper-scene="heading-right" class="paper-play-scene" viewBox="0 0 300 95" focusable="false">
                 <path d="M8 84Q147 88 292 84M100 7Q172 3 252 8" />
                 <g transform="translate(188 8)">
+                  <g class="doodle-swing-lean">
                     <g class="doodle-swing">
                         <path d="M-22 0L-22 56M24 0L24 56" />
                         <path class="doodle-paper" d="M-29 56L30 55L31 61L-29 62Z" />
@@ -121,6 +122,7 @@
                             </g>
                         </g>
                     </g>
+                  </g>
                 </g>
                 <g transform="translate(67 43) scale(.65)">
                     <g data-paper-actor="" data-paper-role="hop">
@@ -157,6 +159,7 @@
                     </g>
                 </g>
                 <g data-gutter-actor="" transform="translate(0 230)">
+                  <g class="doodle-rope-lean">
                     <path d="M41-52L12-42L12 29M41-52L59-42L59 29M8 30H63V35H8Z" />
                     <g transform="translate(35 -5) scale(.8)">
                         <g data-paper-actor="" data-paper-role="electrician">
@@ -174,6 +177,7 @@
                             </g>
                         </g>
                     </g>
+                  </g>
                 </g>
                 <g data-gutter-actor="" transform="translate(0 395)">
                     <g transform="translate(32 0) scale(.82)">
@@ -337,7 +341,10 @@
     .doodle-white { fill: #fbf7eb; }
     .doodle-ink { fill: currentColor; stroke-width: 1.5; }
     .doodle-paint { filter: url(#paper-oil-edge); stroke-width: 1.4; }
-    .doodle-swing { transform-origin: 0 0; animation: paper-swing 4.4s ease-in-out infinite alternate; }
+    .doodle-swing-lean, .doodle-rope-lean { transform: rotate(var(--rope-lean, 2.4deg)); transition: transform 1400ms cubic-bezier(.2,.6,.3,1); }
+    .doodle-swing-lean, .doodle-swing { transform-origin: 0 0; }
+    .doodle-swing { animation: paper-gentle-swing 4.4s ease-in-out infinite alternate; }
+    .doodle-rope-lean { transform-origin: 41px -52px; }
     .doodle-cloth { transform-box: fill-box; transform-origin: 50% 0; animation: paper-cloth 4s ease-in-out infinite alternate; }
     .doodle-bob { animation: paper-bob 4.8s ease-in-out infinite; }
     .doodle-dangle { transform-origin: 10px -40px; animation: paper-swing 5.2s ease-in-out infinite alternate; }
@@ -366,10 +373,11 @@
     @keyframes paper-tap { 0%,55%,100% { opacity: .25; } 65%,85% { opacity: 1; } }
     .newspaper-playground[data-paused="true"] * { animation-play-state: paused; }
     @keyframes paper-swing { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+    @keyframes paper-gentle-swing { from { transform: rotate(-.7deg); } to { transform: rotate(.7deg); } }
     @keyframes paper-cloth { from { transform: rotate(-3deg); } to { transform: rotate(4deg); } }
     @keyframes paper-bob { 0%,70%,100% { transform: translateY(0) rotate(0); } 80% { transform: translateY(-2px) rotate(-2deg); } 90% { transform: translateY(-3px) rotate(2deg); } }
     @keyframes paper-climb { 0%,65%,100% { transform: translateY(0); } 30%,45% { transform: translateY(-9px) rotate(3deg); } }
     @keyframes paper-seesaw { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
     @media (max-width: 767px) { .newspaper-playground { display: none; } body:has(newspaper-playground) .home-section-heading { min-height: 0; } }
-    @media (prefers-reduced-motion: reduce) { .newspaper-playground * { animation: none !important; transition: none; } }
+    @media (prefers-reduced-motion: reduce) { .newspaper-playground * { animation: none !important; transition: none; } .doodle-swing-lean, .doodle-swing, .doodle-rope-lean { transform: none; } }
 </style>
