@@ -18,7 +18,7 @@
 | `BLOG_SITE_URL` | Config | `https://mjzy.tech`，不带路径 |
 | `BLOG_SUMMARY_ENABLED` | Config | `true`（默认）重建100字内 AI 摘要；`false` 暂停生成 |
 
-当前生产模型使用书生 OpenAI 兼容接口：`BLOG_LLM_BASE_URL=https://discovery-api.intern-ai.org.cn/v1`、`BLOG_LLM_MODEL=deepseek-v4-pro-0813`。API Key 仅配置在 Vercel 服务端敏感环境变量中。当前账户标注生成模型 50 RPM、决策模型 200 RPM；此博客使用生成模型，工具调用回合和摘要生成也会产生模型请求，不能套用决策模型的 200 RPM。供应商还可能返回独立的模型通道限流。DeepSeek 官方地址的专用 thinking 参数不会传给书生兼容接口。
+当前生产模型使用书生 OpenAI 兼容接口：`BLOG_LLM_BASE_URL=https://discovery-api.intern-ai.org.cn/v1`、`BLOG_LLM_MODEL=minimax-m3`。API Key 仅配置在 Vercel 服务端敏感环境变量中。当前账户标注生成模型 50 RPM、决策模型 200 RPM；此博客使用生成模型，工具调用回合和摘要生成也会产生模型请求，不能套用决策模型的 200 RPM。供应商还可能返回独立的模型通道限流。DeepSeek 官方地址的专用 thinking 参数不会传给书生兼容接口。
 
 创建 GitHub OAuth App：
 
