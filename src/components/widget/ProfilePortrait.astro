@@ -12,8 +12,13 @@ const { src, name } = Astro.props;
         <path d="M28 11C170 8 390 14 558 10Q579 10 579 32L581 601Q580 627 553 627C398 630 175 624 31 628Q11 628 12 602L10 34Q9 12 28 11Z" />
         <path d="M32 23C177 20 405 27 551 22Q568 24 568 42L567 596Q569 614 549 615C383 611 187 620 40 615Q23 617 23 596L24 43Q21 24 32 23Z" />
         <g class="portrait-motion-marks">
-          <path d="M48 8L54 29M41 22L62 16M3 91L22 83M6 107L22 103M531 6L523 24M543 16L529 29M570 176L588 171M572 191L587 194M6 488L23 491M8 502L24 505M52 612L58 635M44 627L67 620M528 612L535 636M520 628L544 620" />
-          <path d="M88 13L92 4L96 14L106 18L96 22L92 32L88 22L78 18ZM565 542L569 534L573 543L581 547L573 551L569 559L565 551L557 547Z" />
+          <path d="M-20 91L-7 85M-19 106L-6 102" />
+          <path d="M530-21L522-7M546-17L536-6" />
+          <path d="M599 176L612 170M598 192L611 196" />
+          <path d="M-20 488L-7 491M-19 503L-6 506" />
+          <path d="M52 647L58 662M44 658L67 651" />
+          <path d="M88-18L92-26L96-18L104-14L96-10L92-2L88-10L80-14Z" />
+          <path d="M526 651L530 643L534 651L542 655L534 659L530 667L526 659L518 655Z" />
         </g>
       </svg>
     </button>
@@ -38,8 +43,8 @@ const { src, name } = Astro.props;
   .portrait-turn { position: relative; width: 100%; aspect-ratio: 590 / 640; transform-style: preserve-3d; transition: transform 650ms cubic-bezier(.2,.75,.2,1); }
   profile-portrait[data-flipped="true"] .portrait-turn { transform: rotateY(180deg); }
   .portrait-face { position: absolute; inset: 0; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-  .portrait-front { overflow: hidden; padding: 12px; border: 0; border-radius: 14px; cursor: pointer; background: var(--retro-surface); color: var(--retro-ink); transform: translateZ(1px); }
-  .portrait-ink-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .portrait-front { overflow: visible; padding: 12px; border: 0; border-radius: 14px; cursor: pointer; background: var(--retro-surface); color: var(--retro-ink); transform: translateZ(1px); }
+  .portrait-ink-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .portrait-ink-frame path { vector-effect: non-scaling-stroke; }
   .portrait-ink-frame > path { animation: portrait-frame-jiggle 6s linear infinite; }
   .portrait-motion-marks { opacity: 0; animation: portrait-frame-spark 6s linear infinite; }
