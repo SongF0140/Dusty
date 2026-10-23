@@ -27,7 +27,9 @@
 5. 本机运行 `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`，输出保存为 `BLOG_SESSION_SECRET`，不要发到聊天里。更换它会使现有登录失效。
 6. 保存后重新部署。登录只获取公开账号身份，不申请仓库权限，不保存 GitHub access token。会话 Cookie 为 HttpOnly、Secure、SameSite=Lax，有效七天。
 
-Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`。受 Vercel Deployment Protection 保护的部署需要平台提供的 `VERCEL_AUTOMATION_BYPASS_SECRET`，让内部 worker 请求通过保护，否则任务无法执行。
+Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`。生产环境通过 `BLOG_SITE_URL`（默认 `https://mjzy.tech`）唤醒签名 worker，避免部署 URL 的 Vercel SSO 保护阻断队列。Preview 通过自身部署 URL 唤醒，受 Deployment Protection 保护时需要平台提供的 `VERCEL_AUTOMATION_BYPASS_SECRET`。
+
+评论使用 Giscus 的独立 GitHub 登录，不能复用助手的会话 Cookie；助手和评论区均会提示分别登录。
 
 ## Neon 与摘要
 

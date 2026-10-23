@@ -87,9 +87,12 @@ export function createBlogRuntime(
 			return agent.ask({ ...input, question });
 		},
 		async wake() {
-			const origin = env.VERCEL_URL
-				? `https://${env.VERCEL_URL}`
-				: siteOrigin(env);
+			// Production deployment URLs may require Vercel SSO; the public site
+			// routes to the same worker, which still requires its signed token.
+			const origin =
+				env.VERCEL_ENV !== "production" && env.VERCEL_URL
+					? `https://${env.VERCEL_URL}`
+					: siteOrigin(env);
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${signBlogToken({ purpose: "worker", exp: Date.now() + 60000 }, env)}`,
 			};

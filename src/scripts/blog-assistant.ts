@@ -92,6 +92,7 @@ class BlogAssistant extends HTMLElement {
 			conversation.setAttribute("aria-busy", String(pending.size > 0));
 		};
 		const render = () => {
+			this.dataset.hasMessages = String(state.messages.length > 0);
 			empty.hidden = state.messages.length > 0;
 			messages.replaceChildren();
 			for (const message of state.messages) {

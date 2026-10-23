@@ -5,11 +5,12 @@ import { url } from "@/utils/url-utils";
 <section id="navigation-assistant-panel" class="navigation-mode-panel assistant-panel" role="tabpanel" aria-labelledby="navigation-assistant-tab" hidden>
     <haiwenxiang-assistant>
         <div class="assistant-heading">
-            <div><span class="assistant-eyebrow">guest@haiwenxiang</span><h2>HAIWENXIANG / AGENT</h2></div>
+            <div class="assistant-identity"><span class="assistant-eyebrow">海问香 / 阅读助手</span><h2>HAIWENXIANG</h2></div>
+            <div class="assistant-account">
             <span class="assistant-connection">正在检查连接</span>
             <a data-assistant-login href="/api/blog-auth?action=login" class="assistant-connection">GitHub 登录</a>
             <button data-assistant-logout type="button" class="assistant-connection" hidden>退出登录</button>
-        </div>
+            </div>
                 <animated-agent-avatar class="assistant-startup-avatar">
                     <button type="button" class="assistant-avatar-touch" aria-label="戳戳海问香" title="戳戳海问香">
                     <img src={url("/assets/images/assistant/haiwenxiang-avatar.png")} width="160" height="160" alt="海问香的 Q 版像素头像" decoding="async" />
@@ -25,6 +26,7 @@ import { url } from "@/utils/url-utils";
                     </svg>
                     </button>
                 </animated-agent-avatar>
+        </div>
                 <terminal-verse class="assistant-startup-verse" role="group" aria-label="枕星河之倒影兮与星光同流，望群星之包覆兮随繁星同辉。">
                     <span class="verse-line" data-verse-line="枕星河之倒影兮与星光同流，" aria-hidden="true"><span data-verse-text>枕星河之倒影兮与星光同流，</span><span class="verse-cursor" hidden>|</span></span>
                     <span class="verse-line" data-verse-line="望群星之包覆兮随繁星同辉。" aria-hidden="true"><span data-verse-text>望群星之包覆兮随繁星同辉。</span><span class="verse-cursor" hidden>|</span></span>
@@ -38,14 +40,14 @@ import { url } from "@/utils/url-utils";
                 </div>
                 <p class="assistant-preview-note">可以聊聊，也可以一起读博文。扩展内容单独标注，仅提供站内博文链接。<br />草稿保存在此浏览器，问答由服务端处理并保存。</p>
             </div>
-            <div data-assistant-messages></div>
+            <div data-assistant-messages role="log" aria-live="polite" aria-relevant="additions text"></div>
         </div>
         <form class="assistant-composer" aria-label="给海问香写下问题">
             <label for="haiwenxiang-draft">guest@haiwenxiang:~ ❯</label>
             <textarea id="haiwenxiang-draft" name="draft" maxlength="4000" rows="3" placeholder="关于博文，有什么想聊的？" aria-describedby="assistant-send-note" spellcheck="false"></textarea>
             <div class="assistant-composer-actions"><span id="assistant-send-note" role="status" aria-live="polite">正在检查模型服务</span><button type="submit" disabled aria-label="发送消息">发送<span aria-hidden="true">↑</span></button></div>
         </form>
-        <footer class="assistant-footer"><span data-assistant-save-status role="status" aria-live="polite">仅保存在此浏览器</span><button type="button" data-assistant-clear>清空对话</button></footer>
+        <footer class="assistant-footer"><div><span data-assistant-save-status role="status" aria-live="polite">仅保存在此浏览器</span><span class="assistant-login-note">助手与评论需分别登录 GitHub</span></div><button type="button" data-assistant-clear>清空对话</button></footer>
         <div class="assistant-clear-confirm" data-assistant-confirm hidden role="group" aria-labelledby="assistant-clear-title">
             <p id="assistant-clear-title">清空此浏览器的对话和草稿？</p><span>本地记录清空后无法恢复；已提交的任务不会被取消。</span>
             <div><button type="button" data-assistant-cancel>保留</button><button type="button" data-assistant-confirm-clear>确认清空</button></div>
