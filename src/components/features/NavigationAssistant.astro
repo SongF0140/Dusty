@@ -15,7 +15,7 @@ import AssistantWaterFrame from "./AssistantWaterFrame.astro";
             </div>
             <div class="assistant-account">
             <span class="assistant-connection">正在检查连接</span>
-            <a data-assistant-login href="/api/blog-auth?action=login" class="assistant-connection">GitHub 登录</a>
+            <a data-assistant-login href="/api/blog-auth?action=login" class="assistant-connection" title="助手与评论需分别登录 GitHub">GitHub 登录</a>
             <button data-assistant-logout type="button" class="assistant-connection" hidden>退出登录</button>
             </div>
                 <animated-agent-avatar class="assistant-startup-avatar">
@@ -36,21 +36,22 @@ import AssistantWaterFrame from "./AssistantWaterFrame.astro";
         </div>
         <div class="assistant-conversation" tabindex="0" aria-label="StarryLin/Geek 对话记录">
             <div class="assistant-empty" data-assistant-empty>
-
-                <div class="assistant-draft-prompts" aria-label="草稿灵感">
-                    <button type="button" data-assistant-prompt="这篇文章的核心观点是什么？">梳理文章的观点<span aria-hidden="true">↗</span></button>
-                    <button type="button" data-assistant-prompt="这个判断在什么条件下不成立？">想一想结论的边界<span aria-hidden="true">↗</span></button>
+                <h2 class="assistant-welcome">你好呀，我是 StarryLin。</h2>
+                <p class="assistant-invitation">想从哪篇文章聊起？<br />我陪你一起慢慢读。</p>
+                <div class="assistant-draft-prompts" aria-label="试着聊聊">
+                    <button type="button" data-assistant-prompt="帮我推荐几篇博客里的文章吧。">有什么文章值得一读？</button>
+                    <button type="button" data-assistant-prompt="陪我梳理一下这篇文章的主要内容吧。">陪我读读这篇文章</button>
                 </div>
-                <p class="assistant-preview-note">可以聊聊，也可以一起读博文。扩展内容单独标注，仅提供站内博文链接。<br />草稿保存在此浏览器，问答由服务端处理并保存。</p>
             </div>
             <div data-assistant-messages role="log" aria-live="polite" aria-relevant="additions text"></div>
         </div>
         <form class="assistant-composer" aria-label="给 StarryLin/Geek 写下问题">
-            <label for="haiwenxiang-draft">留个问题，慢慢聊。</label>
-            <textarea id="haiwenxiang-draft" name="draft" maxlength="4000" rows="3" placeholder="关于博文，有什么想聊的？" aria-describedby="assistant-send-note" spellcheck="false"></textarea>
-            <div class="assistant-composer-actions"><span id="assistant-send-note" role="status" aria-live="polite">正在检查模型服务</span><button type="submit" disabled aria-label="发送消息">发送<span aria-hidden="true">↑</span></button></div>
+            <div class="assistant-composer-meta"><span id="assistant-send-note" role="status" aria-live="polite"></span></div>
+            <label class="assistant-accessible" for="haiwenxiang-draft">和 StarryLin 聊聊</label>
+            <textarea id="haiwenxiang-draft" name="draft" maxlength="4000" rows="2" placeholder="和 StarryLin 聊聊…" aria-describedby="assistant-send-note" spellcheck="false"></textarea>
+            <div class="assistant-composer-actions"><button type="button" data-assistant-clear>清空对话</button><button type="submit" disabled aria-label="发送消息">发送</button></div>
         </form>
-        <footer class="assistant-footer"><div><span data-assistant-save-status role="status" aria-live="polite">仅保存在此浏览器</span><span class="assistant-login-note">助手与评论需分别登录 GitHub</span></div><button type="button" data-assistant-clear>清空对话</button></footer>
+        <span class="assistant-accessible" data-assistant-save-status role="status" aria-live="polite"></span>
         <div class="assistant-clear-confirm" data-assistant-confirm hidden role="group" aria-labelledby="assistant-clear-title">
             <p id="assistant-clear-title">清空此浏览器的对话和草稿？</p><span>本地记录清空后无法恢复；已提交的任务不会被取消。</span>
             <div><button type="button" data-assistant-cancel>保留</button><button type="button" data-assistant-confirm-clear>确认清空</button></div>

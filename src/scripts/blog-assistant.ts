@@ -89,7 +89,6 @@ class BlogAssistant extends HTMLElement {
 		const messages = required<HTMLElement>(this, "[data-assistant-messages]");
 		const empty = required<HTMLElement>(this, "[data-assistant-empty]");
 		const connection = required<HTMLElement>(this, ".assistant-connection");
-		const preview = required<HTMLElement>(this, ".assistant-preview-note");
 		const confirmation = required<HTMLElement>(
 			this,
 			"[data-assistant-confirm]",
@@ -231,7 +230,7 @@ class BlogAssistant extends HTMLElement {
 						Math.max(1500, Array.from(result.content).length * 65),
 					),
 				);
-				note.textContent = "仅提供站内博文链接";
+				note.textContent = "每天可聊 20 次";
 			} catch (error) {
 				if (signal.aborted) return;
 				const reason =
@@ -395,7 +394,7 @@ class BlogAssistant extends HTMLElement {
 				dirty = true;
 				save();
 				render();
-				note.textContent = "每天 20 次 · 可以继续聊";
+				note.textContent = "每天可聊 20 次";
 				conversation.scrollTop = conversation.scrollHeight;
 				void waitFor(item);
 			},
@@ -445,18 +444,16 @@ class BlogAssistant extends HTMLElement {
 						? "请使用 GitHub 登录"
 						: "等待 GitHub 登录配置";
 				note.textContent = ready
-					? "每天 20 次 · 可以继续聊"
+					? "每天可聊 20 次"
 					: config.authConfigured
 						? "请先使用 GitHub 登录"
 						: "博主尚未配置 GitHub 登录";
-				preview.textContent =
-					"从一篇博文聊起。知识回答优先依据博客，补充内容单独标注。";
 				render();
 			})
 			.catch(() => {
 				if (!lifetime.signal.aborted) {
 					connection.textContent = "服务暂不可用";
-					note.textContent = "请稍后重试；本地接口需使用 Vercel dev";
+					note.textContent = "暂时连接不上，请稍后再试";
 				}
 			});
 		window.addEventListener("pagehide", save, options);
