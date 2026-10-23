@@ -15,10 +15,9 @@ const { class: className, style, noteId = "reading-tips" } = Astro.props;
     reading-note { display: flex; flex-direction: column; gap: .55rem; width: 100%; }
     reading-note label { font-size: .75rem; color: var(--retro-muted); }
     reading-note textarea {
-        width: 100%; height: 104px; min-height: 0; resize: none; overflow-y: auto;
+        width: 100%; height: 104px; min-height: 104px; resize: none; overflow-y: hidden;
         border: 0; border-radius: 4px; padding: .5rem; background: color-mix(in srgb, var(--retro-yellow) 25%, var(--retro-surface));
         color: var(--retro-ink); font: inherit; font-size: .85rem; line-height: 1.8;
-        scrollbar-width: thin;
     }
     reading-note textarea:focus-visible { outline: 2px solid var(--retro-green); outline-offset: 2px; }
     reading-note textarea::placeholder { color: var(--retro-muted); opacity: .7; }
@@ -39,7 +38,12 @@ class ReadingNote extends HTMLElement {
         const count = this.querySelector<HTMLElement>("[data-note-count]")!;
         let path = "", timer: ReturnType<typeof setTimeout> | undefined, dirty = false;
         const storage = () => { try { return localStorage; } catch { return null; } };
-        const counter = () => { count.textContent = String(input.value.length); };
+        const fit = () => {
+            if (!input.clientWidth) return;
+            input.style.height = "auto";
+            input.style.height = `${Math.max(104, input.scrollHeight)}px`;
+        };
+        const counter = () => { count.textContent = String(input.value.length); fit(); };
         const save = () => {
             clearTimeout(timer);
             if (!dirty || !path) return;
@@ -75,8 +79,18 @@ class ReadingNote extends HTMLElement {
         const attach = () => { window.swup?.hooks.on("visit:start", save); window.swup?.hooks.on("page:view", load); };
         if (swup) attach(); else document.addEventListener("swup:enable", attach, { once: true });
         load();
+        let lastWidth = 0;
+        const resize = new ResizeObserver(([entry]) => {
+            if (entry.contentRect.width !== lastWidth) {
+                lastWidth = entry.contentRect.width;
+                fit();
+            }
+        });
+        resize.observe(input);
+        void document.fonts.ready.then(() => { if (this.isConnected) fit(); });
         this.dispose = () => {
             save(); clearTimeout(timer);
+            resize.disconnect();
             input.removeEventListener("input", onInput); input.removeEventListener("blur", save);
             window.removeEventListener("pagehide", save); window.removeEventListener("storage", onStorage);
             document.removeEventListener("visibilitychange", onVisibility); document.removeEventListener("astro:page-load", load);

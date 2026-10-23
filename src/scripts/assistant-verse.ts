@@ -44,7 +44,21 @@ class TerminalVerse extends HTMLElement {
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.font = '12px "SimSun", "Songti SC", monospace';
 			context.textBaseline = "top";
-			context.fillStyle = getComputedStyle(this).color;
+			const style = getComputedStyle(this);
+			const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+			gradient.addColorStop(
+				0,
+				style.getPropertyValue("--sea-text-start").trim() || style.color,
+			);
+			gradient.addColorStop(
+				0.48,
+				style.getPropertyValue("--sea-text-mid").trim() || style.color,
+			);
+			gradient.addColorStop(
+				1,
+				style.getPropertyValue("--sea-text-end").trim() || style.color,
+			);
+			context.fillStyle = gradient;
 			for (let i = 0; i < count; i++) context.fillText(line.text[i], i * 13, 2);
 			const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
 			for (let i = 0; i < pixels.data.length; i += 4) {

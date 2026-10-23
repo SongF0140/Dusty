@@ -27,32 +27,28 @@
 #command-navigation .navigation-mode-tab:focus-visible { outline: 2px solid #74ff9b; outline-offset: 2px; }
 
 
-/* Clear water, seafoam and soft blue light; share the terminal's drawer width. */
+/* Blue-black surfaces and shared pale-blue text; independent of page theme. */
 #command-navigation[data-mode="assistant"] {
-    --sea-ink: #183e55; --sea-muted: #4e7383; --sea-accent: #236f94;
-    --sea-line: #a1c8d4; --sea-paper: #edf8fc; --sea-soft: #d6eff0;
-    --sea-hover: #dceef6; --sea-tide: #d4e9f0; --sea-input: #f9fdff;
-    --sea-placeholder: #4d7182; --sea-disabled-bg: #e0edf2; --sea-disabled-ink: #688593;
+    --sea-ink: #d8eaff; --sea-muted: #9cb6d4; --sea-accent: #a4c8ef;
+    --sea-text-start: #d8efff; --sea-text-mid: #b8d6ff; --sea-text-end: #91bdf4;
+    --sea-text-gradient: linear-gradient(105deg,var(--sea-text-start),var(--sea-text-mid) 48%,var(--sea-text-end));
+    --sea-line: #293b53; --sea-paper: #0d1624; --sea-soft: #192b43;
+    --sea-hover: #1e3049; --sea-tide: #0d1624; --sea-input: #101d2f;
+    --sea-placeholder: #9cb6d4; --sea-disabled-bg: #25364d; --sea-disabled-ink: #93a8c3;
     background: var(--sea-paper); color: var(--sea-ink);
-    border: 1px solid var(--sea-line); border-radius: 28px 28px 25px 25px;
-    box-shadow: 0 22px 70px #103c5550, 0 0 0 1px #d5eff630;
+    border: 1px solid var(--sea-line); border-radius: 24px;
+    box-shadow: 0 16px 48px #07101c38;
     font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
-}
-html.dark #command-navigation[data-mode="assistant"] {
-    --sea-ink: #dff4fc; --sea-muted: #a0c2d1; --sea-accent: #91dbed;
-    --sea-line: #426780; --sea-paper: #0b2034; --sea-soft: #173e50;
-    --sea-hover: #24465e; --sea-tide: #17374e; --sea-input: #112c43;
-    --sea-placeholder: #97b6c6; --sea-disabled-bg: #203e52; --sea-disabled-ink: #a0bbca;
 }
 #command-navigation[data-mode="assistant"] .terminal-titlebar {
     background: var(--sea-tide); color: var(--sea-ink); border-color: var(--sea-line);
-    border-radius: 27px 27px 0 0; padding-inline: 19px;
+    border-radius: 23px 23px 0 0; padding-inline: 19px;
 }
 #command-navigation[data-mode="assistant"] [data-navigation-title] {
     color: var(--sea-muted); font: 600 10px/1.4 "Courier New", monospace; letter-spacing: .13em;
 }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab {
-    border-radius: 45% 42% 40% 38%; color: var(--sea-ink);
+    border-radius: 8px; color: var(--sea-ink);
 }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab span { color: var(--sea-ink); }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab[aria-selected="true"] {
@@ -62,7 +58,7 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation[data-mode="assistant"] .terminal-titlebar .navigation-mode-tab:is(:hover,:active,:focus) { background: transparent; box-shadow: none; }
 #command-navigation[data-mode="assistant"] #command-navigation-close { color: var(--sea-ink); border-radius: 50%; }
 #command-navigation .assistant-panel { position: static; overflow: hidden; animation: none; }
-#command-navigation .assistant-water-frame { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; border-radius: 27px 27px 24px 24px; }
+#command-navigation .assistant-water-frame { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; border-radius: 23px; opacity: .3; }
 #command-navigation .assistant-water-frame canvas { display: block; width: 100%; height: 100%; }
 #command-navigation haiwenxiang-assistant { position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
 #command-navigation .assistant-heading {
@@ -135,10 +131,11 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-composer-meta { min-height: 22px; margin-bottom: 10px; text-align: right; color: var(--sea-muted); font: 11px/1.8 system-ui, "PingFang SC", sans-serif; overflow-wrap: anywhere; }
 #command-navigation .assistant-composer textarea {
     display: block; width: 100%; min-height: 70px; height: 76px; max-height: 120px;
-    overflow-y: auto; resize: none; border: 1px solid var(--sea-line); border-radius: 18px; outline: none; box-shadow: none; padding: 13px 15px;
+    overflow-y: auto; resize: none; scrollbar-width: none; border: 1px solid var(--sea-line); border-radius: 18px; outline: none; box-shadow: none; padding: 13px 15px;
     background: var(--sea-input); color: var(--sea-ink); font: 15px/1.7 system-ui, "PingFang SC", sans-serif;
 }
 #command-navigation .assistant-composer textarea:focus { border-color: var(--sea-accent); outline: 2px solid color-mix(in srgb,var(--sea-accent) 22%,transparent); outline-offset: 2px; }
+#command-navigation .assistant-composer textarea::-webkit-scrollbar { display: none; }
 #command-navigation .assistant-composer textarea::placeholder { color: var(--sea-placeholder); opacity: 1; }
 #command-navigation .assistant-composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 #command-navigation .assistant-composer-actions button[type="submit"] {
@@ -150,6 +147,18 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-composer-actions button[type="submit"]:not(:disabled) { color: var(--sea-paper); background: var(--sea-accent); cursor: pointer; }
 #command-navigation [data-assistant-clear] { padding: 7px 0; color: var(--sea-muted); background: transparent; font: 13px/1.6 system-ui, "PingFang SC", sans-serif; cursor: pointer; }
 #command-navigation [data-assistant-clear]:hover { color: var(--sea-accent); background: transparent; }
+/* Text and pixel verse draw from the same three color stops. */
+#command-navigation[data-mode="assistant"] :is(.assistant-welcome,.assistant-invitation,.assistant-message-body,.assistant-message > span,.assistant-draft-prompts button,.assistant-connection,#assistant-send-note,[data-assistant-clear],[data-navigation-title],.navigation-mode-tab span) {
+    background-image: var(--sea-text-gradient); background-clip: text; -webkit-background-clip: text; color: transparent;
+}
+#command-navigation .assistant-draft-prompts button:hover {
+    background-color: var(--sea-hover); background-image: var(--sea-text-gradient); background-clip: text; color: transparent;
+}
+#command-navigation .assistant-message-body a { color: inherit; text-decoration-color: var(--sea-accent); }
+#command-navigation .assistant-message-body code { color: var(--sea-ink); }
+@media (forced-colors: active) {
+    #command-navigation[data-mode="assistant"] :is(.assistant-welcome,.assistant-invitation,.assistant-message-body,.assistant-message > span,.assistant-draft-prompts button,.assistant-connection,#assistant-send-note,[data-assistant-clear],[data-navigation-title],.navigation-mode-tab span) { background-image: none; color: CanvasText; }
+}
 #command-navigation .assistant-clear-confirm { position: absolute; bottom: 40px; left: 22px; right: 22px; padding: 20px; border: 2px solid var(--sea-line); border-radius: 23px; background: var(--sea-paper); color: var(--sea-ink); box-shadow: 4px 5px 0 var(--sea-line); z-index: 2; }
 #command-navigation .assistant-clear-confirm p { margin: 0 0 7px; font-size: 14px; }
 #command-navigation .assistant-clear-confirm > span { font-size: 11px; color: var(--sea-muted); }
