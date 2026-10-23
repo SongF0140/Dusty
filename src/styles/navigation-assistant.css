@@ -17,7 +17,11 @@
     transition: background-color 160ms ease, opacity 160ms ease;
 }
 #command-navigation .navigation-mode-tab span { font: 10px/1.2 "JetBrains Mono Variable", "Courier New", monospace; letter-spacing: .02em; color: #dbece3; }
-#command-navigation .navigation-mode-tab[aria-selected="true"] { border-color: #3f7150; background: #183222; opacity: 1; }
+#command-navigation .navigation-mode-tab[aria-selected="true"] { border-bottom-color: #74ff9b; opacity: 1; }
+#command-navigation .navigation-mode-tab,
+#command-navigation .navigation-mode-tab:is(:hover,:active,:focus) {
+    background: transparent; box-shadow: none; filter: none; -webkit-tap-highlight-color: transparent;
+}
 #command-navigation .navigation-mode-tab:hover { opacity: 1; }
 #command-navigation .navigation-mode-avatar { display: block; width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; }
 #command-navigation .navigation-mode-tab:focus-visible { outline: 2px solid #74ff9b; outline-offset: 2px; }
@@ -32,7 +36,6 @@
     background: var(--sea-paper); color: var(--sea-ink);
     border: 1px solid var(--sea-line); border-radius: 28px 28px 25px 25px;
     box-shadow: 0 22px 70px #103c5550, 0 0 0 1px #d5eff630;
-    animation: assistant-border-tide 8s ease-in-out infinite;
     font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 html.dark #command-navigation[data-mode="assistant"] {
@@ -53,22 +56,14 @@ html.dark #command-navigation[data-mode="assistant"] {
 }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab span { color: var(--sea-ink); }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab[aria-selected="true"] {
-    border: 1px solid var(--sea-line); background: var(--sea-soft); box-shadow: 0 2px 8px #2586a01a;
+    border-color: transparent; border-bottom-color: var(--sea-accent); background: transparent; box-shadow: none;
 }
 #command-navigation[data-mode="assistant"] .terminal-titlebar button:hover { background: var(--sea-hover); color: var(--sea-ink); }
+#command-navigation[data-mode="assistant"] .terminal-titlebar .navigation-mode-tab:is(:hover,:active,:focus) { background: transparent; box-shadow: none; }
 #command-navigation[data-mode="assistant"] #command-navigation-close { color: var(--sea-ink); border-radius: 50%; }
 #command-navigation .assistant-panel { position: static; overflow: hidden; animation: none; }
 #command-navigation .assistant-water-frame { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; border-radius: 27px 27px 24px 24px; }
-#command-navigation .assistant-water-edge { position: absolute; overflow: hidden; fill: none; stroke: var(--sea-accent); stroke-width: 1; opacity: .32; }
-#command-navigation .assistant-water-horizontal { left: 0; width: 100%; height: 14px; }
-#command-navigation .assistant-water-horizontal[data-edge="top"] { top: 0; }
-#command-navigation .assistant-water-horizontal[data-edge="bottom"] { bottom: 0; transform: rotate(180deg); }
-#command-navigation .assistant-water-vertical { top: 0; height: 100%; width: 13px; }
-#command-navigation .assistant-water-vertical[data-edge="left"] { left: 0; }
-#command-navigation .assistant-water-vertical[data-edge="right"] { right: 0; transform: scaleX(-1); }
-#command-navigation .assistant-water-line { vector-effect: non-scaling-stroke; animation: assistant-wave-across 7s ease-in-out infinite; }
-#command-navigation .assistant-water-vertical .assistant-water-line { animation-name: assistant-wave-down; animation-duration: 9s; }
-#command-navigation .assistant-water-echo { opacity: .45; animation-delay: -3.5s; }
+#command-navigation .assistant-water-frame canvas { display: block; width: 100%; height: 100%; }
 #command-navigation haiwenxiang-assistant { position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
 #command-navigation .assistant-heading {
     position: relative; padding: 12px 20px; display: grid; grid-template-columns: 44px minmax(0,1fr) auto;
@@ -87,7 +82,10 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-startup-avatar { display: block; grid-column: 1; grid-row: 1; width: 44px; height: 44px; margin: 0; }
 #command-navigation .assistant-startup-avatar :is(img,canvas) { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
 #command-navigation .assistant-avatar-touch { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; touch-action: manipulation; overflow: visible; }
-#command-navigation .assistant-avatar-touch:is(:hover,:active,:focus-visible) { background: transparent; box-shadow: none; filter: none; }
+#command-navigation .assistant-avatar-touch:is(:hover,:active,:focus) { background: transparent; box-shadow: none; filter: none; -webkit-tap-highlight-color: transparent; }
+#command-navigation :is(.assistant-avatar-touch,.navigation-mode-tab)::before,
+#command-navigation :is(.assistant-avatar-touch,.navigation-mode-tab)::after { content: none; }
+#command-navigation :is(.assistant-avatar-touch,.navigation-mode-tab):focus:not(:focus-visible) { outline: none; }
 #command-navigation .assistant-puff-burst { position: absolute; width: 30px; height: 25px; right: -8px; top: 2px; opacity: 0; pointer-events: none; transform-origin: 20% 90%; overflow: visible; }
 #command-navigation .assistant-startup-verse { display: block; min-width: 0; font: 12px/1.9 "Songti SC", "SimSun", serif; color: var(--sea-accent); margin: 0; }
 #command-navigation .assistant-startup-verse .verse-line { display: block; position: relative; width: 100%; min-height: 1.6em; }
@@ -165,9 +163,6 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation[data-mode="assistant"] :is(button,a,.assistant-conversation):focus-visible { outline: 2px solid var(--sea-accent); outline-offset: 4px; }
 @keyframes navigation-panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes verse-cursor-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
-@keyframes assistant-wave-across { 0%,100% { transform: translate(-12px,0); } 50% { transform: translate(12px,-2px); } }
-@keyframes assistant-wave-down { 0%,100% { transform: translate(0,-15px); } 50% { transform: translate(-2px,15px); } }
-@keyframes assistant-border-tide { 0%,100% { border-color: var(--sea-line); } 50% { border-color: var(--sea-accent); } }
 @media (max-height: 650px) {
     #command-navigation .assistant-heading { padding-block: 7px; }
     #command-navigation .assistant-composer textarea { height: 42px; min-height: 40px; }
@@ -184,7 +179,7 @@ html.dark #command-navigation[data-mode="assistant"] {
     #command-navigation .assistant-footer { padding-inline: 19px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    #command-navigation[data-mode="assistant"], #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor, #command-navigation .assistant-water-line,
+    #command-navigation[data-mode="assistant"], #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor,
     #command-navigation .assistant-message[data-streaming="true"] .assistant-message-body::after { animation: none; }
     #command-navigation :is(.navigation-mode-tab,.assistant-draft-prompts button,.assistant-composer-actions button) { transition: none; }
 }

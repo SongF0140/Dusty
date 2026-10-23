@@ -1,14 +1,10 @@
 ---
 import { url } from "@/utils/url-utils";
-const horizontalWave = "M-100 9Q-75 1-50 9T0 9T50 9T100 9T150 9T200 9T250 9T300 9T350 9T400 9T450 9T500 9";
-const verticalWave = "M9-100Q1-75 9-50T9 0T9 50T9 100T9 150T9 200T9 250T9 300T9 350T9 400T9 450T9 500T9 550T9 600T9 650T9 700T9 750T9 800T9 850T9 900";
+import AssistantWaterFrame from "./AssistantWaterFrame.astro";
 ---
 
 <section id="navigation-assistant-panel" class="navigation-mode-panel assistant-panel" role="tabpanel" aria-labelledby="navigation-assistant-tab" hidden>
-    <div class="assistant-water-frame" aria-hidden="true">
-        { ["top", "bottom"].map(edge => <svg class="assistant-water-edge assistant-water-horizontal" data-edge={edge} viewBox="0 0 400 18" preserveAspectRatio="none" focusable="false"><path class="assistant-water-line" d={horizontalWave} /><path class="assistant-water-line assistant-water-echo" d={horizontalWave} /></svg>) }
-        { ["left", "right"].map(edge => <svg class="assistant-water-edge assistant-water-vertical" data-edge={edge} viewBox="0 0 18 800" preserveAspectRatio="none" focusable="false"><path class="assistant-water-line" d={verticalWave} /><path class="assistant-water-line assistant-water-echo" d={verticalWave} /></svg>) }
-    </div>
+    <AssistantWaterFrame />
     <haiwenxiang-assistant>
         <div class="assistant-heading">
             <div class="assistant-identity">
