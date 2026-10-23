@@ -11,6 +11,10 @@ const { src, name } = Astro.props;
       <svg class="portrait-ink-frame" viewBox="0 0 590 640" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path d="M28 11C170 8 390 14 558 10Q579 10 579 32L581 601Q580 627 553 627C398 630 175 624 31 628Q11 628 12 602L10 34Q9 12 28 11Z" />
         <path d="M32 23C177 20 405 27 551 22Q568 24 568 42L567 596Q569 614 549 615C383 611 187 620 40 615Q23 617 23 596L24 43Q21 24 32 23Z" />
+        <g class="portrait-motion-marks">
+          <path d="M48 8L54 29M41 22L62 16M3 91L22 83M6 107L22 103M531 6L523 24M543 16L529 29M570 176L588 171M572 191L587 194M6 488L23 491M8 502L24 505M52 612L58 635M44 627L67 620M528 612L535 636M520 628L544 620" />
+          <path d="M88 13L92 4L96 14L106 18L96 22L92 32L88 22L78 18ZM565 542L569 534L573 543L581 547L573 551L569 559L565 551L557 547Z" />
+        </g>
       </svg>
     </button>
     <section class="portrait-face portrait-back" data-portrait-back aria-label="蓝黄星月旗帘与海问香的花园" aria-hidden="true" inert>
@@ -37,6 +41,11 @@ const { src, name } = Astro.props;
   .portrait-front { overflow: hidden; padding: 12px; border: 0; border-radius: 14px; cursor: pointer; background: var(--retro-surface); color: var(--retro-ink); transform: translateZ(1px); }
   .portrait-ink-frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .portrait-ink-frame path { vector-effect: non-scaling-stroke; }
+  .portrait-ink-frame > path { animation: portrait-frame-jiggle 6s linear infinite; }
+  .portrait-motion-marks { opacity: 0; animation: portrait-frame-spark 6s linear infinite; }
+  .portrait-motion-marks path { stroke-width: 1.4; }
+  profile-portrait[data-flipped="true"] .portrait-ink-frame,
+  profile-portrait[data-flipped="true"] .portrait-ink-frame * { animation-play-state: paused; }
   .portrait-front :global(.portrait-image) { overflow: hidden; border-radius: 5px; }
   .portrait-front :global(.portrait-image), .portrait-front :global(img) { width: 100%; height: 100%; }
   .portrait-front :global(img) { object-fit: cover; object-position: center; transform: scale(1.1); animation: portrait-idle-shake 6s linear infinite; }
@@ -45,6 +54,16 @@ const { src, name } = Astro.props;
     0%, 90%, 100% { transform: translateX(0) rotate(0deg) scale(1.1); }
     92%, 96% { transform: translateX(-1.75px) rotate(-0.55deg) scale(1.1); }
     94%, 98% { transform: translateX(1.75px) rotate(0.55deg) scale(1.1); }
+  }
+  @keyframes portrait-frame-jiggle {
+    0%, 90%, 100% { transform: translate(0,0); }
+    92%, 96% { transform: translate(-.5px,.3px); }
+    94%, 98% { transform: translate(.5px,-.3px); }
+  }
+  @keyframes portrait-frame-spark {
+    0%, 90%, 100% { opacity: 0; }
+    91%, 95%, 98% { opacity: .9; }
+    93%, 97% { opacity: .3; }
   }
   .portrait-back { transform: rotateY(180deg) translateZ(1px); }
   .portrait-back-flip { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; z-index: 4; }
@@ -71,6 +90,6 @@ const { src, name } = Astro.props;
   :global(.royal-ribbon-burst .royal-ribbon svg) { display: block; width: 100%; height: 100%; overflow: visible; }
   profile-portrait button:focus-visible { outline: 2px solid #ffe59c; outline-offset: 2px; }
   @media (max-width: 1023px) { profile-portrait { max-width: 17rem; margin-inline: auto; } }
-  @media (prefers-reduced-motion: reduce) { .portrait-turn, .royal-curtain, .royal-cord { transition: none; } .portrait-front :global(img) { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .portrait-turn, .royal-curtain, .royal-cord { transition: none; } .portrait-front :global(img), .portrait-ink-frame, .portrait-ink-frame * { animation: none; } }
 </style>
 <script>import "@/scripts/profile-portrait";</script>
