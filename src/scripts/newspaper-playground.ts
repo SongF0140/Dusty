@@ -25,7 +25,7 @@ class NewspaperPlayground extends HTMLElement {
 		let lastScrollY = window.scrollY;
 		const leanRopes = (delta: number) => {
 			if (Math.abs(delta) < 1) return;
-			layer.style.setProperty("--rope-lean", delta > 0 ? "-2.4deg" : "2.4deg");
+			layer.style.setProperty("--rope-lean", delta > 0 ? "-7.5deg" : "7.5deg");
 		};
 		let pointer: { x: number; y: number } | undefined;
 		const rect = (selector: string) => {
