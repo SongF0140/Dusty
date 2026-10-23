@@ -3,7 +3,7 @@ interface Props { text:string; generated?:boolean }
 const {text,generated=false}=Astro.props;
 ---
 {text && <article-summary class="article-summary" data-summary={text} data-pagefind-ignore>
-  <span class="summary-label">{generated ? "海问香 · 摘要" : "文章简介"}<span aria-hidden="true"> / </span></span>
+  <span class="summary-label">{generated ? "StarryLin/Geek · 摘要" : "文章简介"}<span aria-hidden="true"> / </span></span>
   <p class="summary-content">
     <span class="summary-reserve" aria-hidden="true">{text}</span>
     <span class="summary-visible" aria-hidden="true"><span data-summary-output>{text}</span><span class="summary-cursor" aria-hidden="true">▎</span></span>

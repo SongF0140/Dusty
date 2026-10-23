@@ -83,8 +83,12 @@ export function createBlogRuntime(
 					baseUrl: env.BLOG_LLM_BASE_URL || "",
 					model: env.BLOG_LLM_MODEL || "",
 					apiKey: env.BLOG_LLM_API_KEY || "",
-					fetch: observeModelFetch(fetcher, (code) => {
+					fetch: observeModelFetch(fetcher, (code, status) => {
 						modelFailure = code;
+						console.warn(
+							"Blog model rejection",
+							JSON.stringify({ code, status }),
+						);
 					}),
 				}),
 			});

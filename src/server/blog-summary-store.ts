@@ -43,7 +43,7 @@ export function postgresSummaryStore(query: SummaryQuery): SummaryStore {
 	return {
 		async get(id) {
 			const rows = await query(
-				"SELECT content_hash,summary,source,model FROM blog_post_summaries WHERE post_id=$1",
+				"SELECT content_hash,summary,source,model,summary_version FROM blog_post_summaries WHERE post_id=$1",
 				[id],
 			);
 			const row = rows[0];
@@ -53,17 +53,21 @@ export function postgresSummaryStore(query: SummaryQuery): SummaryStore {
 				summary: String(row.summary),
 				source: row.source === "model" ? "model" : "manual",
 				...(typeof row.model === "string" ? { model: row.model } : {}),
+				...(typeof row.summary_version === "string"
+					? { summaryVersion: row.summary_version }
+					: {}),
 			};
 		},
 		async put(id, record) {
 			await query(
-				"INSERT INTO blog_post_summaries(post_id,content_hash,summary,source,model) VALUES($1,$2,$3,$4,$5) ON CONFLICT(post_id) DO UPDATE SET content_hash=excluded.content_hash,summary=excluded.summary,source=excluded.source,model=excluded.model,updated_at=now()",
+				"INSERT INTO blog_post_summaries(post_id,content_hash,summary,source,model,summary_version) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(post_id) DO UPDATE SET content_hash=excluded.content_hash,summary=excluded.summary,source=excluded.source,model=excluded.model,summary_version=excluded.summary_version,updated_at=now()",
 				[
 					id,
 					record.contentHash,
 					record.summary,
 					record.source,
 					record.model ?? null,
+					record.summaryVersion ?? null,
 				],
 			);
 		},

@@ -34,8 +34,8 @@ test("provider HTTP failures become safe actionable errors without exposing the 
 		},
 	)("https://model.test/v1/chat/completions");
 	assert.equal(response.status, 429);
-	assert.equal(failure, "quota_or_rate_limit");
-	assert.match(modelFailureMessage(failure), /模型服务.*额度.*限流/);
+	assert.equal(failure, "rate_limit");
+	assert.match(modelFailureMessage(failure), /模型服务.*限流/);
 	assert.ok(!modelFailureMessage(failure).includes("secret"));
 	let called = false;
 	await observeModelFetch(
@@ -45,4 +45,38 @@ test("provider HTTP failures become safe actionable errors without exposing the 
 		},
 	)("https://model.test");
 	assert.equal(called, false);
+});
+
+test("separates expired quota, exhausted credit and rate limiting instead of calling every 429 a balance problem", async () => {
+	for (const [status, body, expected] of [
+		[
+			429,
+			{ error: { code: "quota_expired", message: "quota expired" } },
+			"quota_expired",
+		],
+		[
+			429,
+			{
+				error: { code: "insufficient_quota", message: "insufficient balance" },
+			},
+			"insufficient_balance",
+		],
+		[
+			429,
+			{ error: { type: "rate_limit_error", message: "RPM exceeded" } },
+			"rate_limit",
+		],
+		[403, { error: { message: "insufficient permissions" } }, "authentication"],
+	]) {
+		let code;
+		await observeModelFetch(
+			async () => Response.json(body, { status }),
+			(value) => {
+				code = value;
+			},
+		)("https://model.test");
+		assert.equal(code, expected);
+	}
+	assert.equal(modelFailureCode("request id abc429def"), "unknown");
+	assert.equal(modelFailureCode("insufficient permissions"), "unknown");
 });

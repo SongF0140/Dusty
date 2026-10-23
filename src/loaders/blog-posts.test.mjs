@@ -57,12 +57,12 @@ test("content loader populates description, reuses summary cache and refreshes c
 		};
 		await loader.load(context);
 		await loader.load(context);
-		assert.equal(calls, 0);
-		assert.equal(result.summaryGenerated, false);
-		assert.equal(result.description, "原简介");
+		assert.equal(calls, 1);
+		assert.equal(result.summaryGenerated, true);
+		assert.equal(result.description, "本文介绍暂存区与工作区之间的关系。");
 		await writeFile(file, `${content}\n新增内容`);
 		await loader.load(context);
-		assert.equal(calls, 1);
+		assert.equal(calls, 2);
 		assert.equal(result.summaryGenerated, true);
 		assert.equal(result.description, "本文介绍暂存区与工作区之间的关系。");
 	} finally {

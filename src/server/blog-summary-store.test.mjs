@@ -74,5 +74,6 @@ test("Neon summary cache uses bound parameters and content-specific keys", async
 		"'摘要'",
 		"manual",
 		null,
+		null,
 	]);
 });

@@ -17,6 +17,7 @@ else {
 				"004-blog-agent.sql",
 				"005-blog-queue.sql",
 				"006-align-initial-summary-baselines.sql",
+				"007-ai-summary-version.sql",
 			].map(async (name) =>
 				splitSqlCommands(
 					await readFile(

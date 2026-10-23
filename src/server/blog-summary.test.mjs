@@ -3,6 +3,7 @@ import test from "node:test";
 import {
 	compatibleSummaryGenerator,
 	createSummaryService,
+	SUMMARY_VERSION,
 	summaryFingerprint,
 } from "./blog-summary.ts";
 
@@ -21,7 +22,7 @@ function cache() {
 		},
 	};
 }
-test("seeds the existing description verbatim and regenerates only when the body changes", async () => {
+test("replaces legacy introductions with an AI summary immediately and reuses unchanged v3 summaries", async () => {
 	let calls = 0;
 	const store = cache();
 	const service = createSummaryService({
@@ -32,12 +33,18 @@ test("seeds the existing description verbatim and regenerates only when the body
 			return "撤销暂存时保留工作区修改。";
 		},
 	});
-	assert.equal(await service.summarize(post), "原简介");
+	await store.put(post.id, {
+		contentHash: summaryFingerprint(post),
+		summary: "原简介",
+		source: "manual",
+	});
+	assert.equal(await service.summarize(post), "撤销暂存时保留工作区修改。");
 	await service.summarize(post);
-	assert.equal(calls, 0);
-	assert.equal((await store.get(post.id)).source, "manual");
-	await service.summarize({ ...post, body: `${post.body}\n新增段落` });
 	assert.equal(calls, 1);
+	assert.equal((await store.get(post.id)).source, "model");
+	assert.equal((await store.get(post.id)).summaryVersion, SUMMARY_VERSION);
+	await service.summarize({ ...post, body: `${post.body}\n新增段落` });
+	assert.equal(calls, 2);
 	assert.equal((await store.get(post.id)).source, "model");
 	const otherModel = createSummaryService({
 		store,
@@ -69,18 +76,18 @@ test("deduplicates concurrent generation and never calls a model for draft or lo
 		},
 	});
 	await Promise.all([service.summarize(post), service.summarize(post)]);
-	assert.equal(calls, 0);
+	assert.equal(calls, 1);
 	await Promise.all([
 		service.summarize({ ...post, body: `${post.body}\n修改` }),
 		service.summarize({ ...post, body: `${post.body}\n修改` }),
 	]);
-	assert.equal(calls, 1);
+	assert.equal(calls, 2);
 	assert.equal(
 		await service.summarize({ ...post, password: "secret" }),
 		"原简介",
 	);
 	assert.equal(await service.summarize({ ...post, draft: true }), "原简介");
-	assert.equal(calls, 1);
+	assert.equal(calls, 2);
 });
 test("covers the end of a long article and merges partial summaries", async () => {
 	const inputs = [];
@@ -112,7 +119,11 @@ test("failed or invalid generation cannot become a cached summary", async () => 
 			throw Error("upstream");
 		},
 	});
-	await failed.summarize(post);
+	await store.put(post.id, {
+		contentHash: summaryFingerprint(post),
+		summary: "原简介",
+		source: "manual",
+	});
 	await assert.rejects(
 		failed.summarize({ ...post, body: `${post.body}\n修改` }),
 	);
@@ -125,6 +136,42 @@ test("failed or invalid generation cannot become a cached summary", async () => 
 	await assert.rejects(
 		invalid.summarize({ ...post, body: `${post.body}\n修改` }),
 	);
+});
+
+test("rejects summaries above 100 characters without truncating or replacing a valid stored introduction", async () => {
+	const store = cache();
+	await store.put(post.id, {
+		contentHash: summaryFingerprint(post),
+		summary: "原简介",
+		source: "manual",
+	});
+	const service = createSummaryService({
+		store,
+		model: "chosen",
+		generate: async () => "字".repeat(101),
+	});
+	await assert.rejects(service.summarize(post), /摘要/);
+	assert.equal((await store.get(post.id)).summary, "原简介");
+});
+
+test("one provider failure stops the remaining regeneration queue without replacing old summaries", async () => {
+	let calls = 0;
+	const store = cache();
+	const service = createSummaryService({
+		store,
+		model: "chosen",
+		generate: async () => {
+			calls++;
+			throw Error("provider unavailable");
+		},
+	});
+	const results = await Promise.allSettled([
+		service.summarize(post),
+		service.summarize({ ...post, id: "other" }),
+	]);
+	assert.ok(results.every((result) => result.status === "rejected"));
+	assert.equal(calls, 1);
+	assert.equal(await store.get(post.id), undefined);
 });
 
 test("initial seeding needs no model and accepts empty or long existing descriptions", async () => {

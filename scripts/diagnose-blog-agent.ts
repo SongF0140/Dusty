@@ -4,6 +4,15 @@ import { modelFailureCode } from "../src/server/blog-diagnostics.ts";
 // Runs where credentials already live. Output contains no identities, questions,
 // answers, provider error text, connection strings, or credentials.
 const database = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+console.log(
+	"Blog model configuration",
+	JSON.stringify({
+		model: /^deepseek[a-z0-9._-]{0,80}$/i.test(process.env.BLOG_LLM_MODEL || "")
+			? process.env.BLOG_LLM_MODEL
+			: "custom-model-id",
+		summaryEnabled: process.env.BLOG_SUMMARY_ENABLED !== "false",
+	}),
+);
 if (database) {
 	try {
 		const sql = neon(database);

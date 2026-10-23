@@ -63,12 +63,12 @@ export function blogPostsLoader(
 			});
 			context.logger.info(
 				sql
-					? "摘要存储：Neon Postgres；现有简介原样入库，正文变化后更新。"
-					: "摘要存储：本地文件；现有简介原样保留。",
+					? "摘要存储：Neon Postgres；AI 重写100字内简介，与 RAG 摘要共用。"
+					: "摘要存储：本地文件；AI 重写100字内简介，与 RAG 摘要共用。",
 			);
 			if (!configured)
 				context.logger.info(
-					"保留并入库现有简介；正文变化后需启用模型才能生成新摘要。",
+					"摘要模型未启用，暂保留已有简介；配置可用模型并启用后会重建摘要。",
 				);
 			await base.load({
 				...context,
