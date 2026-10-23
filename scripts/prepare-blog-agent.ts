@@ -11,7 +11,12 @@ else {
 	const sql = neon(database);
 	const commands = (
 		await Promise.all(
-			["004-blog-agent.sql", "005-blog-queue.sql"].map(async (name) =>
+			[
+				"002-preserve-existing-summaries.sql",
+				"004-blog-agent.sql",
+				"005-blog-queue.sql",
+				"006-align-initial-summary-baselines.sql",
+			].map(async (name) =>
 				splitSqlCommands(
 					await readFile(
 						new URL(`../migrations/${name}`, import.meta.url),
