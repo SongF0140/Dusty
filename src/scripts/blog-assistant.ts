@@ -1,5 +1,5 @@
 import { askBlogAssistant, pollBlogAssistant } from "../utils/blog-assistant";
-import { readBlogQuota } from "../utils/blog-quota.ts";
+import { BlogQuotaCounter } from "../utils/blog-quota.ts";
 import type { BlogArticle } from "../utils/blog-rag";
 import {
 	clearAssistantState,
@@ -89,20 +89,29 @@ class BlogAssistant extends HTMLElement {
 		const send = required<HTMLButtonElement>(this, "button[type=submit]");
 		const note = required<HTMLElement>(this, "#assistant-send-note");
 		const quotaLabel = required<HTMLElement>(this, "[data-assistant-quota]");
-		let quotaVersion = 0;
-		const updateQuota = (value: unknown) => {
-			quotaVersion++;
-			const quota = readBlogQuota(value);
+		const quotaCounter = new BlogQuotaCounter();
+		const renderQuota = () => {
+			const quota = quotaCounter.current;
 			quotaLabel.hidden = !account;
 			quotaLabel.textContent = quota
 				? `今日剩余 ${quota.remaining} / ${quota.limit} 次`
 				: "次数暂不可用";
 		};
+		const updateQuota = (value: unknown, acknowledgedId?: string) => {
+			quotaCounter.sync(value, acknowledgedId);
+			renderQuota();
+		};
 		let refreshingQuota = false;
 		const refreshQuota = async () => {
-			if (!account || refreshingQuota || lifetime.signal.aborted) return;
+			if (
+				!account ||
+				refreshingQuota ||
+				quotaCounter.hasReservations ||
+				lifetime.signal.aborted
+			)
+				return;
 			refreshingQuota = true;
-			const version = quotaVersion;
+			const version = quotaCounter.version;
 			try {
 				const response = await fetch("/api/blog-chat", {
 					signal: lifetime.signal,
@@ -111,13 +120,13 @@ class BlogAssistant extends HTMLElement {
 				if (!response.ok) throw Error();
 				const config = await response.json();
 				if (String(config.user?.id) === account) {
-					if (version === quotaVersion) updateQuota(config.quota);
+					if (version === quotaCounter.version) updateQuota(config.quota);
 				} else {
 					ready = false;
 					updateQuota(null);
 				}
 			} catch {
-				if (!lifetime.signal.aborted && version === quotaVersion)
+				if (!lifetime.signal.aborted && version === quotaCounter.version)
 					updateQuota(null);
 			} finally {
 				refreshingQuota = false;
@@ -241,7 +250,9 @@ class BlogAssistant extends HTMLElement {
 				const deps = {
 					fetch: window.fetch.bind(window),
 					signal,
-					onQuota: updateQuota,
+					onQuota: (value: unknown) => {
+						if (!signal.aborted) updateQuota(value, item.id);
+					},
 					onPartial: (text: string) => {
 						if (signal.aborted) return;
 						showAnswer(text);
@@ -292,6 +303,8 @@ class BlogAssistant extends HTMLElement {
 				releaseSubmission();
 				controllers.delete(controller);
 				if (!signal.aborted) {
+					quotaCounter.release(item.id);
+					renderQuota();
 					pending.delete(item.id);
 					savePending();
 					state.messages = state.messages.slice(-100);
@@ -370,6 +383,9 @@ class BlogAssistant extends HTMLElement {
 				for (const controller of controllers) controller.abort();
 				controllers.clear();
 				pending.clear();
+				quotaCounter.clearReservations();
+				renderQuota();
+				void refreshQuota();
 				savePending();
 				stopSpeaking();
 				clearTimeout(timer);
@@ -433,6 +449,8 @@ class BlogAssistant extends HTMLElement {
 					pagePath: location.pathname,
 				};
 				pending.set(item.id, item);
+				quotaCounter.reserve(item.id);
+				renderQuota();
 				savePending();
 				state.messages.push({ id: item.id, role: "user", content: question });
 				input.value = "";

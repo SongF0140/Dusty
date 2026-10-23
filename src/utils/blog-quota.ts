@@ -21,3 +21,39 @@ export function readBlogQuota(value: unknown): BlogQuota | null {
 		? q
 		: null;
 }
+
+/** Server snapshots plus sends not yet acknowledged by the queue. */
+export class BlogQuotaCounter {
+	private snapshot: BlogQuota | null = null;
+	private reservations = new Set<string>();
+	private revision = 0;
+
+	get version() {
+		return this.revision;
+	}
+	get hasReservations() {
+		return this.reservations.size > 0;
+	}
+	get current(): BlogQuota | null {
+		if (!this.snapshot) return null;
+		const used = Math.min(20, this.snapshot.used + this.reservations.size);
+		return { ...this.snapshot, used, remaining: 20 - used };
+	}
+	sync(value: unknown, acknowledgedId?: string) {
+		if (acknowledgedId) this.reservations.delete(acknowledgedId);
+		this.snapshot = readBlogQuota(value);
+		this.revision++;
+	}
+	reserve(id: string) {
+		if (this.reservations.has(id)) return;
+		this.reservations.add(id);
+		this.revision++;
+	}
+	release(id: string) {
+		if (this.reservations.delete(id)) this.revision++;
+	}
+	clearReservations() {
+		this.reservations.clear();
+		this.revision++;
+	}
+}
