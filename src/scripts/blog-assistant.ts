@@ -124,12 +124,19 @@ class BlogAssistant extends HTMLElement {
 			for (const message of state.messages) {
 				const article = document.createElement("article");
 				article.className = `assistant-message assistant-message-${message.role}`;
-				const label = document.createElement("span");
-				label.textContent = message.role === "user" ? "你" : "StarryLin/Geek";
+				article.setAttribute(
+					"aria-label",
+					message.role === "user" ? "你的消息" : "StarryLin/Geek 的回复",
+				);
+				if (message.role === "assistant") {
+					const label = document.createElement("span");
+					label.textContent = "StarryLin/Geek";
+					article.append(label);
+				}
 				const content = document.createElement("div");
 				content.className = "assistant-message-body";
 				appendContent(content, message.content);
-				article.append(label, content);
+				article.append(content);
 				article.dataset.streaming = String(
 					message.role === "assistant" &&
 						pending.has(message.id.replace(/-answer$/, "")),

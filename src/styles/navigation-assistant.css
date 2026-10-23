@@ -23,23 +23,22 @@
 #command-navigation .navigation-mode-tab:focus-visible { outline: 2px solid #74ff9b; outline-offset: 2px; }
 
 
-/* A paper-and-ink conversation, with the soft contours of a vintage cartoon. */
+/* Clear water, seafoam and soft blue light; share the terminal's drawer width. */
 #command-navigation[data-mode="assistant"] {
-    --sea-ink: #352c25; --sea-muted: #766451; --sea-accent: #9d4f32;
-    --sea-line: #544433; --sea-paper: #f4ecd9; --sea-soft: #ead4a4;
-    --sea-hover: #eadbc0; --sea-tide: #e6d6ba; --sea-input: #fffaed;
-    --sea-placeholder: #8a7863; --sea-disabled-bg: #e7ddc9; --sea-disabled-ink: #8a7966;
+    --sea-ink: #183e55; --sea-muted: #4e7383; --sea-accent: #236f94;
+    --sea-line: #a1c8d4; --sea-paper: #edf8fc; --sea-soft: #d6eff0;
+    --sea-hover: #dceef6; --sea-tide: #d4e9f0; --sea-input: #f9fdff;
+    --sea-placeholder: #4d7182; --sea-disabled-bg: #e0edf2; --sea-disabled-ink: #688593;
     background: var(--sea-paper); color: var(--sea-ink);
-    width: min(600px, calc(100vw - 32px));
-    border: 2px solid var(--sea-line); border-radius: 30px 30px 25px 25px;
-    box-shadow: 5px 7px 0 #30271d38, 0 20px 60px #30271d24;
+    border: 1px solid var(--sea-line); border-radius: 28px 28px 25px 25px;
+    box-shadow: 0 22px 70px #103c5550, 0 0 0 1px #d5eff630;
     font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 html.dark #command-navigation[data-mode="assistant"] {
-    --sea-ink: #f1e3c9; --sea-muted: #c1ae91; --sea-accent: #e9b477;
-    --sea-line: #a68c66; --sea-paper: #2c2922; --sea-soft: #51432e;
-    --sea-hover: #494033; --sea-tide: #3e382c; --sea-input: #363127;
-    --sea-placeholder: #baaa92; --sea-disabled-bg: #423a2e; --sea-disabled-ink: #ac9a80;
+    --sea-ink: #dff4fc; --sea-muted: #a0c2d1; --sea-accent: #91dbed;
+    --sea-line: #426780; --sea-paper: #0b2034; --sea-soft: #173e50;
+    --sea-hover: #24465e; --sea-tide: #17374e; --sea-input: #112c43;
+    --sea-placeholder: #97b6c6; --sea-disabled-bg: #203e52; --sea-disabled-ink: #a0bbca;
 }
 #command-navigation[data-mode="assistant"] .terminal-titlebar {
     background: var(--sea-tide); color: var(--sea-ink); border-color: var(--sea-line);
@@ -53,15 +52,21 @@ html.dark #command-navigation[data-mode="assistant"] {
 }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab span { color: var(--sea-ink); }
 #command-navigation[data-mode="assistant"] .navigation-mode-tab[aria-selected="true"] {
-    border: 1.5px solid var(--sea-line); background: var(--sea-soft); box-shadow: 2px 2px 0 var(--sea-line);
+    border: 1px solid var(--sea-line); background: var(--sea-soft); box-shadow: 0 2px 8px #2586a01a;
 }
 #command-navigation[data-mode="assistant"] .terminal-titlebar button:hover { background: var(--sea-hover); color: var(--sea-ink); }
 #command-navigation[data-mode="assistant"] #command-navigation-close { color: var(--sea-ink); border-radius: 50%; }
 #command-navigation .assistant-panel { overflow: hidden; }
 #command-navigation haiwenxiang-assistant { position: relative; display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
 #command-navigation .assistant-heading {
-    padding: 12px 24px; display: grid; grid-template-columns: 44px minmax(0,1fr) auto;
+    position: relative; padding: 12px 20px; display: grid; grid-template-columns: 44px minmax(0,1fr) auto;
     align-items: center; gap: 12px; flex-shrink: 0;
+}
+#command-navigation .assistant-heading::after {
+    content: ""; position: absolute; right: 35%; top: 10px; width: 5px; height: 5px;
+    border: 1px solid var(--sea-line); border-radius: 50%; pointer-events: none;
+    box-shadow: 12px 6px 0 -1px var(--sea-tide), -8px 12px 0 -1px var(--sea-tide);
+    animation: assistant-water-drift 6s ease-in-out infinite;
 }
 #command-navigation .assistant-identity { grid-column: 2; grid-row: 1; min-width: 0; }
 #command-navigation .assistant-account { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; max-width: 118px; }
@@ -71,9 +76,8 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation a.assistant-connection { text-decoration: underline; text-underline-offset: 3px; }
 #command-navigation .assistant-conversation {
     flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
-    padding: 20px 28px 28px; scrollbar-color: var(--sea-tide) transparent;
-    background-image: radial-gradient(color-mix(in srgb, var(--sea-muted) 24%, transparent) .45px, transparent .45px);
-    background-size: 7px 7px;
+    padding: 20px 20px 28px; scrollbar-color: var(--sea-tide) transparent;
+    background-image: radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--sea-accent) 6%, transparent), transparent 65%);
 }
 #command-navigation .assistant-empty { text-align: center; padding: 4px 0 10px; }
 #command-navigation .assistant-startup-avatar { display: block; grid-column: 1; grid-row: 1; width: 44px; height: 44px; margin: 0; }
@@ -90,17 +94,17 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation .assistant-draft-prompts button {
     display: flex; justify-content: space-between; gap: 14px; width: 100%; padding: 16px 20px;
     border: 1.5px solid var(--sea-line); background: var(--sea-input); color: var(--sea-ink);
-    border-radius: 26px 25px 26px 12px; box-shadow: 2px 3px 0 var(--sea-line);
+    border-radius: 26px 25px 26px 12px; box-shadow: 0 3px 12px #247da00c;
     font: inherit; font-size: 13px; font-weight: 500; line-height: 1.6; cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease;
 }
-#command-navigation .assistant-draft-prompts button:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 var(--sea-line); }
+#command-navigation .assistant-draft-prompts button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px #247da01c; background: var(--sea-hover); }
 #command-navigation .assistant-preview-note { color: var(--sea-muted); font-size: 11px; line-height: 1.9; margin: 0; }
 #command-navigation [data-assistant-messages] { display: flex; flex-direction: column; gap: 28px; }
 #command-navigation .assistant-message {
     position: relative; align-self: flex-start; max-width: 94%; min-width: 88px;
-    padding: 16px 21px 18px; color: var(--sea-ink); background: var(--sea-input);
-    border: 1.5px solid var(--sea-line); border-radius: 15px 35px 30px 34px / 22px 28px 35px 26px;
-    box-shadow: 3px 3px 0 var(--sea-tide);
+    padding: 16px 17px 18px; color: var(--sea-ink); background: var(--sea-input);
+    border: 1px solid var(--sea-line); border-radius: 15px 35px 30px 34px / 22px 28px 35px 26px;
+    box-shadow: 0 3px 14px #247da00c;
 }
 #command-navigation .assistant-message-user {
     align-self: flex-end; max-width: 86%; background: var(--sea-soft);
@@ -108,7 +112,7 @@ html.dark #command-navigation[data-mode="assistant"] {
 }
 #command-navigation .assistant-message-assistant::before {
     content: ""; position: absolute; top: 16px; left: -6px; width: 12px; height: 13px;
-    border-left: 1.5px solid var(--sea-line); border-bottom: 1.5px solid var(--sea-line);
+    border-left: 1px solid var(--sea-line); border-bottom: 1px solid var(--sea-line);
     border-radius: 0 0 0 8px; background: var(--sea-input); transform: rotate(30deg);
 }
 #command-navigation .assistant-message > span { display: block; font: 700 10px/1.4 "Courier New", monospace; color: var(--sea-muted); letter-spacing: .03em; margin-bottom: 9px; }
@@ -128,10 +132,10 @@ html.dark #command-navigation[data-mode="assistant"] {
 }
 #command-navigation .assistant-composer {
     flex-shrink: 0; margin: 8px 22px 0; padding: 13px 17px 11px;
-    border: 2px solid var(--sea-line); border-radius: 24px 24px 21px 19px;
-    background: var(--sea-input); box-shadow: 3px 4px 0 var(--sea-tide);
+    border: 1px solid var(--sea-line); border-radius: 24px 24px 21px 19px;
+    background: var(--sea-input); box-shadow: 0 3px 12px #247da00c;
 }
-#command-navigation .assistant-composer:focus-within { box-shadow: 3px 4px 0 var(--sea-line); }
+#command-navigation .assistant-composer:focus-within { border-color: var(--sea-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sea-accent) 12%, transparent); }
 #command-navigation .assistant-composer label { display: block; color: var(--sea-muted); font-size: 10px; margin-bottom: 6px; }
 #command-navigation .assistant-composer textarea {
     display: block; width: 100%; min-height: 45px; height: 56px; max-height: 100px;
@@ -147,7 +151,7 @@ html.dark #command-navigation[data-mode="assistant"] {
     background: var(--sea-disabled-bg); color: var(--sea-disabled-ink); font-size: 12px;
     cursor: not-allowed; opacity: 1; transition: transform 150ms ease;
 }
-#command-navigation .assistant-composer-actions button:not(:disabled) { color: var(--sea-input); background: var(--sea-ink); cursor: pointer; box-shadow: 2px 2px 0 var(--sea-tide); }
+#command-navigation .assistant-composer-actions button:not(:disabled) { color: var(--sea-paper); background: var(--sea-accent); cursor: pointer; box-shadow: 0 2px 7px #247da022; }
 #command-navigation .assistant-composer-actions button:not(:disabled):hover { transform: rotate(-4deg); }
 #command-navigation .assistant-composer-actions button:not(:disabled):active { transform: translateY(2px); }
 #command-navigation .assistant-footer { flex-shrink: 0; display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 11px 27px 15px; color: var(--sea-muted); font-size: 9px; line-height: 1.7; }
@@ -162,13 +166,14 @@ html.dark #command-navigation[data-mode="assistant"] {
 #command-navigation[data-mode="assistant"] :is(button,a,.assistant-conversation):focus-visible { outline: 2px solid var(--sea-accent); outline-offset: 4px; }
 @keyframes navigation-panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes verse-cursor-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+@keyframes assistant-water-drift { 0%,100% { opacity: .45; transform: translate(0,2px); } 50% { opacity: .9; transform: translate(2px,-3px); } }
 @media (max-height: 650px) {
     #command-navigation .assistant-heading { padding-block: 7px; }
     #command-navigation .assistant-composer textarea { height: 42px; min-height: 40px; }
     #command-navigation .assistant-footer { padding-block: 7px; }
 }
 @media (max-width: 640px) {
-    #command-navigation[data-mode="assistant"] { width: calc(100vw - 20px); border-radius: 25px; }
+    #command-navigation[data-mode="assistant"] { border-radius: 25px; }
     #command-navigation .assistant-heading { padding-inline: 17px; gap: 8px; }
     #command-navigation .assistant-heading h2 { font-size: 17px; }
     #command-navigation .assistant-conversation { padding: 18px 17px 26px; }
@@ -179,7 +184,7 @@ html.dark #command-navigation[data-mode="assistant"] {
     #command-navigation .assistant-footer { padding-inline: 19px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor,
+    #command-navigation .navigation-mode-panel, #command-navigation .verse-cursor, #command-navigation .assistant-heading::after,
     #command-navigation .assistant-message[data-streaming="true"] .assistant-message-body::after { animation: none; }
     #command-navigation :is(.navigation-mode-tab,.assistant-draft-prompts button,.assistant-composer-actions button) { transition: none; }
 }
