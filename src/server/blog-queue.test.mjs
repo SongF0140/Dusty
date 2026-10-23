@@ -48,3 +48,30 @@ test("running job completes before the next job is woken, and only one is run pe
 	);
 	assert.deepEqual(order, ["claim", "answer", "finish", "wake"]);
 });
+
+test("provider quota failure is stored as an actionable failure and never silently retried", async () => {
+	const job = {
+		userId: "12",
+		requestId: "r",
+		leaseId: "l",
+		payload: { question: "你好" },
+	};
+	let attempts = 0;
+	let stored;
+	await runQueueJob(
+		{
+			claim: async () => job,
+			finish: async (...args) => {
+				stored = args;
+			},
+		},
+		async () => {
+			attempts++;
+			throw new Error("模型服务额度不足或触发限流，请博主检查供应商余额。");
+		},
+		async () => {},
+	);
+	assert.equal(attempts, 1);
+	assert.equal(stored[1], null);
+	assert.match(stored[2], /模型服务额度不足或触发限流/);
+});

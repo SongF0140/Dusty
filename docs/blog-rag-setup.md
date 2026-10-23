@@ -76,3 +76,11 @@ node --test --test-isolation=none src/server/*.test.mjs src/utils/blog-*.test.mj
 ```
 
 从 StarryLin 更新运行包：在其仓库根目录运行 `node packages/blog-agent/scripts/export-vercel.mjs D:/GitHub_Blog/Dusty/vendor/starrylin`，复核声明和运行包测试。manifest 记录版本、工具白名单、bundle SHA256，并保留上游许可证。
+
+## 没有收到回复时
+
+界面名称为 `StarryLin/Geek`。请求失败会作为一条状态说明保留在问题下方，刷新后仍可查看，不会自动重新提交模型调用。
+
+“模型服务额度不足或触发限流”来自供应商接口，和博客每天 20 次的配额不同。检查供应商账户余额、API Key 自身的额度/速率限制及所选模型的权限；修正服务端配置后重新部署。请勿把 Key 发到聊天或提交到仓库。
+
+构建日志中的 `Blog task diagnostics` 只输出最近任务的状态、调用次数、回答长度和有限错误分类，不包含账号、问题、回答正文、供应商原始错误或密钥。源码测试和模拟回复不能证明供应商账户当前有可用额度。

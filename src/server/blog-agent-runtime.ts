@@ -14,6 +14,7 @@ import {
 	signBlogToken,
 	siteOrigin,
 } from "./blog-auth.ts";
+import { modelFailureMessage, observeModelFetch } from "./blog-diagnostics.ts";
 import { BlogQueue, type QueueInput } from "./blog-queue.ts";
 
 export function runtimeConfigured(env: BlogAuthEnv) {
@@ -64,6 +65,7 @@ export function createBlogRuntime(
 		queue,
 		catalog,
 		async ask(input: QueueInput) {
+			let modelFailure: string | undefined;
 			const posts = await catalog();
 			const selected = posts
 				.list()
@@ -81,10 +83,17 @@ export function createBlogRuntime(
 					baseUrl: env.BLOG_LLM_BASE_URL || "",
 					model: env.BLOG_LLM_MODEL || "",
 					apiKey: env.BLOG_LLM_API_KEY || "",
-					fetch: fetcher,
+					fetch: observeModelFetch(fetcher, (code) => {
+						modelFailure = code;
+					}),
 				}),
 			});
-			return agent.ask({ ...input, question });
+			try {
+				return await agent.ask({ ...input, question });
+			} catch (error) {
+				if (modelFailure) throw new Error(modelFailureMessage(modelFailure));
+				throw error;
+			}
 		},
 		async wake() {
 			// Production deployment URLs may require Vercel SSO; the public site

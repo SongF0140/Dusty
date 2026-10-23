@@ -89,7 +89,8 @@ export async function runQueueJob(
 		await queue.finish(job, await ask(job.payload), null);
 	} catch (error) {
 		const message =
-			error instanceof Error && /20 次|会话|重复|中断|预算/.test(error.message)
+			error instanceof Error &&
+			/20 次|会话|重复|中断|预算|^模型服务/.test(error.message)
 				? error.message
 				: "本次回答失败，请稍后重新发送。";
 		await queue.finish(job, null, message);

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { modelFailureCode } from "./blog-diagnostics.ts";
+import {
+	modelFailureCode,
+	modelFailureMessage,
+	observeModelFetch,
+} from "./blog-diagnostics.ts";
 
 test("diagnostics classify provider failures without returning raw secrets or messages", () => {
 	assert.equal(
@@ -19,4 +23,26 @@ test("diagnostics classify provider failures without returning raw secrets or me
 		"unsupported_tools",
 	);
 	assert.equal(modelFailureCode("Something secret-test"), "unknown");
+});
+
+test("provider HTTP failures become safe actionable errors without exposing the response or credentials", async () => {
+	let failure;
+	const response = await observeModelFetch(
+		async () => new Response("secret upstream body", { status: 429 }),
+		(code) => {
+			failure = code;
+		},
+	)("https://model.test/v1/chat/completions");
+	assert.equal(response.status, 429);
+	assert.equal(failure, "quota_or_rate_limit");
+	assert.match(modelFailureMessage(failure), /模型服务.*额度.*限流/);
+	assert.ok(!modelFailureMessage(failure).includes("secret"));
+	let called = false;
+	await observeModelFetch(
+		async () => new Response("ok"),
+		() => {
+			called = true;
+		},
+	)("https://model.test");
+	assert.equal(called, false);
 });
