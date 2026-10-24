@@ -14,7 +14,31 @@ const post = {
 	description: "原简介",
 };
 
-test("empty token-limited responses retain a safe diagnostic instead of provider text", async () => {
+test("summary calls allow the approved 5000-token budget and reject truncated text", async () => {
+	let budget;
+	const generate = compatibleSummaryGenerator(
+		{
+			BLOG_LLM_BASE_URL: "https://model.invalid/v1",
+			BLOG_LLM_MODEL: "chosen",
+			BLOG_LLM_API_KEY: "secret",
+		},
+		async (_url, init) => {
+			budget = JSON.parse(init.body).max_tokens;
+			return Response.json({
+				choices: [
+					{ finish_reason: "length", message: { content: "这是被截断的摘要" } },
+				],
+			});
+		},
+	);
+	await assert.rejects(
+		generate("正文", true),
+		(error) => error.code === "output_token_limit",
+	);
+	assert.equal(budget, 5000);
+});
+
+test("empty responses retain a safe diagnostic instead of provider text", async () => {
 	const generate = compatibleSummaryGenerator(
 		{
 			BLOG_LLM_BASE_URL: "https://model.invalid/v1",
@@ -25,7 +49,7 @@ test("empty token-limited responses retain a safe diagnostic instead of provider
 			Response.json({
 				choices: [
 					{
-						finish_reason: "length",
+						finish_reason: "stop",
 						message: { content: "", reasoning_content: "private reasoning" },
 					},
 				],
@@ -33,7 +57,7 @@ test("empty token-limited responses retain a safe diagnostic instead of provider
 	);
 	await assert.rejects(generate("private article", true), (error) => {
 		assert.equal(error.code, "empty_output");
-		assert.equal(error.finishReason, "length");
+		assert.equal(error.finishReason, "stop");
 		assert.ok(!String(error).includes("private"));
 		return true;
 	});

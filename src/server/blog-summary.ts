@@ -7,6 +7,7 @@ import { blogModelFetch } from "./blog-model-fetch.ts";
 export const SUMMARY_VERSION = "blog-summary-v3-ai-100";
 type SummaryFailureCode =
 	| "empty_output"
+	| "output_token_limit"
 	| "invalid_response"
 	| "invalid_json"
 	| "summary_too_long"
@@ -192,7 +193,9 @@ export function compatibleSummaryGenerator(
 			body: JSON.stringify({
 				model: env.BLOG_LLM_MODEL,
 				stream: false,
-				max_tokens: final ? 400 : 600,
+				// Include reasoning tokens in the user-approved output budget;
+				// the published summary still has its separate 100-character cap.
+				max_tokens: 5000,
 				messages: [
 					{
 						role: "system",
@@ -219,6 +222,8 @@ export function compatibleSummaryGenerator(
 		)
 			? rawFinish
 			: "other";
+		if (finish === "length")
+			throw new SummaryGenerationError("output_token_limit", finish);
 		if (typeof result !== "string" || result.length > 1000)
 			throw new SummaryGenerationError("invalid_response", finish);
 		if (!result.trim())
