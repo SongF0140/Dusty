@@ -14,7 +14,7 @@ const post = {
 	description: "原简介",
 };
 
-test("summary calls allow the approved 5000-token budget and reject truncated text", async () => {
+test("summary calls allow the approved 20000-token budget and reject truncated text", async () => {
 	let budget;
 	const generate = compatibleSummaryGenerator(
 		{
@@ -35,7 +35,7 @@ test("summary calls allow the approved 5000-token budget and reject truncated te
 		generate("正文", true),
 		(error) => error.code === "output_token_limit",
 	);
-	assert.equal(budget, 5000);
+	assert.equal(budget, 20000);
 });
 
 test("empty responses retain a safe diagnostic instead of provider text", async () => {

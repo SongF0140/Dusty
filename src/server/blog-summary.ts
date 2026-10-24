@@ -195,7 +195,7 @@ export function compatibleSummaryGenerator(
 				stream: false,
 				// Include reasoning tokens in the user-approved output budget;
 				// the published summary still has its separate 100-character cap.
-				max_tokens: 5000,
+				max_tokens: 20000,
 				messages: [
 					{
 						role: "system",
