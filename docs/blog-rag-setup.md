@@ -59,6 +59,8 @@ Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`�
 
 摘要模型每次请求的输出预算为20000 token，供支持推理的模型完成推理和回答；公开摘要仍严格不超过100字符。`finish_reason=length` 的响应视为截断，不写入摘要缓存。构建失败时只显示有限错误分类和结束原因，不输出模型原文或凭据。
 
+构建阶段的单次摘要请求最多等待300秒，不自动重试。请求超时标记为 `request_timeout`，普通网络中断标记为 `transport_failure`；访客问答的时间与调用预算独立计算。
+
 `008-seed-ai-summaries.sql` 提供本地 DeepSeek 真实构建验证过的123篇公开摘要，均不超过100字符。构建自动导入：只替换正文哈希相同的旧版摘要，保留已有新版模型摘要；正文已变化的记录由 loader 正常重建，避免首次上线再重复生成整批摘要。
 
 模型摘要由 Astro loader 写入集合 `description`，文章卡片、标题下逐字动画和 RAG 目录共用，不修改 Markdown frontmatter。访客打开文章只播放动画，内容变化需重新构建部署。有 Neon 可跨部署复用；本地无数据库则使用 `cache/blog-summaries-v2.json`。

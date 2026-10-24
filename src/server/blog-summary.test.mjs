@@ -6,6 +6,7 @@ import {
 	SUMMARY_VERSION,
 	summaryFingerprint,
 } from "./blog-summary.ts";
+import * as summaryModule from "./blog-summary.ts";
 
 const post = {
 	id: "git",
@@ -13,6 +14,25 @@ const post = {
 	body: "# 暂存\n\n撤销暂存保留工作区。",
 	description: "原简介",
 };
+
+test("summary requests use a bounded 300-second deadline and identify timeouts", async () => {
+	assert.equal(summaryModule.SUMMARY_REQUEST_TIMEOUT_MS, 300000);
+	const generate = compatibleSummaryGenerator(
+		{
+			BLOG_LLM_BASE_URL: "https://model.invalid/v1",
+			BLOG_LLM_MODEL: "chosen",
+			BLOG_LLM_API_KEY: "secret",
+		},
+		async () => {
+			throw new DOMException("private connection details", "TimeoutError");
+		},
+	);
+	await assert.rejects(
+		generate("正文", true),
+		(error) =>
+			error.code === "request_timeout" && !String(error).includes("private"),
+	);
+});
 
 test("summary calls allow the approved 20000-token budget and reject truncated text", async () => {
 	let budget;

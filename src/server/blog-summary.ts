@@ -5,9 +5,11 @@ import { observeModelFetch } from "./blog-diagnostics.ts";
 import { blogModelFetch } from "./blog-model-fetch.ts";
 
 export const SUMMARY_VERSION = "blog-summary-v3-ai-100";
+export const SUMMARY_REQUEST_TIMEOUT_MS = 300000;
 type SummaryFailureCode =
 	| "empty_output"
 	| "output_token_limit"
+	| "request_timeout"
 	| "invalid_response"
 	| "invalid_json"
 	| "summary_too_long"
@@ -189,7 +191,7 @@ export function compatibleSummaryGenerator(
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${env.BLOG_LLM_API_KEY}`,
 			},
-			signal: AbortSignal.timeout(45000),
+			signal: AbortSignal.timeout(SUMMARY_REQUEST_TIMEOUT_MS),
 			body: JSON.stringify({
 				model: env.BLOG_LLM_MODEL,
 				stream: false,
@@ -208,12 +210,20 @@ export function compatibleSummaryGenerator(
 					{ role: "user", content: JSON.stringify({ articleData: text }) },
 				],
 			}),
-		}).catch(() => {
-			throw new SummaryGenerationError("transport_failure");
+		}).catch((error) => {
+			throw new SummaryGenerationError(
+				["TimeoutError", "AbortError"].includes(error?.name)
+					? "request_timeout"
+					: "transport_failure",
+			);
 		});
 		if (!response.ok) throw new SummaryGenerationError("provider_failure");
-		const payload = await response.json().catch(() => {
-			throw new SummaryGenerationError("invalid_json");
+		const payload = await response.json().catch((error) => {
+			throw new SummaryGenerationError(
+				["TimeoutError", "AbortError"].includes(error?.name)
+					? "request_timeout"
+					: "invalid_json",
+			);
 		});
 		const result = payload?.choices?.[0]?.message?.content;
 		const rawFinish = payload?.choices?.[0]?.finish_reason;
