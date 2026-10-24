@@ -171,11 +171,23 @@ export function compatibleSummaryGenerator(
 		endpoint.password
 	)
 		throw new Error("摘要模型地址无效");
+	const isIntern = endpoint.hostname === "discovery-api.intern-ai.org.cn";
+	const directMiniMaxM3 =
+		isIntern && /^minimax-m3$/i.test(env.BLOG_LLM_MODEL || "");
+	let nextRequestAt = 0;
 	return async (
 		text: string,
 		final: boolean,
 		compact = false,
 	): Promise<string> => {
+		if (isIntern) {
+			// Reserve start slots before awaiting, including concurrent callers.
+			// 1250 ms between starts caps this generator at 48 requests/minute.
+			const startAt = Math.max(Date.now(), nextRequestAt);
+			nextRequestAt = startAt + 1250;
+			const delay = startAt - Date.now();
+			if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+		}
 		const request = observeModelFetch(
 			blogModelFetch(fetcher),
 			(code, status) => {
@@ -198,6 +210,9 @@ export function compatibleSummaryGenerator(
 				// Include reasoning tokens in the user-approved output budget;
 				// the published summary still has its separate 100-character cap.
 				max_tokens: 20000,
+				// M3 supports direct answers; M3.1 does not support disabling
+				// thinking. Scope this setting to the verified Intern M3 route.
+				...(directMiniMaxM3 ? { thinking: { type: "disabled" } } : {}),
 				messages: [
 					{
 						role: "system",

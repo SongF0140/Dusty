@@ -15,6 +15,84 @@ const post = {
 	description: "原简介",
 };
 
+test("Intern MiniMax M3 summaries explicitly disable thinking while preserving the approved budget", async () => {
+	for (const model of ["minimax-m3", "MiniMax-M3"]) {
+		const generate = compatibleSummaryGenerator(
+			{
+				BLOG_LLM_BASE_URL: "https://discovery-api.intern-ai.org.cn/v1",
+				BLOG_LLM_MODEL: model,
+				BLOG_LLM_API_KEY: "test-only",
+			},
+			async (_url, init) => {
+				const body = JSON.parse(init.body);
+				assert.deepEqual(body.thinking, { type: "disabled" });
+				assert.equal(body.max_tokens, 20000);
+				assert.equal(body.model, model);
+				return Response.json({
+					choices: [
+						{
+							finish_reason: "stop",
+							message: { content: "文章介绍聊天应用的会话管理与消息流。" },
+						},
+					],
+				});
+			},
+		);
+		assert.match(await generate("公开文章", true), /会话管理/);
+	}
+});
+
+test("MiniMax M3.1 and unrelated models never receive M3-specific thinking settings", async () => {
+	for (const [base, model] of [
+		["https://discovery-api.intern-ai.org.cn/v1", "minimax-m3.1-flash"],
+		["https://discovery-api.intern-ai.org.cn/v1", "other-model"],
+		["https://model.invalid/v1", "minimax-m3"],
+	]) {
+		const generate = compatibleSummaryGenerator(
+			{
+				BLOG_LLM_BASE_URL: base,
+				BLOG_LLM_MODEL: model,
+				BLOG_LLM_API_KEY: "test-only",
+			},
+			async (_url, init) => {
+				assert.equal(JSON.parse(init.body).thinking, undefined);
+				return Response.json({
+					choices: [{ message: { content: "公开摘要。" } }],
+				});
+			},
+		);
+		await generate("正文", true);
+	}
+});
+
+test("Intern summary calls are paced below the 50 RPM quota", async (t) => {
+	t.mock.timers.enable({ apis: ["Date", "setTimeout"], now: 0 });
+	const starts = [];
+	const generate = compatibleSummaryGenerator(
+		{
+			BLOG_LLM_BASE_URL: "https://discovery-api.intern-ai.org.cn/v1",
+			BLOG_LLM_MODEL: "minimax-m3",
+			BLOG_LLM_API_KEY: "test-only",
+		},
+		async () => {
+			starts.push(Date.now());
+			return Response.json({
+				choices: [{ message: { content: "公开摘要。" } }],
+			});
+		},
+	);
+	await generate("第一段", false);
+	const second = generate("第二段", false);
+	await Promise.resolve();
+	assert.deepEqual(starts, [0]);
+	t.mock.timers.tick(1249);
+	await Promise.resolve();
+	assert.deepEqual(starts, [0]);
+	t.mock.timers.tick(1);
+	await second;
+	assert.deepEqual(starts, [0, 1250]);
+});
+
 test("summary requests use a bounded 300-second deadline and identify timeouts", async () => {
 	assert.equal(summaryModule.SUMMARY_REQUEST_TIMEOUT_MS, 300000);
 	const generate = compatibleSummaryGenerator(

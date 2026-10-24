@@ -61,6 +61,8 @@ Preview / 本地验证使用单独 OAuth App、对应回调和 `BLOG_SITE_URL`�
 
 构建阶段的单次摘要请求最多等待300秒，不自动重试。请求超时标记为 `request_timeout`，普通网络中断标记为 `transport_failure`；访客问答的时间与调用预算独立计算。
 
+Intern 的 `https://discovery-api.intern-ai.org.cn/v1` 搭配 `minimax-m3` 时，摘要请求显式发送 `thinking: {"type":"disabled"}`，让摘要直接生成回答，避免思考占满输出预算；不对 M3.1 或其他模型套用此设置。依据 [MiniMax 官方 M3 参数说明](https://platform.minimax.io/docs/api-reference/text-openai-api)。Intern 摘要调用间隔至少1250毫秒，即每个构建内最多约48次/分钟；同账户其他应用仍共享平台限额。20000-token、300秒和100字符摘要校验继续生效，访客问答配置保持独立。
+
 `008-seed-ai-summaries.sql` 提供本地 DeepSeek 真实构建验证过的123篇公开摘要，均不超过100字符。构建自动导入：只替换正文哈希相同的旧版摘要，保留已有新版模型摘要；正文已变化的记录由 loader 正常重建，避免首次上线再重复生成整批摘要。
 
 模型摘要由 Astro loader 写入集合 `description`，文章卡片、标题下逐字动画和 RAG 目录共用，不修改 Markdown frontmatter。访客打开文章只播放动画，内容变化需重新构建部署。有 Neon 可跨部署复用；本地无数据库则使用 `cache/blog-summaries-v2.json`。
