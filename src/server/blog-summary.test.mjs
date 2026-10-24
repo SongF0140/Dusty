@@ -13,6 +13,43 @@ const post = {
 	body: "# 暂存\n\n撤销暂存保留工作区。",
 	description: "原简介",
 };
+
+test("empty token-limited responses retain a safe diagnostic instead of provider text", async () => {
+	const generate = compatibleSummaryGenerator(
+		{
+			BLOG_LLM_BASE_URL: "https://model.invalid/v1",
+			BLOG_LLM_MODEL: "chosen",
+			BLOG_LLM_API_KEY: "secret",
+		},
+		async () =>
+			Response.json({
+				choices: [
+					{
+						finish_reason: "length",
+						message: { content: "", reasoning_content: "private reasoning" },
+					},
+				],
+			}),
+	);
+	await assert.rejects(generate("private article", true), (error) => {
+		assert.equal(error.code, "empty_output");
+		assert.equal(error.finishReason, "length");
+		assert.ok(!String(error).includes("private"));
+		return true;
+	});
+});
+
+test("oversized final summaries have a distinct failure code", async () => {
+	const service = createSummaryService({
+		store: cache(),
+		model: "chosen",
+		generate: async () => "字".repeat(101),
+	});
+	await assert.rejects(
+		service.summarize(post),
+		(error) => error.code === "summary_too_long",
+	);
+});
 function cache() {
 	const values = new Map();
 	return {

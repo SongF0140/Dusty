@@ -1,10 +1,27 @@
 import { createHash } from "node:crypto";
 import { sanitizeAssistantAnswer } from "../utils/blog-assistant-policy.ts";
 import { splitPost } from "../utils/blog-rag-index.ts";
-import { modelFailureMessage, observeModelFetch } from "./blog-diagnostics.ts";
+import { observeModelFetch } from "./blog-diagnostics.ts";
 import { blogModelFetch } from "./blog-model-fetch.ts";
 
 export const SUMMARY_VERSION = "blog-summary-v3-ai-100";
+type SummaryFailureCode =
+	| "empty_output"
+	| "invalid_response"
+	| "invalid_json"
+	| "summary_too_long"
+	| "invalid_summary"
+	| "provider_failure"
+	| "transport_failure";
+export class SummaryGenerationError extends Error {
+	readonly code: SummaryFailureCode;
+	readonly finishReason?: string;
+	constructor(code: SummaryFailureCode, finishReason?: string) {
+		super(`摘要生成失败：${code}`);
+		this.code = code;
+		this.finishReason = finishReason;
+	}
+}
 export interface SummaryPost {
 	id: string;
 	title: string;
@@ -105,7 +122,9 @@ export function createSummaryService(options: {
 				summary = clean(await generate(summary, true, true));
 			}
 			if (!summary || Array.from(summary).length > 100)
-				throw new Error("模型未返回有效的简短摘要");
+				throw new SummaryGenerationError(
+					summary ? "summary_too_long" : "invalid_summary",
+				);
 			const record: SummaryRecord = {
 				contentHash: fingerprint,
 				summary,
@@ -154,11 +173,9 @@ export function compatibleSummaryGenerator(
 		final: boolean,
 		compact = false,
 	): Promise<string> => {
-		let failure: string | undefined;
 		const request = observeModelFetch(
 			blogModelFetch(fetcher),
 			(code, status) => {
-				failure = code;
 				console.warn(
 					"Blog summary model rejection",
 					JSON.stringify({ code, status }),
@@ -188,15 +205,24 @@ export function compatibleSummaryGenerator(
 					{ role: "user", content: JSON.stringify({ articleData: text }) },
 				],
 			}),
+		}).catch(() => {
+			throw new SummaryGenerationError("transport_failure");
 		});
-		if (!response.ok)
-			throw new Error(
-				`${modelFailureMessage(failure || "unknown")} 摘要缓存未更新。`,
-			);
-		const payload = await response.json();
+		if (!response.ok) throw new SummaryGenerationError("provider_failure");
+		const payload = await response.json().catch(() => {
+			throw new SummaryGenerationError("invalid_json");
+		});
 		const result = payload?.choices?.[0]?.message?.content;
-		if (typeof result !== "string" || !result.trim() || result.length > 1000)
-			throw new Error("摘要模型返回格式无效");
+		const rawFinish = payload?.choices?.[0]?.finish_reason;
+		const finish = ["stop", "length", "tool_calls", "content_filter"].includes(
+			rawFinish,
+		)
+			? rawFinish
+			: "other";
+		if (typeof result !== "string" || result.length > 1000)
+			throw new SummaryGenerationError("invalid_response", finish);
+		if (!result.trim())
+			throw new SummaryGenerationError("empty_output", finish);
 		return result;
 	};
 }

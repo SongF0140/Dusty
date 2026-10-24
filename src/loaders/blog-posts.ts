@@ -7,6 +7,7 @@ import {
 	compatibleSummaryGenerator,
 	createSummaryService,
 	SUMMARY_VERSION,
+	SummaryGenerationError,
 	type SummaryStore,
 } from "../server/blog-summary.ts";
 import {
@@ -109,9 +110,13 @@ export function blogPostsLoader(
 									summaryGenerated: record.source === "model",
 								},
 							});
-						} catch {
+						} catch (error) {
+							const detail =
+								error instanceof SummaryGenerationError
+									? `${error.code}${error.finishReason ? `; finish_reason=${error.finishReason}` : ""}`
+									: "storage_or_internal";
 							throw new Error(
-								`文章 ${options.id} 的模型摘要生成失败，请检查服务和摘要缓存迁移；未使用旧摘要。`,
+								`文章 ${options.id} 的模型摘要生成失败（${detail}），请检查服务和摘要缓存迁移；未使用旧摘要。`,
 							);
 						}
 					}
