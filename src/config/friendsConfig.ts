@@ -79,4 +79,3 @@ export const getEnabledFriends = (): FriendLink[] => {
 
 	return friends.sort((a, b) => b.weight - a.weight);
 };
-

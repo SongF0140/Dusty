@@ -19,14 +19,7 @@ export const siteConfig: SiteConfig = {
 		"记录嵌入式、通信协议、Qt、数据库、前端与计算机基础的学习笔记和项目实践。",
 
 	// 站点关键词
-	keywords: [
-		"Dusty",
-		"技术博客",
-		"嵌入式",
-		"通信协议",
-		"Qt",
-		"前端",
-	],
+	keywords: ["Dusty", "技术博客", "嵌入式", "通信协议", "Qt", "前端"],
 
 	// 主题色 - 中性青灰调
 	themeColor: {

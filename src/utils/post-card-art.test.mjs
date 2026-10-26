@@ -8,7 +8,10 @@ test("each group of thirteen cards gets all thirteen pictures", () => {
 	const picker = new PostArtShuffleBag(() => 0.42);
 	for (let group = 0; group < 8; group++) {
 		const art = Array.from({ length: 13 }, () => picker.next());
-		assert.deepEqual([...art].sort((a, b) => a - b), Array.from({ length: 13 }, (_, i) => i));
+		assert.deepEqual(
+			[...art].sort((a, b) => a - b),
+			Array.from({ length: 13 }, (_, i) => i),
+		);
 	}
 });
 
@@ -74,10 +77,28 @@ test("unavailable or invalid browser storage still yields usable pictures", () =
 });
 
 test("all thirteen pictures resolve to the correct atlas and column", () => {
-	const expected = [[0,0],[0,1],[0,2],[0,3],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2],[3,0],[3,1],[3,2]];
+	const expected = [
+		[0, 0],
+		[0, 1],
+		[0, 2],
+		[0, 3],
+		[1, 0],
+		[1, 1],
+		[1, 2],
+		[2, 0],
+		[2, 1],
+		[2, 2],
+		[3, 0],
+		[3, 1],
+		[3, 2],
+	];
 	for (let index = 0; index < 13; index++) {
-		const result = postArt.resolvePostArt(index, [4,3,3,3]);
+		const result = postArt.resolvePostArt(index, [4, 3, 3, 3]);
 		assert.deepEqual([result.sheetIndex, result.column], expected[index]);
 	}
-	for (const index of [-1, 13, 0.5]) assert.throws(() => postArt.resolvePostArt(index, [4,3,3,3]), RangeError);
+	for (const index of [-1, 13, 0.5])
+		assert.throws(
+			() => postArt.resolvePostArt(index, [4, 3, 3, 3]),
+			RangeError,
+		);
 });

@@ -1,9 +1,9 @@
 ---
 import ArchivePanel from "@components/controls/ArchivePanel.svelte";
-import PageSkeleton from "@/components/common/PageSkeleton.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import PageSkeleton from "@/components/common/PageSkeleton.astro";
 import { getSortedPostsList } from "@/utils/content-utils";
 
 const sortedPostsList = await getSortedPostsList();

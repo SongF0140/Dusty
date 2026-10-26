@@ -1,33 +1,43 @@
 ---
 import { getImage } from "astro:assets";
 import garden from "@/assets/images/profile/byzantine-pixel-garden.png";
-import kitchen from "@/assets/images/profile/scenes/kitchen-background.png";
-import moonGarden from "@/assets/images/profile/scenes/moon-background.png";
 import bubbles from "@/assets/images/profile/scenes/bubbles.png";
-import tea from "@/assets/images/profile/scenes/tea-sipping.png";
 import cooking from "@/assets/images/profile/scenes/cooking.png";
-import moon from "@/assets/images/profile/scenes/moon.png";
-import sleep from "@/assets/images/profile/scenes/sleep.png";
-import gardening from "@/assets/images/profile/scenes/gardening.png";
 import flute from "@/assets/images/profile/scenes/flute.png";
+import gardening from "@/assets/images/profile/scenes/gardening.png";
+import kitchen from "@/assets/images/profile/scenes/kitchen-background.png";
+import moon from "@/assets/images/profile/scenes/moon.png";
+import moonGarden from "@/assets/images/profile/scenes/moon-background.png";
+import sleep from "@/assets/images/profile/scenes/sleep.png";
+import tea from "@/assets/images/profile/scenes/tea-sipping.png";
 import type { GardenSceneId } from "@/utils/garden-companion-motion";
 
 const [day, indoors, night] = await Promise.all(
-  [garden, kitchen, moonGarden].map((src) => getImage({ src, width: 576, format: "webp", quality: 90 })),
+	[garden, kitchen, moonGarden].map((src) =>
+		getImage({ src, width: 576, format: "webp", quality: 90 }),
+	),
 );
 const sources = { bubbles, tea, cooking, moon, sleep, gardening, flute };
 const entries = await Promise.all(
-  Object.entries(sources).map(async ([id, src]) => {
-    const atlas = await getImage({ src, width: 1536, format: "webp", quality: 95 });
-    const background = id === "cooking" ? indoors : id === "moon" ? night : day;
-    return [id as GardenSceneId, {
-      id,
-      background: background.src,
-      atlas: atlas.src,
-      width: Number(atlas.attributes.width),
-      height: Number(atlas.attributes.height),
-    }] as const;
-  }),
+	Object.entries(sources).map(async ([id, src]) => {
+		const atlas = await getImage({
+			src,
+			width: 1536,
+			format: "webp",
+			quality: 95,
+		});
+		const background = id === "cooking" ? indoors : id === "moon" ? night : day;
+		return [
+			id as GardenSceneId,
+			{
+				id,
+				background: background.src,
+				atlas: atlas.src,
+				width: Number(atlas.attributes.width),
+				height: Number(atlas.attributes.height),
+			},
+		] as const;
+	}),
 );
 const assets = Object.fromEntries(entries);
 // Concealed image placeholder only; the browser selects the first actual scene.

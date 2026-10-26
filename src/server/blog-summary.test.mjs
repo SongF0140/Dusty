@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import * as summaryModule from "./blog-summary.ts";
 import {
 	compatibleSummaryGenerator,
 	createSummaryService,
 	SUMMARY_VERSION,
 	summaryFingerprint,
 } from "./blog-summary.ts";
-import * as summaryModule from "./blog-summary.ts";
 
 const post = {
 	id: "git",

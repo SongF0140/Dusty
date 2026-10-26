@@ -60,7 +60,8 @@ export const commentConfig: CommentConfig = {
 		// 设置 Giscus 评论系统分类
 		category: import.meta.env.PUBLIC_GISCUS_CATEGORY || "Announcements",
 		// 获取 Giscus 评论系统分类ID
-		categoryId: import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || "DIC_kwDOTBBh684DI0t3",
+		categoryId:
+			import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || "DIC_kwDOTBBh684DI0t3",
 		// 获取 Giscus 评论系统映射方式
 		mapping: "specific",
 		// 获取 Giscus 评论系统严格模式

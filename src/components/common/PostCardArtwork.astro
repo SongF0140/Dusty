@@ -1,20 +1,38 @@
 ---
 import { getImage } from "astro:assets";
-import strips from "@/assets/images/post-cards/rubber-hose-wide.png";
 import extraStrips from "@/assets/images/post-cards/rubber-hose-extra-wide.png";
 import newStripsA from "@/assets/images/post-cards/rubber-hose-scenes-20261022-a.png";
 import newStripsB from "@/assets/images/post-cards/rubber-hose-scenes-20261022-b.png";
+import strips from "@/assets/images/post-cards/rubber-hose-wide.png";
 import { POST_ART_COUNT, resolvePostArt } from "@/utils/post-card-art";
 
 const { entryId } = Astro.props;
 const sheets = await Promise.all(
-  [{ src: strips, width: 1024, count: 4 }, { src: extraStrips, width: 768, count: 3 }, { src: newStripsA, width: 768, count: 3 }, { src: newStripsB, width: 768, count: 3 }].map(async (spec) => {
-    const image = await getImage({ src: spec.src, width: spec.width, format: "webp", quality: 90 });
-    return { src: image.src, width: Number(image.attributes.width), height: Number(image.attributes.height), count: spec.count };
-  }),
+	[
+		{ src: strips, width: 1024, count: 4 },
+		{ src: extraStrips, width: 768, count: 3 },
+		{ src: newStripsA, width: 768, count: 3 },
+		{ src: newStripsB, width: 768, count: 3 },
+	].map(async (spec) => {
+		const image = await getImage({
+			src: spec.src,
+			width: spec.width,
+			format: "webp",
+			quality: 90,
+		});
+		return {
+			src: image.src,
+			width: Number(image.attributes.width),
+			height: Number(image.attributes.height),
+			count: spec.count,
+		};
+	}),
 );
 const initial = String(entryId).length % POST_ART_COUNT;
-const { sheetIndex, column } = resolvePostArt(initial, sheets.map(sheet => sheet.count));
+const { sheetIndex, column } = resolvePostArt(
+	initial,
+	sheets.map((sheet) => sheet.count),
+);
 const sheet = sheets[sheetIndex];
 const frameWidth = sheet.width / sheet.count;
 ---
