@@ -1,36 +1,50 @@
 ---
 import { Icon } from "astro-icon/components";
 import TerminalCompanions from "@/components/common/TerminalCompanions.astro";
-import NavigationAssistant from "./NavigationAssistant.astro";
 import { siteConfig } from "@/config";
 import { navigationCommands } from "@/utils/command-navigation";
 import { getSortedPostsList } from "@/utils/content-utils";
 import { getPostUrlBySlug, removeFileExtension, url } from "@/utils/url-utils";
+import NavigationAssistant from "./NavigationAssistant.astro";
 import "../../styles/terminal.css";
 import "../../styles/navigation-assistant.css";
 
 const commands = navigationCommands
-    .filter((item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false)
-    .map((item) => ({ ...item, path: item.path ? url(item.path) : "" }));
+	.filter(
+		(item) => !("pageKey" in item) || siteConfig.pages[item.pageKey] !== false,
+	)
+	.map((item) => ({ ...item, path: item.path ? url(item.path) : "" }));
 const posts = await getSortedPostsList();
 const names = new Set<string>();
-const files = posts.map(post => {
-    const category = (post.data.category || "未分类").replace(/[/\\\x00-\x1f]/g, "-").trim() || "未分类";
-    const base = post.data.title.replace(/[/\\\x00-\x1f]/g, "-").trim() || "untitled";
-    let name = `${base}.md`, suffix = 2;
-    while (names.has(`${category}/${name}`)) name = `${base}-${suffix++}.md`;
-    names.add(`${category}/${name}`);
-    return {
-        path: `/blog/${category}/${name}`, title: post.data.title, url: getPostUrlBySlug(post.id),
-        // The dev router applies trailingSlash to rest endpoints; static output is a JSON file.
-        contentUrl: url(`/api/terminal-posts/${removeFileExtension(post.id)}/index.json${import.meta.env.DEV ? "/" : ""}`),
-        locked: Boolean(post.data.password),
-    };
+const files = posts.map((post) => {
+	const category =
+		(post.data.category || "未分类").replace(/[/\\\x00-\x1f]/g, "-").trim() ||
+		"未分类";
+	const base =
+		post.data.title.replace(/[/\\\x00-\x1f]/g, "-").trim() || "untitled";
+	let name = `${base}.md`,
+		suffix = 2;
+	while (names.has(`${category}/${name}`)) name = `${base}-${suffix++}.md`;
+	names.add(`${category}/${name}`);
+	return {
+		path: `/blog/${category}/${name}`,
+		title: post.data.title,
+		url: getPostUrlBySlug(post.id),
+		// The dev router applies trailingSlash to rest endpoints; static output is a JSON file.
+		contentUrl: url(
+			`/api/terminal-posts/${removeFileExtension(post.id)}/index.json${import.meta.env.DEV ? "/" : ""}`,
+		),
+		locked: Boolean(post.data.password),
+	};
 });
-const pageFiles = commands.filter(item => item.path && item.command !== "/blog").map(item => ({
-    path: `${item.command}/index.txt`, title: item.label, url: item.path,
-    content: `${item.label}\n${item.path}\n\nUse open ${item.command} to visit this page.`,
-}));
+const pageFiles = commands
+	.filter((item) => item.path && item.command !== "/blog")
+	.map((item) => ({
+		path: `${item.command}/index.txt`,
+		title: item.label,
+		url: item.path,
+		content: `${item.label}\n${item.path}\n\nUse open ${item.command} to visit this page.`,
+	}));
 ---
 
 <button id="command-navigation-backdrop" class="command-navigation-backdrop" type="button" aria-label="Close navigation" tabindex="-1" hidden></button>

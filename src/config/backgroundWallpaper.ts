@@ -41,20 +41,20 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	 */
 	src: {
 		// 桌面背景图片（支持单张或多张随机）
-	// 旧版：Fate 恩奇都主题壁纸 - 绿白发+银蓝调（保留备用，需要时取消注释）
-	// desktop: [
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577271",  // 3840x2160 Enkidu HD
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-3533598",  // Gilgamesh vs Enkidu 4K
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577296",  // 绿发+金链 微笑
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577378",  // 恩奇都肖像（与旧头像同源）
-	// ],
-	// 移动背景图片（旧版竖屏壁纸，保留备用）
-	// mobile: [
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577277",  // 1080x2160 竖屏
-	// 	"https://wallpaperaccess.com/download/fate-enkidu-8577432",  // 1125x2436 手机竖屏
-	// ],
-	desktop: [],
-	mobile: [],
+		// 旧版：Fate 恩奇都主题壁纸 - 绿白发+银蓝调（保留备用，需要时取消注释）
+		// desktop: [
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-8577271",  // 3840x2160 Enkidu HD
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-3533598",  // Gilgamesh vs Enkidu 4K
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-8577296",  // 绿发+金链 微笑
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-8577378",  // 恩奇都肖像（与旧头像同源）
+		// ],
+		// 移动背景图片（旧版竖屏壁纸，保留备用）
+		// mobile: [
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-8577277",  // 1080x2160 竖屏
+		// 	"https://wallpaperaccess.com/download/fate-enkidu-8577432",  // 1125x2436 手机竖屏
+		// ],
+		desktop: [],
+		mobile: [],
 		// 背景视频播放地址
 		// 支持单个视频路径（字符串）或多个视频循环（数组）
 		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
@@ -80,9 +80,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 主页横幅主标题字体大小
 			titleSize: "3.8rem",
 			// 主页横幅副标题
-			subtitle: [
-				"技术笔记与项目记录",
-			],
+			subtitle: ["技术笔记与项目记录"],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {

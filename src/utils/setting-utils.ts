@@ -40,7 +40,8 @@ export function getDefaultTheme(): LIGHT_DARK_MODE {
 	// 如果配置文件中设置了 defaultMode，使用配置的值
 	// 否则使用 DEFAULT_THEME（向后兼容）
 	return (siteConfig.themeColor.defaultMode ?? DEFAULT_THEME) === DARK_MODE
-		? DARK_MODE : LIGHT_MODE;
+		? DARK_MODE
+		: LIGHT_MODE;
 }
 
 // 获取系统主题
@@ -252,8 +253,11 @@ export function getStoredTheme(): LIGHT_DARK_MODE {
 		return getDefaultTheme();
 	}
 	const stored = localStorage.getItem("theme");
-	return stored === DARK_MODE ? DARK_MODE
-		: stored === LIGHT_MODE ? LIGHT_MODE : getDefaultTheme();
+	return stored === DARK_MODE
+		? DARK_MODE
+		: stored === LIGHT_MODE
+			? LIGHT_MODE
+			: getDefaultTheme();
 }
 
 // 初始化主题监听器（用于页面加载后）

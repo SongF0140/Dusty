@@ -25,7 +25,10 @@ class PostCardArt extends HTMLElement {
 			visits.set(container, picker);
 		}
 		const index = picker.next();
-		const { sheetIndex, column } = resolvePostArt(index, sheets.map(sheet => sheet.count));
+		const { sheetIndex, column } = resolvePostArt(
+			index,
+			sheets.map((sheet) => sheet.count),
+		);
 		const sheet = sheets[sheetIndex];
 		const width = sheet.width / sheet.count;
 		image.setAttribute("href", sheet.src);

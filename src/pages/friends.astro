@@ -1,27 +1,45 @@
 ---
 import { getEntry } from "astro:content";
-import { Icon } from "astro-icon/components";
 import Comment from "@components/comment/index.astro";
 import ImageWrapper from "@components/common/ImageWrapper.astro";
-import { commentConfig, friendsPageConfig, getEnabledFriends, profileConfig, siteConfig } from "@/config";
+import { Icon } from "astro-icon/components";
+import {
+	commentConfig,
+	friendsPageConfig,
+	getEnabledFriends,
+	profileConfig,
+	siteConfig,
+} from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
-import { url } from "@/utils/url-utils";
 import { isGithubCommentsConfigured } from "@/utils/github-comments";
+import { url } from "@/utils/url-utils";
 import "../styles/friends.css";
 
 if (!siteConfig.pages.friends) return Astro.redirect("/404/");
 const friendsPost = await getEntry("spec", "friends");
 const items = getEnabledFriends();
 const nodes = items.map((friend, index) => {
-    const angle = (-110 + index * 360 / items.length) * Math.PI / 180;
-    return { ...friend, x: 50 + Math.cos(angle) * 38, y: 50 + Math.sin(angle) * 36 };
+	const angle = ((-110 + (index * 360) / items.length) * Math.PI) / 180;
+	return {
+		...friend,
+		x: 50 + Math.cos(angle) * 38,
+		y: 50 + Math.sin(angle) * 36,
+	};
 });
 const siteHost = Astro.site?.hostname || "mjzy.tech";
-const isCommentEnabled = commentConfig.type !== "none" && friendsPageConfig.showComment !== false;
-const canUseComments = isCommentEnabled && (commentConfig.type !== "giscus" || isGithubCommentsConfigured(commentConfig.giscus));
+const isCommentEnabled =
+	commentConfig.type !== "none" && friendsPageConfig.showComment !== false;
+const canUseComments =
+	isCommentEnabled &&
+	(commentConfig.type !== "giscus" ||
+		isGithubCommentsConfigured(commentConfig.giscus));
 const initialPreview = [
-    'site: "我的博客"', 'url: "https://your-site.com"', 'owner: "你的昵称"',
-    'desc: "用一句话介绍你的网站…"', 'image: "https://your-site.com/avatar.jpg"', 'color: "#8cae91"',
+	'site: "我的博客"',
+	'url: "https://your-site.com"',
+	'owner: "你的昵称"',
+	'desc: "用一句话介绍你的网站…"',
+	'image: "https://your-site.com/avatar.jpg"',
+	'color: "#8cae91"',
 ].join("\n");
 ---
 

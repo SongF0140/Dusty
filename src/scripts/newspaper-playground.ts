@@ -185,16 +185,28 @@ class NewspaperPlayground extends HTMLElement {
 			if (this.isConnected && !frame) frame = requestAnimationFrame(layout);
 		};
 		window.addEventListener("resize", schedule, options);
-		window.addEventListener("scroll", () => {
-			leanRopes(window.scrollY - lastScrollY);
-			lastScrollY = window.scrollY;
-			schedule();
-		}, { ...options, passive: true });
-		window.addEventListener("wheel", (event) => {
-			// Follow the page, not scrolling inside the assistant or another panel.
-			if (event.target instanceof Element && event.target.closest("blog-assistant, textarea, [role='dialog']")) return;
-			leanRopes(event.deltaY);
-		}, { ...options, passive: true });
+		window.addEventListener(
+			"scroll",
+			() => {
+				leanRopes(window.scrollY - lastScrollY);
+				lastScrollY = window.scrollY;
+				schedule();
+			},
+			{ ...options, passive: true },
+		);
+		window.addEventListener(
+			"wheel",
+			(event) => {
+				// Follow the page, not scrolling inside the assistant or another panel.
+				if (
+					event.target instanceof Element &&
+					event.target.closest("blog-assistant, textarea, [role='dialog']")
+				)
+					return;
+				leanRopes(event.deltaY);
+			},
+			{ ...options, passive: true },
+		);
 		document.addEventListener("visibilitychange", schedule, options);
 		document.addEventListener(
 			"pointermove",

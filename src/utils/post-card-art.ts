@@ -1,6 +1,7 @@
 export const POST_ART_COUNT = 13;
 export function resolvePostArt(index: number, counts: readonly number[]) {
-	if (!Number.isInteger(index) || index < 0) throw new RangeError("Invalid artwork index");
+	if (!Number.isInteger(index) || index < 0)
+		throw new RangeError("Invalid artwork index");
 	let column = index;
 	for (let sheetIndex = 0; sheetIndex < counts.length; sheetIndex++) {
 		if (column < counts[sheetIndex]) return { sheetIndex, column };

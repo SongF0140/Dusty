@@ -32,17 +32,30 @@ test("the page holds its skeleton after the icon animation and waits for palette
 
 test("reduced motion changes the icon and page immediately without waiting", async () => {
 	const calls = [];
-	await transitionTheme(() => calls.push("icon"), () => calls.push("theme"), true,
-		() => assert.fail("reduced motion must not wait"));
+	await transitionTheme(
+		() => calls.push("icon"),
+		() => calls.push("theme"),
+		true,
+		() => assert.fail("reduced motion must not wait"),
+	);
 	assert.deepEqual(calls, ["icon", "theme"]);
 });
 
 test("page completion waits for the last asynchronous component", async () => {
 	let finishComponent;
 	let complete = false;
-	const component = new Promise(resolve => { finishComponent = resolve; });
-	const pending = transitionTheme(() => {}, () => component, false, async () => {}).then(() => { complete = true; });
-	await new Promise(resolve => setTimeout(resolve, 0));
+	const component = new Promise((resolve) => {
+		finishComponent = resolve;
+	});
+	const pending = transitionTheme(
+		() => {},
+		() => component,
+		false,
+		async () => {},
+	).then(() => {
+		complete = true;
+	});
+	await new Promise((resolve) => setTimeout(resolve, 0));
 	assert.equal(complete, false);
 	finishComponent();
 	await pending;

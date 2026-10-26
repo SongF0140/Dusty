@@ -1,21 +1,42 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { showPageSkeleton, hidePageSkeleton } from "./page-loading.ts";
+import { hidePageSkeleton, showPageSkeleton } from "./page-loading.ts";
 
 test("overlapping navigation and theme changes keep the skeleton until both finish", () => {
 	const attrs = new Map();
 	const classes = new Set();
 	const styles = new Map();
-	const skeleton = { hidden: true, dataset: {}, style: { setProperty: (key, value) => styles.set(key, value), removeProperty: key => styles.delete(key) } };
+	const skeleton = {
+		hidden: true,
+		dataset: {},
+		style: {
+			setProperty: (key, value) => styles.set(key, value),
+			removeProperty: (key) => styles.delete(key),
+		},
+	};
 	const content = {
 		inert: false,
 		setAttribute: (key, value) => attrs.set(key, value),
 		removeAttribute: (key) => attrs.delete(key),
 	};
-	const shell = { getBoundingClientRect: () => ({ top: -2000 }), querySelector: () => skeleton, classList: { add: (name) => classes.add(name), remove: (name) => classes.delete(name) } };
+	const shell = {
+		getBoundingClientRect: () => ({ top: -2000 }),
+		querySelector: () => skeleton,
+		classList: {
+			add: (name) => classes.add(name),
+			remove: (name) => classes.delete(name),
+		},
+	};
 	const previousDocument = globalThis.document;
 	const previousLocation = globalThis.location;
-	globalThis.document = { getElementById: (id) => id === "page-content-shell" ? shell : id === "navbar" ? { getBoundingClientRect: () => ({ bottom: 72 }) } : content };
+	globalThis.document = {
+		getElementById: (id) =>
+			id === "page-content-shell"
+				? shell
+				: id === "navbar"
+					? { getBoundingClientRect: () => ({ bottom: 72 }) }
+					: content,
+	};
 	globalThis.location = { href: "http://localhost/" };
 	try {
 		showPageSkeleton("/archive/");

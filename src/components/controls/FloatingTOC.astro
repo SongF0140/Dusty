@@ -15,9 +15,10 @@ interface Props {
 let { headings: _ = [] } = Astro.props;
 // ... (保留之前的逻辑)
 // 检查侧边栏目录组件是否启用
-const sidebarTocComponent = [...sidebarLayoutConfig.leftComponents, ...sidebarLayoutConfig.rightComponents].find(
-	(c) => c.type === "sidebarToc",
-);
+const sidebarTocComponent = [
+	...sidebarLayoutConfig.leftComponents,
+	...sidebarLayoutConfig.rightComponents,
+].find((c) => c.type === "sidebarToc");
 const isSidebarTocEnabled = sidebarTocComponent?.enable ?? false;
 const sidebarPosition = sidebarLayoutConfig.position;
 ---

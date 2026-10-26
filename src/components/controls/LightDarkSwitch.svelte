@@ -2,10 +2,13 @@
 import { onMount, tick } from "svelte";
 import Icon from "@/components/common/Icon.svelte";
 import { DARK_MODE, LIGHT_MODE } from "@/constants/constants";
+import { hidePageSkeleton, showPageSkeleton } from "@/utils/page-loading";
 import { getStoredTheme, setTheme } from "@/utils/setting-utils";
-import { showPageSkeleton, hidePageSkeleton } from "@/utils/page-loading";
-import { transitionTheme, themeTransitionTiming } from "@/utils/theme-transition";
 import { coverThemePage, waitForThemePage } from "@/utils/theme-page-loading";
+import {
+	themeTransitionTiming,
+	transitionTheme,
+} from "@/utils/theme-transition";
 
 let dark = $state(false);
 let switching = $state(false);
@@ -14,7 +17,9 @@ let removeCover = () => {};
 
 onMount(() => {
 	dark = getStoredTheme() === DARK_MODE;
-	const syncTheme = () => { dark = document.documentElement.classList.contains("dark"); };
+	const syncTheme = () => {
+		dark = document.documentElement.classList.contains("dark");
+	};
 	window.addEventListener("theme-change", syncTheme);
 	return () => {
 		window.removeEventListener("theme-change", syncTheme);
@@ -26,28 +31,36 @@ onMount(() => {
 async function toggleTheme() {
 	if (switching) return;
 	const nextDark = !dark;
-	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const reducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)",
+	).matches;
 	switching = true;
 	iconHidden = true;
 	try {
 		if (!reducedMotion) showPageSkeleton(location.href, "theme");
 		if (!reducedMotion) removeCover = coverThemePage();
-		await transitionTheme(() => {
-			dark = nextDark;
-			iconHidden = false;
-		}, async () => {
-			// Apply every component's palette behind a single cover, then wait for readiness.
-			document.documentElement.classList.add("theme-apply");
-			setTheme(nextDark ? DARK_MODE : LIGHT_MODE);
-			await tick();
-			await waitForThemePage();
-		}, reducedMotion);
+		await transitionTheme(
+			() => {
+				dark = nextDark;
+				iconHidden = false;
+			},
+			async () => {
+				// Apply every component's palette behind a single cover, then wait for readiness.
+				document.documentElement.classList.add("theme-apply");
+				setTheme(nextDark ? DARK_MODE : LIGHT_MODE);
+				await tick();
+				await waitForThemePage();
+			},
+			reducedMotion,
+		);
 	} finally {
 		iconHidden = false;
 		hidePageSkeleton("theme");
 		removeCover();
 		// Reveal everything in the same frame; no component-by-component fade-in.
-		requestAnimationFrame(() => document.documentElement.classList.remove("theme-apply"));
+		requestAnimationFrame(() =>
+			document.documentElement.classList.remove("theme-apply"),
+		);
 		switching = false;
 	}
 }

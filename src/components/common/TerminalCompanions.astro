@@ -1,10 +1,12 @@
 ---
 import { getImage } from "astro:assets";
-import haiwenxiang from "@/assets/images/navigation/haiwenxiang-chibi.png";
 import enkidu from "@/assets/images/navigation/enkidu-chibi.png";
+import haiwenxiang from "@/assets/images/navigation/haiwenxiang-chibi.png";
 
 const [agentAvatar, terminalAvatar] = await Promise.all(
-    [haiwenxiang, enkidu].map((src) => getImage({ src, width: 128, format: "webp", quality: 95 })),
+	[haiwenxiang, enkidu].map((src) =>
+		getImage({ src, width: 128, format: "webp", quality: 95 }),
+	),
 );
 ---
 <div class="terminal-companions" role="tablist" aria-label="Navigation mode">
