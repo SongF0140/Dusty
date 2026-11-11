@@ -59,16 +59,13 @@ const showTitle = widgetConfig?.showTitle !== false;
   }
 
   async function initSidebarTOC() {
+    window.SidebarTOC.manager?.cleanup();
+    window.SidebarTOC.manager = null;
     const tocContent = document.getElementById("sidebar-toc-content");
-    if (!tocContent) return;
+    if (!tocContent || !document.querySelector("[data-reading-body]")) return;
 
 
     try {
-      // 清理旧实例
-      if (window.SidebarTOC.manager) {
-        window.SidebarTOC.manager.cleanup();
-      }
-
       // 创建新实例
       window.SidebarTOC.manager = new TOCManager({
         contentId: "sidebar-toc-content",
@@ -93,9 +90,16 @@ const showTitle = widgetConfig?.showTitle !== false;
   }
 
   // 页面切换时重新初始化
-  document.addEventListener("swup:contentReplaced", () => {
-    setTimeout(initSidebarTOC, 100);
-  });
+  const attachSwup = () => {
+    window.swup?.hooks.on("visit:start", () => {
+      window.SidebarTOC.manager?.cleanup();
+      window.SidebarTOC.manager = null;
+    });
+    window.swup?.hooks.on("visit:abort", initSidebarTOC);
+    window.swup?.hooks.on("page:view", initSidebarTOC);
+  };
+  if (window.swup) attachSwup();
+  else document.addEventListener("swup:enable", attachSwup, { once: true });
   
   // Astro 页面切换事件
   document.addEventListener("astro:page-load", () => {

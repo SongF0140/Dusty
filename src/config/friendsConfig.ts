@@ -67,6 +67,18 @@ export const friendsConfig: FriendLink[] = [
 		weight: 7,
 		enabled: true,
 	},
+	{
+		title: "未来已来",
+		imgurl: "https://www.weilai.wang/favicon.ico",
+		desc: "企业 AI 落地、智能客服/知识库、GEO 与官网询盘承接",
+		siteurl: "https://www.weilai.wang",
+		tags: ["AI", "技术"],
+		category: "友链小伙伴",
+		owner: "宝平",
+		color: "#8cae91",
+		weight: 6,
+		enabled: true,
+	},
 ];
 
 // 获取启用的友链并进行排序

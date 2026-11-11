@@ -76,3 +76,5 @@ Thumbs.db
 # 只存在于本仓库，必须纳入版本管理，否则云端构建会丢失这批文章。
 src/content/posts/*
 !src/content/posts/knowledge/
+
+.vercel

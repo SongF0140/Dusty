@@ -11,12 +11,14 @@ let dark = $state(false);
 let switching = $state(false);
 let iconHidden = $state(false); // Only the glyph animates; the page palette changes afterward.
 let removeCover = () => {};
+let readiness: AbortController | undefined;
 
 onMount(() => {
 	dark = getStoredTheme() === DARK_MODE;
 	const syncTheme = () => { dark = document.documentElement.classList.contains("dark"); };
 	window.addEventListener("theme-change", syncTheme);
 	return () => {
+		readiness?.abort();
 		window.removeEventListener("theme-change", syncTheme);
 		removeCover();
 		hidePageSkeleton("theme");
@@ -28,6 +30,8 @@ async function toggleTheme() {
 	const nextDark = !dark;
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	switching = true;
+	const controller = new AbortController();
+	readiness = controller;
 	iconHidden = true;
 	try {
 		if (!reducedMotion) showPageSkeleton(location.href, "theme");
@@ -36,11 +40,12 @@ async function toggleTheme() {
 			dark = nextDark;
 			iconHidden = false;
 		}, async () => {
+			if (controller.signal.aborted) return;
 			// Apply every component's palette behind a single cover, then wait for readiness.
 			document.documentElement.classList.add("theme-apply");
 			setTheme(nextDark ? DARK_MODE : LIGHT_MODE);
 			await tick();
-			await waitForThemePage();
+			await waitForThemePage({ signal: controller.signal });
 		}, reducedMotion);
 	} finally {
 		iconHidden = false;

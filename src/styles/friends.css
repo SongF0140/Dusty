@@ -21,10 +21,10 @@ body:has(friends-directory) :is(#main-column, #main-grid > .footer) { grid-colum
 .friend-node-portrait { position: relative; display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--retro-surface); outline: 1px solid var(--retro-outline); background: var(--retro-sage); transition: transform 180ms ease, outline-color 180ms ease; }
 .friend-node-portrait > span { position: absolute; color: var(--retro-green); font-size: 22px; }
 .friend-node img { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.friend-node:is(:hover,:focus-visible,.friend-node-open) { z-index: 3; }
-.friend-node:is(:hover,:focus-visible,.friend-node-open) .friend-node-portrait { transform: scale(1.08); outline-color: var(--retro-green); }
+.friend-node:is(:hover,:focus-visible) { z-index: 3; }
+.friend-node:is(:hover,:focus-visible) .friend-node-portrait { transform: scale(1.08); outline-color: var(--retro-green); }
 .friend-node-info { position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(5px); width: 230px; padding: 18px; border: 1.5px solid var(--retro-outline); border-radius: 18px; background: var(--retro-surface); box-shadow: 4px 4px 0 var(--retro-sage); color: var(--retro-ink); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 150ms ease, transform 150ms ease; }
-.friend-node:is(:hover,:focus-visible,.friend-node-open) .friend-node-info { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.friend-node:is(:hover,:focus-visible) .friend-node-info { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 .friend-node-info strong { display: block; font-size: 17px; line-height: 1.5; }
 .friend-node-owner { display: block; color: var(--retro-muted); font-size: 12px; margin-top: 3px; }
 .friend-node-description { display: block; margin-top: 12px; color: var(--retro-muted); font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
@@ -32,14 +32,14 @@ body:has(friends-directory) :is(#main-column, #main-grid > .footer) { grid-colum
 .friend-node-domain { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--retro-outline); padding-top: 12px; margin-top: 12px; font: 11px/1.6 "JetBrains Mono Variable", monospace; overflow-wrap: anywhere; }
 .friend-node-left .friend-node-info { left: 0; transform: translateY(5px); }
 .friend-node-right .friend-node-info { left: auto; right: 0; transform: translateY(5px); }
-.friend-node:is(.friend-node-left,.friend-node-right):is(:hover,:focus-visible,.friend-node-open) .friend-node-info { transform: translateY(0); }
+.friend-node:is(.friend-node-left,.friend-node-right):is(:hover,:focus-visible) .friend-node-info { transform: translateY(0); }
 .friends-count { margin: 0 0 2.5rem; text-align: center; font-size: 12px; color: var(--retro-muted); }
 .friends-page :is(.friend-node,.friend-center):focus-visible { outline: 2px solid var(--retro-green); outline-offset: 6px; border-radius: 50%; }
 @media (max-width: 540px) {
     .friends-constellation { height: 400px; margin-top: 1rem; }
     .friend-node-info { width: 205px; padding: 15px; }
     .friend-node-top .friend-node-info { left: 0; transform: translateY(5px); }
-    .friend-node-top:is(:hover,:focus-visible,.friend-node-open) .friend-node-info { transform: translateY(0); }
+    .friend-node-top:is(:hover,:focus-visible) .friend-node-info { transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) { .friend-node-portrait, .friend-node-info { transition: none; } }
 

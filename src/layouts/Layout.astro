@@ -37,6 +37,7 @@ import "@/styles/retro-theme.css";
 import "@/styles/popover-motion.css";
 import "@/styles/article-layout.css";
 import "@/styles/paper-decorations.css";
+import "@/styles/friends.css";
 
 interface Props {
 	title?: string;
@@ -713,6 +714,7 @@ const siteLang = lang.replace("_", "-");
 </style>
 
 <script>
+  import "@/scripts/friends-directory";
   import { pathsEqual, url } from "@/utils/url-utils";
   import { showPageSkeleton, hidePageSkeleton } from "@/utils/page-loading";
   import { initPopoverMotion } from "@/utils/popover-motion";
