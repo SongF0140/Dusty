@@ -29,10 +29,10 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 		api: "https://api.injahow.cn/meting/?server=:server&type=:type&id=:id",
 		// 音乐平台：netease=网易云音乐
 		server: "netease",
-	// 类型：song=单曲
-	type: "song",
-	// Contemplation - Melody of Sound (空灵氛围纯音乐，免费)
-	id: "1847472184",
+		// 类型：song=单曲
+		type: "song",
+		// Contemplation - Melody of Sound (空灵氛围纯音乐，免费)
+		id: "1847472184",
 		// 认证 token（可选）
 		auth: "",
 		// 备用 API 配置（当主 API 失败时使用）

@@ -7,7 +7,6 @@ import Categories from "@/components/widget/Categories.astro";
 import Music from "@/components/widget/Music.astro";
 import Profile from "@/components/widget/Profile.astro";
 import SidebarTOC from "@/components/widget/SidebarTOC.astro";
-import ReadingNotes from "../widget/ReadingNotes.astro";
 import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
 import Tags from "@/components/widget/Tags.astro";
@@ -16,6 +15,7 @@ import type {
 	MobileBottomComponentConfig,
 	WidgetComponentConfig,
 } from "@/types/config";
+import ReadingNotes from "../widget/ReadingNotes.astro";
 
 interface Props {
 	class?: string;
@@ -155,7 +155,8 @@ const getComponentProps = (
 	if (config.type === "sidebarToc") {
 		return { ...baseProps, headings: Astro.props.headings || [] };
 	}
-	if (config.type === "readingNotes") return { ...baseProps, noteId: `reading-tips-${side}` };
+	if (config.type === "readingNotes")
+		return { ...baseProps, noteId: `reading-tips-${side}` };
 
 	return baseProps;
 };

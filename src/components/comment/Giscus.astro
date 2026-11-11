@@ -1,6 +1,10 @@
 ---
 import { commentConfig } from "@/config";
-import { githubCommentTerm, isGithubCommentsConfigured } from "@/utils/github-comments";
+import {
+	githubCommentTerm,
+	isGithubCommentsConfigured,
+} from "@/utils/github-comments";
+
 const { path = Astro.url.pathname } = Astro.props;
 const giscus = commentConfig.giscus!;
 const configured = isGithubCommentsConfigured(giscus);

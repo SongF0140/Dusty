@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getReadingProgress, getCurrentHeadingIndex, getReadingMarkerGeometry } from "./reading-progress.ts";
+import {
+	getCurrentHeadingIndex,
+	getReadingMarkerGeometry,
+	getReadingProgress,
+} from "./reading-progress.ts";
 
 test("progress is clamped before the article and complete when its end is visible", () => {
 	assert.equal(getReadingProgress(500, 2200, 800, 140), 0);
@@ -25,7 +29,19 @@ test("the directory follows the last section reached, not the next visible headi
 });
 
 test("the filled track ends at the marker and an offscreen section has no fake endpoint marker", () => {
-	assert.deepEqual(getReadingMarkerGeometry(100, 40, 0, 300), { top: 106, fillHeight: 120, visible: true });
-	assert.deepEqual(getReadingMarkerGeometry(-50, 20, 0, 300), { top: 0, fillHeight: 0, visible: false });
-	assert.deepEqual(getReadingMarkerGeometry(350, 20, 0, 300), { top: 272, fillHeight: 300, visible: false });
+	assert.deepEqual(getReadingMarkerGeometry(100, 40, 0, 300), {
+		top: 106,
+		fillHeight: 120,
+		visible: true,
+	});
+	assert.deepEqual(getReadingMarkerGeometry(-50, 20, 0, 300), {
+		top: 0,
+		fillHeight: 0,
+		visible: false,
+	});
+	assert.deepEqual(getReadingMarkerGeometry(350, 20, 0, 300), {
+		top: 272,
+		fillHeight: 300,
+		visible: false,
+	});
 });

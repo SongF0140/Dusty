@@ -6,7 +6,9 @@ import type { WidgetComponentConfig } from "@/types/config";
 import { getCategoryList } from "@/utils/content-utils";
 
 const categories = await getCategoryList();
-const categoryTones = new Map(categories.map((category, index) => [category.name.trim(), index % 4]));
+const categoryTones = new Map(
+	categories.map((category, index) => [category.name.trim(), index % 4]),
+);
 
 interface GroupedCategory {
 	name: string;

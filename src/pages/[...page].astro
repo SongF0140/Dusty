@@ -2,8 +2,8 @@
 import type { GetStaticPaths } from "astro";
 import { Icon } from "astro-icon/components";
 import Pagination from "@/components/common/Pagination.astro";
-import PostPage from "@/components/layout/PostPage.astro";
 import NewspaperPlayground from "@/components/features/NewspaperPlayground.astro";
+import PostPage from "@/components/layout/PostPage.astro";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getCategoryList, getSortedPosts } from "@/utils/content-utils";
@@ -21,16 +21,17 @@ const { page } = Astro.props;
 
 const len = page.data.length;
 const categories = await getCategoryList();
-const totalPosts = categories.reduce((sum, category) => sum + category.count, 0);
+const totalPosts = categories.reduce(
+	(sum, category) => sum + category.count,
+	0,
+);
 const isHome = page.currentPage === 1;
 const recentPosts = isHome
 	? (await getSortedPosts())
-		.slice()
-		.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
-		.slice(0, 5)
+			.slice()
+			.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+			.slice(0, 5)
 	: [];
-
-
 ---
 
 <MainGridLayout>

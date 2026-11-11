@@ -4,6 +4,7 @@ import La51Analytics from "@components/analytics/La51Analytics.astro";
 import MicrosoftClarity from "@components/analytics/MicrosoftClarity.astro";
 import UmamiAnalytics from "@components/analytics/UmamiAnalytics.astro";
 import VercelAnalytics from "@components/analytics/VercelAnalytics.astro";
+import VercelSpeedInsights from "@components/analytics/VercelSpeedInsights.astro";
 import ChristmasEffect from "@components/features/ChristmasEffect.astro";
 import FancyboxManager from "@components/features/FancyboxManager.astro";
 import FontManager from "@components/features/FontManager.astro";
@@ -123,6 +124,7 @@ const siteLang = lang.replace("_", "-");
             />
     )}
     <VercelAnalytics />
+    <VercelSpeedInsights />
 
     <title>{pageTitle}</title>
     <meta
