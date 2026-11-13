@@ -79,6 +79,18 @@ export const friendsConfig: FriendLink[] = [
 		weight: 6,
 		enabled: true,
 	},
+	{
+		title: "Evan 的 Agent 手记",
+		imgurl: "https://evan-huang-blog.pages.dev/images/avatar.png",
+		desc: "记录 Agent 的源码阅读、工程实践与项目构建。写给正在学习、动手做项目的你。",
+		siteurl: "https://evan-huang-blog.pages.dev/",
+		tags: ["AI", "Agent"],
+		category: "友链小伙伴",
+		owner: "Evan",
+		color: "#6b7fa8",
+		weight: 5,
+		enabled: true,
+	},
 ];
 
 // 获取启用的友链并进行排序
